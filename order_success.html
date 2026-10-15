@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francos. Bakes and Brews - Order Invoice</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .receipt-card {
+            background: #fff;
+            border: 1px solid #e4d9d1;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 520px;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .receipt-divider {
+            border: 0;
+            border-top: 1px dashed #d4c1b5;
+            margin: 18px 0;
+        }
+        .receipt-item-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #33251f;
+            margin-bottom: 8px;
+        }
+
+        /* dedicated PRINT MEDIA STYLES for PDF / Printer */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .printable-area, .printable-area * {
+                visibility: visible;
+            }
+            .printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="navbar no-print">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+            <span>Francos<span>.</span></span>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+            <a href="my_orders.html">My Orders</a>
+            <a href="promo.html">Promos</a>
+            <a href="notifications.html">Notifications</a>
+            <a href="settings.html">Settings</a>
+            <a href="login.html" id="auth-link">Login</a>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header no-print">
+        <span class="eyebrow">CHECKOUT COMPLETE</span>
+        <h1>Order Placed Successfully!</h1>
+        <p>Thank you for brewing with us! Your order is now sent directly to our Binalonan baristas.</p>
+    </section>
+
+    <!-- Printable Official Receipt Card -->
+    <div class="container" style="padding: 0 20px 60px;">
+        <div class="receipt-card printable-area" id="receipt-content">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 55px; border-radius: 8px; margin-bottom: 8px; object-fit: contain;">
+                <h2 style="font-family: 'DM Serif Display', serif; color: #33251f; margin: 0; font-size: 24px;">Francos. Bakes & Brews</h2>
+                <p style="font-size: 12px; color: #7c6d65; margin-top: 4px;">Brgy. Canarvacanan, Binalonan, Pangasinan</p>
+                <div style="display: inline-block; background: #fff3d9; color: #d47a24; font-weight: bold; font-size: 12px; padding: 4px 12px; border-radius: 20px; margin-top: 8px;" id="rec-order-id">
+                    Order #0000
+                </div>
+            </div>
+
+            <hr class="receipt-divider">
+
+            <!-- Customer & Transaction Info -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px; margin-bottom: 15px;">
+                <div>
+                    <span style="color: #7c6d65; text-transform: uppercase; font-size: 10px; font-weight: bold;">Customer Name</span>
+                    <div style="font-weight: bold; color: #33251f;" id="rec-customer-name">Guest</div>
+                </div>
+                <div>
+                    <span style="color: #7c6d65; text-transform: uppercase; font-size: 10px; font-weight: bold;">Payment Method</span>
+                    <div style="font-weight: bold; color: #33251f;" id="rec-payment-method">Cash on Delivery</div>
+                </div>
+                <div>
+                    <span style="color: #7c6d65; text-transform: uppercase; font-size: 10px; font-weight: bold;">Transaction Ref</span>
+                    <div style="font-weight: bold; color: #33251f;" id="rec-ref-num">N/A</div>
+                </div>
+                <div>
+                    <span style="color: #7c6d65; text-transform: uppercase; font-size: 10px; font-weight: bold;">Date & Time</span>
+                    <div style="font-weight: bold; color: #33251f;" id="rec-date-time">--/--/----</div>
+                </div>
+            </div>
+
+            <div style="background: #faf7f3; border: 1px solid #e4d9d1; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #7c6d65; margin-bottom: 15px;">
+                <strong style="color: #d47a24;"><i class="fa-solid fa-pen-to-square"></i> Barista Notes:</strong>
+                <span id="rec-notes" style="display: block; margin-top: 2px;">No special instructions.</span>
+            </div>
+
+            <h4 style="font-family: 'DM Serif Display', serif; color: #33251f; margin-bottom: 10px;">Summary of Items</h4>
+            <div id="rec-items-list">
+                <!-- Items Injected Dynamically -->
+            </div>
+
+            <hr class="receipt-divider">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: bold; color: #33251f;">
+                <span>Total Amount Paid</span>
+                <span style="color: #d47a24;" id="rec-total-price">₱0.00</span>
+            </div>
+
+            <!-- Receipt Actions (Buttons hidden when printing) -->
+            <div class="no-print" style="display: flex; gap: 10px; margin-top: 25px;">
+                <button onclick="window.print()" style="flex: 1; background: #faf7f3; border: 1px solid #e4d9d1; color: #33251f; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px;">
+                    <i class="fa-solid fa-print"></i> Print / Save PDF Receipt
+                </button>
+                <a href="my_orders.html" style="flex: 1; background: #33251f; color: #fff; text-decoration: none; text-align: center; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    Track All Orders →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="no-print">
+        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
+    </footer>
+
+    <script src="assets/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            loadLatestOrderInvoice();
+        });
+
+        function loadLatestOrderInvoice() {
+            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+            if (orders.length === 0) {
+                return;
+            }
+
+            // Kunin ang pinakabagong order
+            let latestOrder = orders[orders.length - 1];
+
+            document.getElementById("rec-order-id").textContent = `Order #${latestOrder.id || '101'}`;
+            document.getElementById("rec-customer-name").textContent = latestOrder.customer || (currentUser ? currentUser.name : "Guest");
+            document.getElementById("rec-payment-method").textContent = latestOrder.paymentMethod || "Cash on Delivery";
+            document.getElementById("rec-ref-num").textContent = latestOrder.refNumber || "N/A (COD)";
+            document.getElementById("rec-date-time").textContent = latestOrder.date || new Date().toLocaleString();
+            document.getElementById("rec-notes").textContent = latestOrder.notes || "No special requests.";
+            document.getElementById("rec-total-price").textContent = `₱${(latestOrder.total || 0).toFixed(2)}`;
+
+            let itemsContainer = document.getElementById("rec-items-list");
+            if (itemsContainer && latestOrder.items) {
+                let html = "";
+                latestOrder.items.forEach(item => {
+                    let itemTotal = (item.price * (item.qty || 1));
+                    html += `
+                        <div class="receipt-item-row">
+                            <span>${item.qty || 1}x ${item.name}</span>
+                            <strong>₱${itemTotal.toFixed(2)}</strong>
+                        </div>
+                    `;
+                });
+                itemsContainer.innerHTML = html;
+            }
+        }
+    </script>
+</body>
+</html>

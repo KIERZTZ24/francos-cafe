@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francos. Bakes and Brews - Home</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(rgba(26, 22, 20, 0.75), rgba(26, 22, 20, 0.75)), url('https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+            color: #fff;
+            padding: 100px 20px;
+            text-align: center;
+            border-radius: 0 0 28px 28px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .hero-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 46px;
+            margin-bottom: 15px;
+            color: #f1e8df;
+            letter-spacing: 0.5px;
+        }
+        .hero-subtitle {
+            font-size: 16px;
+            max-width: 620px;
+            margin: 0 auto 30px;
+            color: #d4c1b5;
+            line-height: 1.6;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .badge-open {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        .badge-closed {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+        .store-locator-card {
+            background: var(--card-bg, #fff);
+            border: 1px solid var(--border-color, #e4d9d1);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 40px auto;
+            max-width: 800px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .store-locator-card { flex-direction: column; text-align: center; }
+            .hero-title { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+            <span>Francos<span>.</span></span>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="active">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+            <a href="my_orders.html">My Orders</a>
+            <a href="promo.html">Promos</a>
+            <a href="notifications.html">Notifications</a>
+            <a href="settings.html">Settings</a>
+            <a href="login.html" id="auth-link">Login</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div id="live-status-container">
+            <!-- Dynamic Open/Closed Status Badge -->
+        </div>
+        <h1 class="hero-title">Artisanal Bakes & Fresh Brews</h1>
+        <p class="hero-subtitle">Experience high-grade specialty coffee, premium matcha, and delightful bakes right here in Binalonan, Pangasinan.</p>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="menu.html" class="btn-primary" style="background: #d47a24; color: #fff; padding: 12px 28px; border-radius: 30px; text-decoration: none; font-weight: bold; transition: background 0.2s;">
+                <i class="fa-solid fa-mug-hot"></i> Explore Menu
+            </a>
+            <a href="promo.html" class="btn-secondary" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 12px 28px; border-radius: 30px; text-decoration: none; font-weight: bold; transition: background 0.2s;">
+                <i class="fa-solid fa-tag"></i> View Promos
+            </a>
+        </div>
+    </section>
+
+    <!-- Store Locator & Hours Section -->
+    <div class="container" style="padding: 0 20px;">
+        <div class="store-locator-card">
+            <div style="font-size: 36px; color: #d47a24; background: #fff3d9; width: 75px; height: 75px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin: 0 auto;">
+                <i class="fa-solid fa-store"></i>
+            </div>
+            <div style="flex-grow: 1;">
+                <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color, #33251f); font-size: 24px; margin-bottom: 8px;">Visit Our Café</h3>
+                <p style="color: var(--text-secondary, #6b5a51); font-size: 14px; line-height: 1.5; margin-bottom: 8px;">
+                    <i class="fa-solid fa-location-dot" style="color: #d47a24;"></i> Brgy. Canarvacanan, Binalonan, Pangasinan, 2436
+                </p>
+                <p style="color: var(--text-secondary, #6b5a51); font-size: 14px; margin-bottom: 12px;">
+                    <i class="fa-regular fa-clock" style="color: #d47a24;"></i> Open Daily: <strong>8:00 AM - 6:00 PM</strong>
+                </p>
+                <a href="https://maps.google.com/?q=Canarvacanan+Binalonan+Pangasinan" target="_blank" style="color: #d47a24; font-weight: 700; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-map-location-dot"></i> Open in Google Maps →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Categories Grid Preview -->
+    <section class="menu-container" style="margin-top: 40px; margin-bottom: 60px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <span class="eyebrow">WHAT WE SERVE</span>
+            <h2 style="font-family: 'DM Serif Display', serif; color: var(--text-color, #33251f); font-size: 28px;">Our Popular Categories</h2>
+        </div>
+        
+        <div class="menu-grid" style="max-width: 1000px; margin: 0 auto;">
+            <div class="card" style="text-align: center; padding: 30px 20px;">
+                <div style="width: 60px; height: 60px; background: #fff3d9; color: #d47a24; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 15px;">
+                    <i class="fa-solid fa-mug-hot"></i>
+                </div>
+                <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 8px; color: var(--text-color, #33251f);">Sleepless</h3>
+                <p style="font-size: 13px; color: var(--text-secondary, #6b5a51);">Rich caffeinated espresso mixes and lattes.</p>
+            </div>
+            <div class="card" style="text-align: center; padding: 30px 20px;">
+                <div style="width: 60px; height: 60px; background: #e8f5e9; color: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 15px;">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 8px; color: var(--text-color, #33251f);">So Green</h3>
+                <p style="font-size: 13px; color: var(--text-secondary, #6b5a51);">Premium Uji Matcha series and creations.</p>
+            </div>
+            <div class="card" style="text-align: center; padding: 30px 20px;">
+                <div style="width: 60px; height: 60px; background: #e3f2fd; color: #1565c0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 15px;">
+                    <i class="fa-solid fa-snowflake"></i>
+                </div>
+                <h3 style="font-family: 'DM Serif Display', serif; margin-bottom: 8px; color: var(--text-color, #33251f);">Snow Frappes</h3>
+                <p style="font-size: 13px; color: var(--text-secondary, #6b5a51);">Ice-blended espresso and non-coffee frappes.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Francos. Bakes and Brews · Modern Static Version</p>
+    </footer>
+
+    <script src="assets/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            checkStoreStatus();
+        });
+
+        function checkStoreStatus() {
+            const container = document.getElementById("live-status-container");
+            if (!container) return;
+
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const timeVal = currentHour + (currentMinute / 60);
+
+            const isOpen = timeVal >= 8.0 && timeVal < 18.0;
+
+            if (isOpen) {
+                container.innerHTML = `
+                    <div class="status-badge badge-open">
+                        <span style="width: 8px; height: 8px; background: #2e7d32; border-radius: 50%; display: inline-block;"></span>
+                        WE ARE OPEN NOW (Closing at 6:00 PM)
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="status-badge badge-closed">
+                        <span style="width: 8px; height: 8px; background: #c62828; border-radius: 50%; display: inline-block;"></span>
+                        STORE IS CLOSED (Opens tomorrow at 8:00 AM)
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

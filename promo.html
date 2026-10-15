@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francos. Bakes and Brews - Promos & Vouchers</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .promo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .promo-card {
+            background: #fff;
+            border: 1px dashed #d47a24;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .promo-code-badge {
+            background: #fff3d9;
+            color: #d47a24;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-family: monospace;
+            font-size: 16px;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin: 10px 0;
+            border: 1px dashed #d47a24;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+            <span>Francos<span>.</span></span>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+            <a href="my_orders.html">My Orders</a>
+            <a href="promo.html" class="active">Promos</a>
+            <a href="notifications.html">Notifications</a>
+            <a href="settings.html">Settings</a>
+            <a href="login.html" id="auth-link">Login</a>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <span class="eyebrow">SPECIAL OFFERS</span>
+        <h1>Promos & Voucher Codes</h1>
+        <p>Claim discount vouchers and apply them during checkout on your favorite brews!</p>
+    </section>
+
+    <div class="promo-grid">
+        <div class="promo-card">
+            <div>
+                <span style="background: #e8f5e9; color: #2e7d32; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px;">NEW USER</span>
+                <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; margin: 8px 0 4px;">Welcome Treat</h3>
+                <p style="font-size: 13px; color: #7c6d65;">Get ₱50 OFF on your first coffee order with no minimum spend!</p>
+                <div class="promo-code-badge">FRANCOS50</div>
+            </div>
+            <button onclick="copyPromo('FRANCOS50')" style="background: #33251f; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%;">
+                <i class="fa-solid fa-copy"></i> Copy Code
+            </button>
+        </div>
+
+        <div class="promo-card">
+            <div>
+                <span style="background: #e3f2fd; color: #1565c0; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px;">10% DISCOUNT</span>
+                <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; margin: 8px 0 4px;">Brew Lover Special</h3>
+                <p style="font-size: 13px; color: #7c6d65;">Enjoy 10% OFF on all espresso and cold brew drinks.</p>
+                <div class="promo-code-badge">WELCOME10</div>
+            </div>
+            <button onclick="copyPromo('WELCOME10')" style="background: #33251f; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%;">
+                <i class="fa-solid fa-copy"></i> Copy Code
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Code copied!</div>
+
+    <footer>
+        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
+    </footer>
+
+    <script src="assets/script.js"></script>
+    <script>
+        function copyPromo(code) {
+            navigator.clipboard.writeText(code);
+            showToast(`Promo Code "${code}" copied to clipboard!`);
+        }
+    </script>
+</body>
+</html>

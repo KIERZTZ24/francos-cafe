@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francos. Bakes and Brews - Register</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+            <span>Francos<span>.</span></span>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+            <a href="login.html">Login</a>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <span class="eyebrow">CREATE AN ACCOUNT</span>
+        <h1>Join Francos Family</h1>
+        <p>Register now to quickly order your favorite coffee and bakes.</p>
+    </section>
+
+    <!-- Registration Form Container -->
+    <section class="auth-container" style="padding-bottom: 60px;">
+        <div class="auth-card" style="max-width: 450px;">
+            <h2>Register Account</h2>
+
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="reg-name">Full Name</label>
+                    <input type="text" id="reg-name" placeholder="e.g. Kim Sorio" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-email">Email Address</label>
+                    <input type="email" id="reg-email" placeholder="e.g. tpcmoonton@gmail.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-password">Password</label>
+                    <input type="password" id="reg-password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-primary auth-btn" style="width: 100%; padding: 12px; font-weight: bold; cursor: pointer; margin-top: 10px;">Create Account</button>
+            </form>
+
+            <div style="text-align: center; margin-top: 15px; font-size: 13px; color: #7c6d65;">
+                Already have an account? <a href="login.html" style="color: #d47a24; font-weight: bold; text-decoration: none;">Login here</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Toast Alert -->
+    <div id="toast" class="toast">Account created successfully!</div>
+
+    <footer>
+        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
+    </footer>
+
+    <script src="assets/script.js"></script>
+    <script>
+        document.getElementById("register-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            let name = document.getElementById("reg-name").value.trim();
+            let email = document.getElementById("reg-email").value.trim();
+            let password = document.getElementById("reg-password").value.trim();
+
+            let newUser = {
+                name: name,
+                email: email,
+                password: password,
+                role: 'customer'
+            };
+
+            // Save registered user and auto-login
+            localStorage.setItem("registeredUser", JSON.stringify(newUser));
+            localStorage.setItem("currentUser", JSON.stringify(newUser));
+
+            showToast("Registration successful!");
+
+            setTimeout(() => {
+                window.location.href = "menu.html";
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francos. Bakes and Brews - My Orders</title>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
+    <link rel="stylesheet" href="assets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .order-history-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .order-item-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+        .order-item-row:last-child {
+            border-bottom: none;
+        }
+        /* Receipt Modal Styles */
+        #receipt-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .receipt-box {
+            background: var(--card-bg);
+            color: var(--text-color);
+            width: 100%;
+            max-width: 480px;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        #scrollTopBtn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: var(--accent-color);
+            color: #fff;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+            <span>Francos<span>.</span></span>
+        </div>
+        <nav class="nav-links">
+            <!-- Dynamic navbar handled by script.js -->
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <span class="eyebrow" style="color: var(--accent-color); font-weight: 700; font-size: 11px; letter-spacing: 1px;">ORDER HISTORY</span>
+        <h1>Track Your Orders</h1>
+        <p>View the live tracking status, item receipts, and history of your past purchases.</p>
+    </section>
+
+    <div class="container" style="max-width: 900px; margin: 0 auto 60px; padding: 0 20px;">
+        <div id="orders-list-container">
+            <!-- Injected Dynamically -->
+        </div>
+    </div>
+
+    <!-- Receipt Modal Popup -->
+    <div id="receipt-modal-overlay">
+        <div class="receipt-box">
+            <button onclick="closeReceiptModal()" style="position: absolute; top: 15px; right: 15px; border: none; background: none; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h3 style="font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text-color); margin: 0;">Francos. Bakes & Brews</h3>
+                <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Official Customer Transaction Receipt</p>
+            </div>
+            <div id="receipt-modal-content" style="font-size: 13px;">
+                <!-- Receipt details injected here -->
+            </div>
+            <button onclick="closeReceiptModal()" style="width: 100%; margin-top: 20px; background: var(--accent-color); color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;">Close Receipt</button>
+        </div>
+    </div>
+
+    <!-- Floating Scroll To Top Button -->
+    <button id="scrollTopBtn" onclick="scrollToTop()" title="Scroll to top"><i class="fa-solid fa-arrow-up"></i></button>
+
+    <div id="toast" class="toast">Action completed</div>
+
+    <footer>
+        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
+    </footer>
+
+    <script src="assets/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            renderCustomerOrders();
+            setupScrollTopButton();
+        });
+
+        function renderCustomerOrders() {
+            let container = document.getElementById("orders-list-container");
+            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 50px; text-align: center; color: var(--text-secondary);">
+                        <i class="fa-solid fa-receipt" style="font-size: 40px; color: var(--accent-color); margin-bottom: 12px;"></i>
+                        <p style="margin: 0; font-weight: bold; font-size: 16px; color: var(--text-color);">No orders found.</p>
+                        <p style="font-size: 13px; margin: 5px 0 15px;">You haven't placed any drink or package orders yet.</p>
+                        <a href="menu.html" style="display: inline-block; background: var(--accent-color); color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px;">Browse Menu</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = "";
+            orders.forEach((order, index) => {
+                let itemsHTML = "";
+                if (order.items && order.items.length > 0) {
+                    order.items.forEach(item => {
+                        let totalItemPrice = item.price * item.qty;
+                        itemsHTML += `
+                            <div class="order-item-row">
+                                <img src="${item.image || 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=500&q=80'}" style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover;">
+                                <div style="flex: 1;">
+                                    <strong style="color: var(--text-color); font-size: 14px; display: block;">${item.name}</strong>
+                                    <span style="font-size: 12px; color: var(--text-secondary);">Qty: ${item.qty} × ₱${item.price.toFixed(2)}</span>
+                                </div>
+                                <strong style="color: var(--text-color); font-size: 14px;">₱${totalItemPrice.toFixed(2)}</strong>
+                            </div>
+                        `;
+                    });
+                } else {
+                    itemsHTML = `<div style="font-size: 12px; color: var(--text-secondary); padding: 10px 0;">No items details recorded.</div>`;
+                }
+
+                html += `
+                    <div class="order-history-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                            <div>
+                                <strong style="font-size: 18px; color: var(--text-color); font-family: 'DM Serif Display', serif;">Order #${order.id}</strong>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">Date: ${order.date || 'Today'} | Payment: ${order.paymentMethod}</div>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <button onclick="openReceiptModal(${index})" style="background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-file-invoice"></i> View Receipt</button>
+                                <span style="background: rgba(212,122,36,0.15); color: var(--accent-color); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold;">${order.status || 'Pending'}</span>
+                            </div>
+                        </div>
+                        <div>${itemsHTML}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid var(--border-color); paddingTop: 12px;">
+                            <span style="font-size: 13px; color: var(--text-secondary);">Barista Notes: ${order.notes || 'None'}</span>
+                            <div style="font-size: 16px; font-weight: bold; color: var(--accent-color);">Total: ₱${(order.total || 0).toFixed(2)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function openReceiptModal(orderIndex) {
+            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            let order = orders[orderIndex];
+            if (!order) return;
+
+            let itemsListHTML = "";
+            let subtotal = 0;
+            if (order.items && order.items.length > 0) {
+                order.items.forEach(i => {
+                    let itemTotal = i.price * i.qty;
+                    subtotal += itemTotal;
+                    itemsListHTML += `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px;">
+                            <span>${i.qty}x ${i.name}</span>
+                            <span>₱${itemTotal.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+            }
+
+            let deliveryFee = 50.00;
+            let receiptHTML = `
+                <div style="border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; margin-bottom: 12px;">
+                    <strong>Order ID:</strong> #${order.id}<br>
+                    <strong>Customer:</strong> ${order.customer || 'Valued Customer'}<br>
+                    <strong>Date:</strong> ${order.date || 'Today'}<br>
+                    <strong>Payment Method:</strong> ${order.paymentMethod} (${order.refNumber || 'COD'})<br>
+                    <strong>Status:</strong> ${order.status || 'Pending'}
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <strong style="display: block; margin-bottom: 6px; color: var(--accent-color);">Purchased Items:</strong>
+                    ${itemsListHTML}
+                </div>
+                <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; font-size: 12px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Subtotal:</span><span>₱${subtotal.toFixed(2)}</span></div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Delivery Fee:</span><span>₱${deliveryFee.toFixed(2)}</span></div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; color: var(--accent-color); margin-top: 6px;"><span>Total Paid:</span><span>₱${(order.total || subtotal + deliveryFee).toFixed(2)}</span></div>
+                </div>
+                <div style="margin-top: 15px; background: var(--bg-color); padding: 8px; border-radius: 6px; font-size: 11px; color: var(--text-secondary);">
+                    <strong>Barista Notes:</strong> ${order.notes || 'None'}
+                </div>
+            `;
+
+            document.getElementById("receipt-modal-content").innerHTML = receiptHTML;
+            document.getElementById("receipt-modal-overlay").style.display = "flex";
+        }
+
+        function closeReceiptModal() {
+            document.getElementById("receipt-modal-overlay").style.display = "none";
+        }
+
+        function setupScrollTopButton() {
+            let btn = document.getElementById("scrollTopBtn");
+            window.onscroll = function() {
+                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                    btn.style.display = "flex";
+                } else {
+                    btn.style.display = "none";
+                }
+            };
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

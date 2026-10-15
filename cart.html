@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francos. Bakes and Brews - Cart & Checkout</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 25px;
+            max-width: 1100px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+        @media (max-width: 850px) {
+            .cart-layout { grid-template-columns: 1fr; }
+        }
+        .cart-item-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #e4d9d1;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        .qty-btn {
+            background: #faf7f3;
+            border: 1px solid #e4d9d1;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        /* Floating Scroll Up Button */
+        #scrollTopBtn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: #d47a24;
+            color: #fff;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 999;
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+            <span>Francos<span>.</span></span>
+        </div>
+        <nav class="nav-links">
+            <!-- Dynamic navbar handled by script.js -->
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <span class="eyebrow">YOUR BASKET</span>
+        <h1>Order Summary</h1>
+        <p>Review your selected drinks, add preparation notes, apply promo codes, and checkout.</p>
+    </section>
+
+    <div class="cart-layout">
+        <!-- Selected Items Column -->
+        <div>
+            <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; margin-bottom: 15px;">Selected Items</h3>
+            
+            <div id="cart-items-container">
+                <!-- Dynamically loaded -->
+            </div>
+
+            <div style="background: #fff; border: 1px solid #e4d9d1; border-radius: 12px; padding: 20px; margin-top: 20px;">
+                <h4 style="font-size: 14px; color: #33251f; margin: 0 0 8px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-pen-to-square" style="color: #d47a24;"></i> Barista Notes & Special Instructions
+                </h4>
+                <p style="font-size: 12px; color: #7c6d65; margin-bottom: 10px;">Specify your preferred sweetness, ice level, or packaging requests:</p>
+                <textarea id="order-notes" placeholder="e.g. Less ice please, 50% sugar level, or separate whipped cream..." style="width: 100%; height: 70px; border: 1px solid #e4d9d1; border-radius: 8px; padding: 10px; font-size: 13px; font-family: inherit; outline: none;"></textarea>
+            </div>
+        </div>
+
+        <!-- Payment Summary Column -->
+        <div>
+            <div style="background: #fff; border: 1px solid #e4d9d1; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; margin-bottom: 20px;">Payment Summary</h3>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #33251f;">
+                    <span>Subtotal</span>
+                    <strong id="cart-subtotal">₱0.00</strong>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; color: #33251f;">
+                    <span>Delivery Fee (Binalonan)</span>
+                    <strong>₱50.00</strong>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="font-size: 12px; font-weight: bold; color: #7c6d65;">Promo Code</label>
+                    <div style="display: flex; gap: 8px; margin-top: 5px;">
+                        <input type="text" id="promo-code-input" placeholder="e.g. FRANCOS50 or WELCOME10" style="flex: 1; padding: 8px 12px; border: 1px solid #e4d9d1; border-radius: 6px; font-size: 13px; outline: none;">
+                        <button onclick="applyPromoCode()" style="background: #33251f; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;">Apply</button>
+                    </div>
+                </div>
+
+                <hr style="border: none; border-top: 1px dashed #e4d9d1; margin: 15px 0;">
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 18px; color: #33251f;">
+                    <strong>Total</strong>
+                    <strong id="cart-total" style="color: #d47a24;">₱0.00</strong>
+                </div>
+
+                <h4 style="font-size: 13px; color: #33251f; margin-bottom: 10px;">Select Payment Method</h4>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #e4d9d1; border-radius: 8px; cursor: pointer; background: #faf7f3;">
+                        <input type="radio" name="payment-method" value="GCash/Maya" checked>
+                        <i class="fa-solid fa-mobile-screen" style="color: #1976d2;"></i>
+                        <div>
+                            <strong style="font-size: 13px; display: block;">GCash / Maya</strong>
+                            <small style="font-size: 11px; color: #7c6d65;">Instant QR Code Payment</small>
+                        </div>
+                    </label>
+
+                    <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #e4d9d1; border-radius: 8px; cursor: pointer;">
+                        <input type="radio" name="payment-method" value="Cash on Delivery">
+                        <i class="fa-solid fa-money-bill-wave" style="color: #2e7d32;"></i>
+                        <div>
+                            <strong style="font-size: 13px; display: block;">Cash on Pickup / Delivery</strong>
+                            <small style="font-size: 11px; color: #7c6d65;">Pay upon receiving order</small>
+                        </div>
+                    </label>
+                </div>
+
+                <button onclick="processCheckout()" style="width: 100%; padding: 12px; background: #d47a24; color: #fff; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Scroll To Top Button -->
+    <button id="scrollTopBtn" onclick="scrollToTop()" title="Scroll to top"><i class="fa-solid fa-arrow-up"></i></button>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Cart updated</div>
+
+    <footer>
+        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
+    </footer>
+
+    <script src="assets/script.js"></script>
+    <script>
+        let discountAmount = 0;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderCartPage();
+            setupScrollTopButton();
+        });
+
+        function renderCartPage() {
+            let container = document.getElementById("cart-items-container");
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div style="background: #fff; border: 1px solid #e4d9d1; border-radius: 12px; padding: 40px; text-align: center; color: #7c6d65;">
+                        <i class="fa-solid fa-basket-shopping" style="font-size: 36px; color: #d47a24; margin-bottom: 10px;"></i>
+                        <p style="margin: 0; font-weight: bold;">Your cart is empty.</p>
+                        <a href="menu.html" style="display: inline-block; margin-top: 15px; color: #d47a24; font-weight: bold; text-decoration: none;">Explore Menu & Add Drinks →</a>
+                    </div>
+                `;
+                document.getElementById("cart-subtotal").textContent = "₱0.00";
+                document.getElementById("cart-total").textContent = "₱0.00";
+                return;
+            }
+
+            let html = "";
+            let subtotal = 0;
+
+            cart.forEach((item, index) => {
+                let itemTotal = item.price * item.qty;
+                subtotal += itemTotal;
+
+                let addOnsListHTML = "";
+                if (item.selectedAddOns && item.selectedAddOns.length > 0) {
+                    addOnsListHTML = `<div style="font-size: 11px; color: #d47a24; margin-top: 2px; font-weight: 500;">Add-ons: ${item.selectedAddOns.join(", ")}</div>`;
+                }
+
+                html += `
+                    <div class="cart-item-row">
+                        <img src="${item.image || 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=500&q=80'}" alt="${item.name}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;">
+                        <div style="flex: 1;">
+                            <strong style="color: #33251f; font-size: 14px; display: block;">${item.baseName || item.name}</strong>
+                            <span style="font-size: 12px; color: #7c6d65;">₱${(item.basePrice || item.price).toFixed(2)} each</span>
+                            ${addOnsListHTML}
+                            <button onclick="openAddOnModal(${item.id}, ${index})" style="background: none; border: none; color: #d47a24; font-size: 11px; font-weight: bold; cursor: pointer; padding: 2px 0; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit Add-ons
+                            </button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
+                            <span style="font-size: 13px; font-weight: bold; min-width: 20px; text-align: center;">${item.qty}</span>
+                            <button class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
+                        </div>
+                        <strong style="color: #33251f; font-size: 14px; min-width: 70px; text-align: right;">₱${itemTotal.toFixed(2)}</strong>
+                        <button onclick="removeCartItem(${index})" style="background: none; border: none; color: #c62828; cursor: pointer; padding: 5px;" title="Remove"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            let deliveryFee = 50;
+            let finalTotal = Math.max(0, subtotal + deliveryFee - discountAmount);
+
+            document.getElementById("cart-subtotal").textContent = `₱${subtotal.toFixed(2)}`;
+            document.getElementById("cart-total").textContent = `₱${finalTotal.toFixed(2)}`;
+        }
+
+        function changeQty(index, delta) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            localStorage.setItem("cart", JSON.stringify(cart));
+            updateCartCount();
+            renderCartPage();
+        }
+
+        function removeCartItem(index) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            cart.splice(index, 1);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            updateCartCount();
+            renderCartPage();
+            showToast("Item removed from cart.");
+        }
+
+        function applyPromoCode() {
+            let code = document.getElementById("promo-code-input").value.trim().toUpperCase();
+            if (code === "FRANCOS50") {
+                discountAmount = 50;
+                showToast("₱50 Promo Discount applied!");
+            } else if (code === "WELCOME10") {
+                let cart = JSON.parse(localStorage.getItem("cart")) || [];
+                let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                discountAmount = subtotal * 0.10;
+                showToast("10% Welcome Discount applied!");
+            } else {
+                discountAmount = 0;
+                showToast("Invalid promo code.");
+            }
+            renderCartPage();
+        }
+
+        function setupScrollTopButton() {
+            let btn = document.getElementById("scrollTopBtn");
+            window.onscroll = function() {
+                if (document.body.scrollTop > 350 || document.documentElement.scrollTop > 350) {
+                    btn.style.display = "flex";
+                } else {
+                    btn.style.display = "none";
+                }
+            };
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

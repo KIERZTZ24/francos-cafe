@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francos. Bakes and Brews - Settings</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+            <span>Francos<span>.</span></span>
+        </div>
+        <nav class="nav-links"></nav>
+    </header>
+
+    <section class="page-header">
+        <span class="eyebrow">PREFERENCES & ACCOUNT</span>
+        <h1>Edit Settings & Details</h1>
+        <p>Update your personal information, security password, and default delivery address.</p>
+    </section>
+
+    <div class="container" id="settings-content" style="max-width: 600px; margin: 0 auto 60px; padding: 0 20px; display: none;">
+        <div style="background: #fff; border: 1px solid #e4d9d1; border-radius: 16px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px;">
+            <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; margin-bottom: 20px; font-size: 20px;">
+                <i class="fa-solid fa-user-pen" style="color: #d47a24;"></i> Edit Account Details
+            </h3>
+            <form id="settings-form" onsubmit="saveAccountSettings(event)">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-size: 12px; font-weight: 700; color: #33251f; display: block; margin-bottom: 5px;">Full Name</label>
+                    <input type="text" id="setting-name" required style="width: 100%; padding: 10px; border: 1px solid #e4d9d1; border-radius: 8px; font-size: 13px; outline: none;">
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-size: 12px; font-weight: 700; color: #33251f; display: block; margin-bottom: 5px;">Email Address</label>
+                    <input type="email" id="setting-email" required style="width: 100%; padding: 10px; border: 1px solid #e4d9d1; border-radius: 8px; font-size: 13px; outline: none;">
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-size: 12px; font-weight: 700; color: #33251f; display: block; margin-bottom: 5px;">Contact / Phone Number</label>
+                    <input type="text" id="setting-phone" placeholder="09XXXXXXXXX" style="width: 100%; padding: 10px; border: 1px solid #e4d9d1; border-radius: 8px; font-size: 13px; outline: none;">
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="font-size: 12px; font-weight: 700; color: #33251f; display: block; margin-bottom: 5px;">New Password (Optional)</label>
+                    <input type="password" id="setting-password" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #e4d9d1; border-radius: 8px; font-size: 13px; outline: none;">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; background: #70452f; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff;">
+                    Save Settings
+                </button>
+            </form>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="profile.html" style="color: #d47a24; font-weight: bold; text-decoration: none; font-size: 14px;">
+                ← Back to My Profile
+            </a>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Settings updated!</div>
+
+    <footer>
+        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
+    </footer>
+
+    <script src="assets/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (!currentUser || !currentUser.email) {
+                alert("Please login to access settings.");
+                window.location.href = "login.html";
+                return;
+            }
+            document.getElementById("settings-content").style.display = "block";
+            document.getElementById("setting-name").value = currentUser.name || "";
+            document.getElementById("setting-email").value = currentUser.email || "";
+            document.getElementById("setting-phone").value = currentUser.phone || "";
+        });
+
+        function saveAccountSettings(e) {
+            e.preventDefault();
+            let currentUser = JSON.parse(localStorage.getItem("currentUser")) || {};
+            currentUser.name = document.getElementById("setting-name").value.trim();
+            currentUser.email = document.getElementById("setting-email").value.trim();
+            currentUser.phone = document.getElementById("setting-phone").value.trim();
+            let newPass = document.getElementById("setting-password").value.trim();
+            if (newPass) currentUser.password = newPass;
+
+            localStorage.setItem("currentUser", JSON.stringify(currentUser));
+            showToast("Settings updated successfully!");
+            setTimeout(() => { window.location.href = "profile.html"; }, 1000);
+        }
+    </script>
+</body>
+</html>

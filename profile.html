@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francos. Bakes and Brews - Profile</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .profile-container { max-width: 650px; margin: 0 auto 60px; padding: 0 20px; }
+        .loyalty-card-box { background: #33251f; color: #fff; border-radius: 16px; padding: 22px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(51,37,31,0.15); }
+        .stamps-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 18px 0 12px; }
+        .stamp-box { aspect-ratio: 1; background: rgba(255,255,255,0.1); border: 1px dashed rgba(255,255,255,0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #d4c1b5; font-size: 18px; }
+        .stamp-box.earned { background: #d47a24; border-style: solid; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+            <span>Francos<span>.</span></span>
+        </div>
+        <nav class="nav-links"></nav>
+    </header>
+
+    <section class="page-header">
+        <span class="eyebrow">USER ACCOUNT</span>
+        <h1>My Account Profile</h1>
+        <p>View your membership details, loyalty rewards stamps, and account information.</p>
+    </section>
+
+    <div class="profile-container" id="profile-content" style="display: none;">
+        <div style="background: #fff; border: 1px solid #e4d9d1; border-radius: 12px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; background: #fef3e7; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #d47a24;">
+                    <i class="fa-solid fa-award" style="font-size: 20px;"></i>
+                </div>
+                <div>
+                    <span style="font-size: 10px; font-weight: 800; color: #7c6d65; letter-spacing: 1px; text-transform: uppercase;">MEMBERSHIP TIER</span>
+                    <h4 style="margin: 0; color: #33251f; font-size: 15px;">Bronze Bean Member</h4>
+                </div>
+            </div>
+            <span style="background: #fef3e7; color: #d47a24; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 20px;" id="completed-orders-count">0 Completed Orders</span>
+        </div>
+
+        <div class="loyalty-card-box">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 style="font-family: 'DM Serif Display', serif; font-size: 20px; margin: 0; color: #fff;">Francos Loyalty Card</h3>
+                    <p style="font-size: 12px; color: #d4c1b5; margin-top: 2px;">Earn 1 Stamp for every completed order!</p>
+                </div>
+                <i class="fa-solid fa-award" style="font-size: 28px; color: #ffd700;"></i>
+            </div>
+            <div class="stamps-grid" id="stamps-container">
+                <div class="stamp-box"><i class="fa-solid fa-mug-hot"></i></div>
+                <div class="stamp-box"><i class="fa-solid fa-mug-hot"></i></div>
+                <div class="stamp-box"><i class="fa-solid fa-mug-hot"></i></div>
+                <div class="stamp-box"><i class="fa-solid fa-mug-hot"></i></div>
+                <div class="stamp-box" style="border-color: #ffd700; color: #ffd700;"><i class="fa-solid fa-gift"></i></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #d4c1b5; font-weight: 600;">
+                <span id="stamps-count-label">0 / 5 Stamps Collected</span>
+                <span style="color: #ffd700;">Reward: FREE Spanish Latte!</span>
+            </div>
+        </div>
+
+        <div style="background: #fff; border: 1px solid #e4d9d1; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; margin: 0; font-size: 18px;">
+                    <i class="fa-solid fa-user" style="color: #d47a24;"></i> Account Details
+                </h3>
+                <a href="settings.html" style="background: #faf7f3; border: 1px solid #d47a24; color: #d47a24; padding: 6px 14px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 12px;">
+                    <i class="fa-solid fa-gear"></i> Edit Settings
+                </a>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #51433b;">
+                <div><strong>Full Name:</strong> <span id="display-name">--</span></div>
+                <div><strong>Email Address:</strong> <span id="display-email">--</span></div>
+                <div><strong>Phone Number:</strong> <span id="display-phone">09XXXXXXXXX</span></div>
+            </div>
+        </div>
+
+        <button onclick="logoutAppUser()" style="width: 100%; padding: 12px; background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px;">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout Account
+        </button>
+    </div>
+
+    <div id="toast" class="toast">Loaded!</div>
+
+    <footer>
+        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
+    </footer>
+
+    <script src="assets/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (!currentUser || !currentUser.email) {
+                alert("Please login to view your profile.");
+                window.location.href = "login.html";
+                return;
+            }
+            document.getElementById("profile-content").style.display = "block";
+            document.getElementById("display-name").textContent = currentUser.name || "User";
+            document.getElementById("display-email").textContent = currentUser.email || "";
+            document.getElementById("display-phone").textContent = currentUser.phone || "09XXXXXXXXX";
+            
+            let userOrders = JSON.parse(localStorage.getItem("userOrders")) || [];
+            let completedCount = userOrders.filter(o => o.status === "Completed").length;
+            document.getElementById("completed-orders-count").textContent = completedCount + " Completed Orders";
+            
+            let stampsEarned = completedCount % 5;
+            let boxes = document.querySelectorAll(".stamps-grid .stamp-box");
+            boxes.forEach((box, i) => {
+                if (i < stampsEarned) box.classList.add("earned");
+            });
+            document.getElementById("stamps-count-label").textContent = `${stampsEarned} / 5 Stamps Collected`;
+        });
+    </script>
+</body>
+</html>
