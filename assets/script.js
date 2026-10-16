@@ -233,416 +233,139 @@ function renderMenu(category = "all", searchQuery = "") {
         } else if (p.category === 'package') {
             btnHTML = `<button onclick="handleAddToCartClick(${p.id}, true)" style="width: 100%; padding: 10px; background: var(--accent-color); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px;">Book Coffee Booth</button>`;
         } else {
-            btnHTML = `<button onclick="openAddOnModal(${p.id})" class="btn-add" style="width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 13px;">Add to Cart</button>`;
+            btnHTML = `<button class="btn-add" onclick="handleAddToCartClick(${p.id}, false)">Add to Cart</button>`;
         }
 
         card.innerHTML = `
-            <div style="position: relative; height: 160px; overflow: hidden; background: var(--bg-color);">
-                <img src="${p.image}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover; ${!isAvailable ? 'filter: grayscale(60%); opacity: 0.8;' : ''}">
+            <div style="position: relative;">
+                <img src="${p.image}" alt="${p.name}">
                 ${statusBadgeHTML}
                 <span style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.75); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold;">₱${p.price}</span>
             </div>
-            <div style="padding: 16px; display: flex; flex-direction: column; flex: 1;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <h4 style="font-family: 'DM Serif Display', serif; color: var(--text-color); font-size: 16px; margin: 0;">${p.name}</h4>
-                    <span style="font-size: 12px; color: var(--accent-color); font-weight: bold;"><i class="fa-solid fa-star"></i> ${p.rating}</span>
+            <div class="card-body">
+                <span class="card-cat">${p.category.toUpperCase()}</span>
+                <h3>${p.name}</h3>
+                <p>${p.description}</p>
+                <div class="card-footer" style="width: 100%;">
+                    ${btnHTML}
                 </div>
-                <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 15px; flex: 1; line-height: 1.4;">${p.description}</p>
-                ${btnHTML}
             </div>
         `;
         grid.appendChild(card);
     });
 }
 
-function filterMenuByCategory(cat) { renderMenu(cat, ""); }
-function filterMenuByQuery(query) { renderMenu("all", query); }
+// Add-on Modal Handler & Cart Management
+let selectedProductForCart = null;
 
-function handleAddToCartClick(productId, isPackage) {
-    let currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    if (!currentUser) {
-        showToast("Please log in first to book packages!");
-        setTimeout(() => { window.location.href = "login.html"; }, 1200);
-        return;
-    }
-    if (isPackage) {
-        showToast("Coffee Booth booking request sent!");
-        addToCartDirect(productId);
-    }
-}
-
-// --- CART & CHECKOUT LOGIC ---
-let appliedDiscount = 0;
-
-function renderCartPage() {
-    let cartList = document.getElementById("cart-items-list");
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    if (!cartList) return;
-    cartList.innerHTML = "";
-
-    if (cart.length === 0) {
-        cartList.innerHTML = `
-            <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
-                <i class="fa-solid fa-basket-shopping" style="font-size: 36px; color: var(--accent-color); margin-bottom: 10px;"></i>
-                <p style="font-weight: bold; color: var(--text-color);">Your cart is empty.</p>
-                <a href="menu.html" style="color: var(--accent-color); font-size: 13px; font-weight: bold; text-decoration: none;">Explore Menu & Add Drinks →</a>
-            </div>
-        `;
-        updateCartSummary(0);
-        return;
-    }
-
-    let subtotal = 0;
-    cart.forEach((item, index) => {
-        let itemTotal = item.price * item.qty;
-        subtotal += itemTotal;
-
-        let addOnsText = (item.selectedAddOns && item.selectedAddOns.length > 0)
-            ? `<div style="font-size: 11px; color: var(--accent-color); margin-top: 2px;">Add-ons: ${item.selectedAddOns.join(", ")}</div>`
-            : '';
-
-        let row = document.createElement("div");
-        row.className = "cart-item-row";
-        row.style.cssText = "display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); gap: 12px;";
-
-        row.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px; flex: 2;">
-                <img src="${item.image || 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=500&q=80'}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">
-                <div>
-                    <strong style="color: var(--text-color); font-size: 14px; display: block;">${item.baseName || item.name}</strong>
-                    <span style="font-size: 12px; color: var(--text-secondary);">₱${(item.basePrice || item.price).toFixed(2)} each</span>
-                    ${addOnsText}
-                    <button onclick="openAddOnModal(${item.id}, ${index})" style="border: none; background: none; color: var(--accent-color); font-size: 11px; font-weight: bold; cursor: pointer; padding: 0; margin-top: 4px;"><i class="fa-solid fa-pen-to-square"></i> Edit Add-ons</button>
-                </div>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <button onclick="changeCartQty(${index}, -1)" style="width: 28px; height: 28px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 6px; font-weight: bold; cursor: pointer;">-</button>
-                <span style="font-weight: bold; font-size: 14px; color: var(--text-color); min-width: 20px; text-align: center;">${item.qty}</span>
-                <button onclick="changeCartQty(${index}, 1)" style="width: 28px; height: 28px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 6px; font-weight: bold; cursor: pointer;">+</button>
-            </div>
-
-            <div style="text-align: right;">
-                <strong style="color: var(--text-color); font-size: 14px; display: block;">₱${itemTotal.toFixed(2)}</strong>
-                <button onclick="removeCartItem(${index})" style="border: none; background: none; color: #c62828; font-size: 13px; cursor: pointer; margin-top: 4px;" title="Remove"><i class="fa-solid fa-trash"></i></button>
-            </div>
-        `;
-        cartList.appendChild(row);
-    });
-
-    updateCartSummary(subtotal);
-}
-
-function updateCartSummary(subtotal) {
-    let subtotalEl = document.getElementById("cart-subtotal");
-    let totalEl = document.getElementById("cart-total");
-    let deliveryFee = subtotal > 0 ? 50.00 : 0.00;
-
-    let finalTotal = Math.max(0, subtotal + deliveryFee - appliedDiscount);
-
-    if (subtotalEl) subtotalEl.textContent = `₱${subtotal.toFixed(2)}`;
-    if (totalEl) totalEl.textContent = `₱${finalTotal.toFixed(2)}`;
-}
-
-function changeCartQty(index, change) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    if (!cart[index]) return;
-
-    cart[index].qty += change;
-    if (cart[index].qty <= 0) {
-        cart.splice(index, 1);
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartCount();
-    renderCartPage();
-}
-
-function removeCartItem(index) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    cart.splice(index, 1);
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartCount();
-    renderCartPage();
-    showToast("Item removed from cart.");
-}
-
-function applyPromoCode() {
-    let codeInput = document.getElementById("promo-input");
-    if (!codeInput) return;
-    let code = codeInput.value.trim().toUpperCase();
-
-    if (code === "FRANCOS50") {
-        appliedDiscount = 50.00;
-        showToast("₱50 OFF Promo applied!");
-    } else if (code === "WELCOME10") {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        appliedDiscount = subtotal * 0.10;
-        showToast("10% Discount applied!");
-    } else {
-        showToast("Invalid Promo Code!");
-        appliedDiscount = 0;
-    }
-    renderCartPage();
-}
-
-function processCheckout() {
-    let currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    if (!currentUser) {
-        showToast("Please log in to place an order!");
-        setTimeout(() => { window.location.href = "login.html"; }, 1200);
-        return;
-    }
-
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    if (cart.length === 0) {
-        showToast("Your cart is empty!");
-        return;
-    }
-
-    let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    let deliveryFee = 50.00;
-    let grandTotal = Math.max(0, subtotal + deliveryFee - appliedDiscount);
-
-    let baristaNotes = document.getElementById("barista-notes") ? document.getElementById("barista-notes").value : "None";
-    let paymentMethodEl = document.querySelector('input[name="payment_method"]:checked');
-    let paymentMethod = paymentMethodEl ? paymentMethodEl.value : "Cash on Delivery";
-
-    let newOrder = {
-        id: Math.floor(1000 + Math.random() * 9000),
-        customer: currentUser.name || "Valued Customer",
-        items: cart,
-        total: grandTotal,
-        paymentMethod: paymentMethod,
-        refNumber: paymentMethod === "GCash" ? "GCASH-" + Math.floor(100000 + Math.random() * 900000) : "COD",
-        date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        status: "Pending",
-        notes: baristaNotes
-    };
-
-    let orders = JSON.parse(localStorage.getItem("orders")) || [];
-    orders.unshift(newOrder);
-    localStorage.setItem("orders", JSON.stringify(orders));
-
-    // Clear Cart
-    localStorage.removeItem("cart");
-    updateCartCount();
-    showToast("Order placed successfully!");
-
-    setTimeout(() => {
-        window.location.href = "my_orders.html";
-    }, 1000);
-}
-
-// --- INTERACTIVE ADD-ONS MODAL SYSTEM ---
 function setupAddOnModalContainer() {
     if (document.getElementById("addon-modal-overlay")) return;
-    let modalDiv = document.createElement("div");
-    modalDiv.id = "addon-modal-overlay";
-    modalDiv.style.cssText = "display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center;";
-    modalDiv.innerHTML = `
-        <div style="background:var(--card-bg); width:90%; max-width:420px; border-radius:16px; padding:24px; box-shadow:0 10px 25px rgba(0,0,0,0.15); position:relative; border: 1px solid var(--border-color);">
-            <h3 id="modal-product-title" style="font-family:'DM Serif Display', serif; color:var(--text-color); margin-bottom:6px; font-size:20px;">Customize Drink</h3>
-            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:16px;">Pumili ng mga dagdag na add-ons para sa iyong inumin:</p>
-            <div id="modal-addons-list" style="display:flex; flex-direction:column; gap:10px; max-height:220px; overflow-y:auto; margin-bottom:20px; padding-right:5px;"></div>
-            <div style="display:flex; gap:10px;">
-                <button type="button" onclick="closeAddOnModal()" style="flex:1; background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-color); padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">Kanselahin</button>
-                <button type="button" id="modal-confirm-btn" style="flex:1; background:var(--accent-color); color:#fff; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">I-save ang Pagbabago</button>
+
+    let modalHTML = `
+        <div id="addon-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+            <div style="background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); max-width: 420px; width: 100%; border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;">
+                <h3 id="modal-product-title" style="font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 5px; color: var(--text-color);">Customize Drink</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Select your preferred add-ons below:</p>
+                
+                <div id="modal-addons-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 220px; overflow-y: auto; margin-bottom: 20px; padding-right: 5px;">
+                    <!-- Injected dynamically -->
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="closeAddOnModal()" style="flex: 1; padding: 10px; background: transparent; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 8px; font-weight: bold; cursor: pointer;">Cancel</button>
+                    <button onclick="confirmAddToCartWithAddons()" style="flex: 1; padding: 10px; background: var(--accent-color); border: none; color: #fff; border-radius: 8px; font-weight: bold; cursor: pointer;">Add to Cart</button>
+                </div>
             </div>
         </div>
     `;
-    document.body.appendChild(modalDiv);
+    let div = document.createElement("div");
+    div.innerHTML = modalHTML;
+    document.body.appendChild(div);
 }
 
-let activeSelectedProductId = null;
-let editingCartItemIndex = null;
+function handleAddToCartClick(productId, isPackage) {
+    let liveProducts = getLiveProducts();
+    let product = liveProducts.find(p => p.id === productId);
+    if (!product) return;
 
-function openAddOnModal(productId, cartIndex = null) {
-    let currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    if (!currentUser) {
-        showToast("Please log in first!");
-        setTimeout(() => { window.location.href = "login.html"; }, 1200);
+    if (isPackage) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let existing = cart.find(item => item.id === product.id && (!item.addOns || item.addOns.length === 0));
+        if (existing) {
+            existing.qty += 1;
+        } else {
+            cart.push({ ...product, qty: 1, addOns: [] });
+        }
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartCount();
+        showToast("Coffee Booth booked & added to cart!");
         return;
     }
 
-    let liveProducts = getLiveProducts();
-    let product = liveProducts.find(p => p.id === productId);
+    selectedProductForCart = product;
+    let listContainer = document.getElementById("modal-addons-list");
+    let titleEl = document.getElementById("modal-product-title");
+    if (!listContainer || !titleEl) return;
 
-    if (!product && cartIndex !== null) {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        if (cart[cartIndex]) {
-            product = {
-                id: cart[cartIndex].id,
-                name: cart[cartIndex].baseName || cart[cartIndex].name,
-                price: cart[cartIndex].basePrice || cart[cartIndex].price
-            };
-        }
-    }
-    if (!product) return;
-
-    activeSelectedProductId = product.id;
-    editingCartItemIndex = cartIndex;
-
-    let modalTitle = `Customize: ${product.name} (Base: ₱${product.price})`;
-    if (cartIndex !== null) {
-        modalTitle = `I-edit ang Add-ons: ${product.name}`;
-    }
-    document.getElementById("modal-product-title").textContent = modalTitle;
-
-    let currentCartAddOns = [];
-    if (cartIndex !== null) {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        if (cart[cartIndex] && cart[cartIndex].selectedAddOns) {
-            currentCartAddOns = cart[cartIndex].selectedAddOns;
-        }
-    }
-
-    let listEl = document.getElementById("modal-addons-list");
-    let addonsHTML = "";
-    availableAddOns.forEach(addon => {
-        let isChecked = currentCartAddOns.includes(addon.name) ? "checked" : "";
-        addonsHTML += `
-            <label style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-color); padding:10px 12px; border-radius:8px; border:1px solid var(--border-color); font-size:13px; cursor:pointer;">
-                <span style="color:var(--text-color); font-weight:500;"><input type="checkbox" name="modal-addon-chk" value="${addon.id}" data-price="${addon.price}" data-name="${addon.name}" ${isChecked} style="margin-right:8px;"> ${addon.name}</span>
-                <strong style="color:var(--accent-color);">+₱${addon.price.toFixed(2)}</strong>
-            </label>
-        `;
-    });
-    listEl.innerHTML = addonsHTML;
-
-    document.getElementById("modal-confirm-btn").onclick = function() {
-        if (editingCartItemIndex !== null) {
-            updateCartItemAddOns(editingCartItemIndex);
-        } else {
-            confirmAddToCartWithAddOns();
-        }
-    };
+    titleEl.textContent = product.name;
+    listContainer.innerHTML = availableAddOns.map(addon => `
+        <label style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 13px;">
+            <span style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" class="addon-checkbox" value="${addon.id}" data-name="${addon.name}" data-price="${addon.price}" style="accent-color: var(--accent-color);">
+                ${addon.name}
+            </span>
+            <span style="font-weight: bold; color: var(--accent-color);">+₱${addon.price}</span>
+        </label>
+    `).join('');
 
     document.getElementById("addon-modal-overlay").style.display = "flex";
 }
 
 function closeAddOnModal() {
-    document.getElementById("addon-modal-overlay").style.display = "none";
-    activeSelectedProductId = null;
-    editingCartItemIndex = null;
+    let overlay = document.getElementById("addon-modal-overlay");
+    if (overlay) overlay.style.display = "none";
+    selectedProductForCart = null;
 }
 
-function confirmAddToCartWithAddOns() {
-    if (!activeSelectedProductId) return;
-    let liveProducts = getLiveProducts();
-    let product = liveProducts.find(p => p.id === activeSelectedProductId);
-    if (!product) return;
+function confirmAddToCartWithAddons() {
+    if (!selectedProductForCart) return;
 
-    let checkboxes = document.querySelectorAll('input[name="modal-addon-chk"]:checked');
-    let selectedAddOnNames = [];
-    let addOnsTotalPrice = 0;
+    let checkboxes = document.querySelectorAll(".addon-checkbox:checked");
+    let chosenAddons = [];
+    let addOnsTotal = 0;
 
-    checkboxes.forEach(chk => {
-        let addonName = chk.getAttribute("data-name");
-        let addonPrice = parseFloat(chk.getAttribute("data-price"));
-        selectedAddOnNames.push(addonName);
-        addOnsTotalPrice += addonPrice;
+    checkboxes.forEach(cb => {
+        chosenAddons.push({
+            id: cb.value,
+            name: cb.getAttribute("data-name"),
+            price: parseFloat(cb.getAttribute("data-price"))
+        });
+        addOnsTotal += parseFloat(cb.getAttribute("data-price"));
     });
 
-    let finalItemName = product.name;
-    if (selectedAddOnNames.length > 0) {
-        finalItemName += ` (W/ ${selectedAddOnNames.join(", ")})`;
-    }
-
-    let finalPrice = product.price + addOnsTotalPrice;
-
+    let finalPrice = selectedProductForCart.price + addOnsTotal;
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    let existingItem = cart.find(item => item.name === finalItemName);
-    
-    if (existingItem) {
-        existingItem.qty += 1;
+
+    let cartItemKey = selectedProductForCart.id + "_" + chosenAddons.map(a => a.id).sort().join("-");
+    let existing = cart.find(item => {
+        let existingKey = item.id + "_" + (item.addOns || []).map(a => a.id).sort().join("-");
+        return existingKey === cartItemKey;
+    });
+
+    if (existing) {
+        existing.qty += 1;
     } else {
         cart.push({
-            id: product.id,
-            name: finalItemName,
-            baseName: product.name,
-            basePrice: product.price,
-            selectedAddOns: selectedAddOnNames,
+            ...selectedProductForCart,
             price: finalPrice,
-            qty: 1,
-            image: product.image
+            basePrice: selectedProductForCart.price,
+            addOns: chosenAddons,
+            qty: 1
         });
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
     updateCartCount();
-    showToast(`${product.name} naidagdag sa cart!`);
     closeAddOnModal();
-
-    if (typeof renderCartPage === "function") {
-        renderCartPage();
-    }
-}
-
-function updateCartItemAddOns(index) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    if (!cart[index]) return;
-
-    let checkboxes = document.querySelectorAll('input[name="modal-addon-chk"]:checked');
-    let selectedAddOnNames = [];
-    let addOnsTotalPrice = 0;
-
-    checkboxes.forEach(chk => {
-        let addonName = chk.getAttribute("data-name");
-        let addonPrice = parseFloat(chk.getAttribute("data-price"));
-        selectedAddOnNames.push(addonName);
-        addOnsTotalPrice += addonPrice;
-    });
-
-    let item = cart[index];
-    let basePrice = item.basePrice || item.price;
-    let baseName = item.baseName || item.name;
-
-    let finalItemName = baseName;
-    if (selectedAddOnNames.length > 0) {
-        finalItemName += ` (W/ ${selectedAddOnNames.join(", ")})`;
-    }
-
-    item.name = finalItemName;
-    item.selectedAddOns = selectedAddOnNames;
-    item.price = basePrice + addOnsTotalPrice;
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartCount();
-    showToast("Add-ons updated successfully!");
-    closeAddOnModal();
-
-    if (typeof renderCartPage === "function") {
-        renderCartPage();
-    }
-}
-
-function addToCartDirect(productId) {
-    let liveProducts = getLiveProducts();
-    let product = liveProducts.find(p => p.id === productId);
-    if (!product) return;
-
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    let existingItem = cart.find(item => item.id === productId && (!item.selectedAddOns || item.selectedAddOns.length === 0));
-
-    if (existingItem) {
-        existingItem.qty += 1;
-    } else {
-        cart.push({
-            id: product.id,
-            name: product.name,
-            baseName: product.name,
-            basePrice: product.price,
-            selectedAddOns: [],
-            price: product.price,
-            qty: 1,
-            image: product.image
-        });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartCount();
-    showToast(`${product.name} naidagdag sa cart!`);
+    showToast("Added to cart with add-ons!");
 }
