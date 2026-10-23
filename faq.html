@@ -4,81 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Francos. Bakes and Brews - FAQs</title>
+    <!-- Instant Anti-Flash Script para HINDI mag-blink ng puti -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
     <link rel="stylesheet" href="assets/style.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .faq-container {
-            max-width: 750px;
+            max-width: 780px;
             margin: 0 auto 60px;
             padding: 0 20px;
         }
+
         .faq-item {
-            background: #fff;
-            border: 1px solid #e4d9d1;
-            border-radius: 12px;
-            margin-bottom: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            margin-bottom: 14px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            box-shadow: var(--card-shadow);
+            transition: all 0.25s ease;
         }
+
         .faq-question {
-            padding: 18px 20px;
+            padding: 20px 22px;
             font-family: 'DM Serif Display', serif;
-            font-size: 17px;
-            color: #33251f;
+            font-size: 18px;
+            color: var(--text-color);
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #fff;
-            transition: background 0.2s;
+            background: var(--card-bg);
+            transition: background 0.2s ease;
         }
+
         .faq-question:hover {
-            background: #faf7f3;
+            background: var(--bg-color);
         }
+
         .faq-answer {
-            padding: 0 20px 18px;
-            font-size: 13.5px;
-            color: #6b5a51;
-            line-height: 1.6;
+            padding: 0 22px 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
             display: none;
-            border-top: 1px dashed #e4d9d1;
-            padding-top: 12px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 14px;
         }
+
         .faq-item.active .faq-answer {
             display: block;
         }
+
         .faq-item.active .faq-icon {
             transform: rotate(180deg);
         }
+
         .faq-icon {
             transition: transform 0.3s;
-            color: #d47a24;
+            color: var(--accent-color);
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation Bar -->
     <header class="navbar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+        <div class="logo">
+            <img src="assets/images/logo.jpg" alt="Francos Logo">
             <span>Francos<span>.</span></span>
         </div>
-        <nav class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="menu.html">Menu</a>
-            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
-            <a href="my_orders.html">My Orders</a>
-            <a href="promo.html">Promos</a>
-            <a href="faq.html" class="active">FAQ</a>
-            <a href="settings.html">Settings</a>
-            <a href="login.html" id="auth-link">Login</a>
-        </nav>
+        <nav class="nav-links"></nav>
     </header>
 
     <section class="page-header">
-        <span class="eyebrow">FREQUENTLY ASKED QUESTIONS</span>
+        <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">FREQUENTLY ASKED QUESTIONS</span>
         <h1>Help & Assistance</h1>
         <p>Find answers regarding our store hours, delivery coverage, GCash payments, and event booth rentals.</p>
     </section>
@@ -86,7 +92,7 @@
     <div class="faq-container">
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFaq(this)">
-                <span><i class="fa-solid fa-clock" style="color: #d47a24; margin-right: 8px;"></i> What are your operating hours?</span>
+                <span><i class="fa-solid fa-clock" style="color: var(--accent-color); margin-right: 10px;"></i> What are your operating hours?</span>
                 <i class="fa-solid fa-chevron-down faq-icon"></i>
             </div>
             <div class="faq-answer">
@@ -96,36 +102,35 @@
 
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFaq(this)">
-                <span><i class="fa-solid fa-truck-ram" style="color: #d47a24; margin-right: 8px;"></i> Where do you deliver and what is the delivery fee?</span>
+                <span><i class="fa-solid fa-motorcycle" style="color: var(--accent-color); margin-right: 10px;"></i> Where do you deliver and what is the delivery fee?</span>
                 <i class="fa-solid fa-chevron-down faq-icon"></i>
             </div>
             <div class="faq-answer">
-                We deliver around Binalonan and neighboring towns. Our standard delivery fee for Binalonan is ₱50.00. Free delivery promos are also occasionally available via promo codes!
+                We deliver around Binalonan and neighboring towns. Our standard delivery fee for Binalonan is ₱50.00 flat rate. Free delivery promos are also occasionally available via promo codes!
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFaq(this)">
-                <span><i class="fa-solid fa-qrcode" style="color: #d47a24; margin-right: 8px;"></i> What payment methods are accepted?</span>
+                <span><i class="fa-solid fa-qrcode" style="color: var(--accent-color); margin-right: 10px;"></i> What payment methods are accepted?</span>
                 <i class="fa-solid fa-chevron-down faq-icon"></i>
             </div>
             <div class="faq-answer">
-                We accept <strong>GCash / Maya</strong> (Instant QR Code Scan with Reference Number confirmation) and <strong>Cash on Pickup / Delivery (COD)</strong>.
+                We accept <strong>GCash / Maya</strong> (Instant QR Code Scan upon checkout) and <strong>Cash on Pickup / Delivery (COD)</strong>.
             </div>
         </div>
 
         <div class="faq-item">
             <div class="faq-question" onclick="toggleFaq(this)">
-                <span><i class="fa-solid fa-store" style="color: #d47a24; margin-right: 8px;"></i> How do I book a Coffee Booth for events?</span>
+                <span><i class="fa-solid fa-champagne-glasses" style="color: var(--accent-color); margin-right: 10px;"></i> How do I book a Coffee Booth for events?</span>
                 <i class="fa-solid fa-chevron-down faq-icon"></i>
             </div>
             <div class="faq-answer">
-                You can book our Mobile Coffee Bar directly under the "Event Packages" category on the Menu page! Select between 50 cups (₱5,000), 75 cups (₱7,000), or 100 cups (₱9,000), fill in your event details, and place your order.
+                You can book our Mobile Coffee Bar directly under the "Event Packages" category on the Menu page! Select between 50 cups (₱5,000), 75 cups (₱7,000), or 100 cups (₱9,000), and place your order.
             </div>
         </div>
     </div>
 
-    <!-- Notification Toast -->
     <div id="toast" class="toast">Action updated!</div>
 
     <footer>

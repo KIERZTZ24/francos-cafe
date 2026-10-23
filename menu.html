@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Francos. Bakes and Brews - Menu</title>
-    <!-- Instant Theme Loader para walang white flash -->
+    <!-- Instant Anti-Flash Theme Loader -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem("theme") || "light";
@@ -12,49 +12,127 @@
         })();
     </script>
     <link rel="stylesheet" href="assets/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .search-box-container {
-            max-width: 500px;
-            margin: 0 auto 20px;
-            position: relative;
+        /* Toolbar (Search & Sort) */
+        .menu-toolbar {
+            max-width: 850px;
+            margin: 0 auto 25px;
+            padding: 0 20px;
             display: flex;
+            gap: 12px;
             align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
         }
-        .search-input {
-            width: 100%;
-            padding: 12px 18px 12px 48px;
-            border: 1px solid var(--border-color);
-            border-radius: 30px;
-            font-size: 14px;
-            outline: none;
-            background: var(--card-bg);
-            color: var(--text-color);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-            transition: border-color 0.2s;
+
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 260px;
         }
-        .search-input:focus {
-            border-color: var(--accent-color);
-        }
-        .search-icon {
+
+        .search-wrap i.search-icon {
             position: absolute;
-            left: 20px;
+            left: 16px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-secondary);
-            font-size: 15px;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
+            font-size: 14px;
         }
+
+        .search-wrap input {
+            width: 100%;
+            padding: 12px 38px 12px 42px;
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            outline: none;
+            font-size: 13.5px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.25s ease;
+        }
+
+        .search-wrap input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(212, 122, 36, 0.2);
+        }
+
+        .clear-search-btn {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            display: none;
+        }
+
+        .sort-select {
+            padding: 12px 18px;
+            border-radius: 30px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* Category Filter Pills */
+        .category-pill {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 12.5px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .category-pill:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .category-pill.active {
+            background: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 14px rgba(212, 122, 36, 0.35);
+        }
+
+        .category-pill .badge-count {
+            background: rgba(0,0,0,0.1);
+            color: inherit;
+            padding: 2px 7px;
+            border-radius: 12px;
+            font-size: 10.5px;
+            font-weight: bold;
+        }
+
+        .category-pill.active .badge-count {
+            background: rgba(255,255,255,0.25);
+            color: #fff;
+        }
+
         /* Floating Scroll Up Button */
         #scrollTopBtn {
             position: fixed;
-            bottom: 25px;
-            right: 25px;
+            bottom: 30px;
+            right: 30px;
             background: var(--accent-color);
             color: #fff;
             border: none;
@@ -68,11 +146,10 @@
             justify-content: center;
             font-size: 18px;
             z-index: 999;
-            transition: transform 0.2s ease;
+            transition: all 0.2s ease;
         }
         #scrollTopBtn:hover {
             transform: scale(1.08);
-            background: var(--text-color);
         }
     </style>
 </head>
@@ -80,75 +157,157 @@
 
     <!-- Navigation Bar -->
     <header class="navbar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+        <div class="logo">
+            <img src="assets/images/logo.jpg" alt="Francos Logo">
             <span>Francos<span>.</span></span>
         </div>
-        <nav class="nav-links">
-            <!-- Dynamic navbar handled by script.js -->
-        </nav>
+        <nav class="nav-links"></nav>
     </header>
 
-    <!-- Page Header -->
-    <section class="page-header">
-        <span class="eyebrow" style="color: var(--accent-color); font-weight: 700; font-size: 11px; letter-spacing: 1px;">EXPLORE OUR BREWS</span>
-        <h1>Official Menu & Offerings</h1>
-        <p>Handcrafted espresso, oat milk specials, Japanese Uji matcha, and mobile event packages.</p>
-    </section>
+    <div class="main-content">
+        <!-- Page Header -->
+        <section class="page-header">
+            <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">HANDCRAFTED RECIPES</span>
+            <h1>Explore Our Official Menu</h1>
+            <p>From rich double espresso creations and Japanese Uji matcha to on-demand mobile coffee booths.</p>
+        </section>
 
-    <!-- Search Input -->
-    <div class="search-box-container" style="padding: 0 15px;">
-        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" id="menu-search-input" class="search-input" placeholder="Search drinks (e.g. Matcha, Spanish, Oat, Frappe)..." oninput="handleMenuSearch(this.value)">
-    </div>
+        <!-- Interactive Quiz Banner -->
+        <div class="container" style="padding: 0 20px;">
+            <div class="quiz-cta-banner" onclick="openCoffeeQuizModal()">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div class="quiz-icon-pulse"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <div>
+                        <strong style="color: var(--text-color); font-size: 15px; display: block;">Can't decide what to drink?</strong>
+                        <span style="font-size: 12.5px; color: var(--text-secondary);">Take our 15-second Coffee Quiz to find your personalized flavor match!</span>
+                    </div>
+                </div>
+                <button class="btn-start-quiz">Find My Match →</button>
+            </div>
+        </div>
 
-    <!-- Category Filter Buttons -->
-    <div class="filter-container" style="flex-wrap: wrap; padding: 0 15px;">
-        <button class="filter-btn active" onclick="setActiveFilter(this, 'all')"><i class="fa-solid fa-list"></i> All Items</button>
-        <button class="filter-btn" onclick="setActiveFilter(this, 'sleepless')"><i class="fa-solid fa-mug-hot"></i> Sleepless</button>
-        <button class="filter-btn" onclick="setActiveFilter(this, 'sogreen')"><i class="fa-solid fa-leaf"></i> So Green</button>
-        <button class="filter-btn" onclick="setActiveFilter(this, 'snow')"><i class="fa-solid fa-snowflake"></i> Snow Frappes</button>
-        <button class="filter-btn" onclick="setActiveFilter(this, 'sweettooth')"><i class="fa-solid fa-cookie"></i> Sweet Tooth</button>
-        <button class="filter-btn" onclick="setActiveFilter(this, 'fruitfaves')"><i class="fa-solid fa-lemon"></i> Fruit Faves</button>
-        <button class="filter-btn" onclick="setActiveFilter(this, 'package')"><i class="fa-solid fa-truck-ramp-box"></i> Event Packages</button>
-    </div>
+        <!-- Toolbar: Search Bar & Sort Dropdown -->
+        <div class="menu-toolbar">
+            <div class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="menu-search-input" placeholder="Search coffee, matcha, snow frappes, oat milk..." oninput="handleMenuSearch(this.value)">
+                <button id="clear-search-btn" class="clear-search-btn" onclick="clearSearch()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
 
-    <!-- Dynamic Menu Items Grid -->
-    <div class="menu-container">
-        <div class="menu-grid" id="menu-grid">
-            <!-- Rendered dynamically via assets/script.js -->
+            <select id="sort-select" class="sort-select" onchange="handleSortChange(this.value)">
+                <option value="featured">Sort by: Featured</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="top-rated">Top Customer Rated ⭐</option>
+            </select>
+        </div>
+
+        <!-- Category Filter Buttons (No Emojis - Pure FontAwesome Icons) -->
+        <div class="filter-container">
+            <button class="category-pill active" onclick="setActiveFilter(this, 'all')">
+                <i class="fa-solid fa-border-all"></i> All Items <span class="badge-count" id="count-all">0</span>
+            </button>
+            <button class="category-pill" onclick="setActiveFilter(this, 'favorites')">
+                <i class="fa-solid fa-heart" style="color: #e53935;"></i> Favorites <span class="badge-count" id="count-favorites">0</span>
+            </button>
+            <button class="category-pill" onclick="setActiveFilter(this, 'sleepless')">
+                <i class="fa-solid fa-mug-hot"></i> Sleepless <span class="badge-count" id="count-sleepless">0</span>
+            </button>
+            <button class="category-pill" onclick="setActiveFilter(this, 'sogreen')">
+                <i class="fa-solid fa-leaf"></i> So Green <span class="badge-count" id="count-sogreen">0</span>
+            </button>
+            <button class="category-pill" onclick="setActiveFilter(this, 'snow')">
+                <i class="fa-solid fa-snowflake"></i> Snow Frappes <span class="badge-count" id="count-snow">0</span>
+            </button>
+            <button class="category-pill" onclick="setActiveFilter(this, 'sweettooth')">
+                <i class="fa-solid fa-cookie"></i> Sweet Tooth <span class="badge-count" id="count-sweettooth">0</span>
+            </button>
+            <button class="category-pill" onclick="setActiveFilter(this, 'fruitfaves')">
+                <i class="fa-solid fa-lemon"></i> Fruit Faves <span class="badge-count" id="count-fruitfaves">0</span>
+            </button>
+            <button class="category-pill" onclick="setActiveFilter(this, 'package')">
+                <i class="fa-solid fa-champagne-glasses"></i> Event Packages <span class="badge-count" id="count-package">0</span>
+            </button>
+        </div>
+
+        <!-- Dynamic Menu Items Grid -->
+        <div class="menu-container">
+            <div class="menu-grid" id="menu-grid">
+                <!-- Injected Dynamically -->
+            </div>
         </div>
     </div>
 
     <!-- Floating Scroll To Top Button -->
     <button id="scrollTopBtn" onclick="scrollToTop()" title="Scroll to top"><i class="fa-solid fa-arrow-up"></i></button>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast">Added to cart!</div>
+    <div id="toast" class="toast"></div>
 
-    <footer>
-        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
-    </footer>
+    <!-- Footer handled automatically by script.js -->
+    <footer></footer>
 
     <script src="assets/script.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            setupScrollTopButton();
-        });
-
         let currentActiveCategory = "all";
         let currentSearchQuery = "";
+        let currentSortOrder = "featured";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setupScrollTopButton();
+            updateCategoryCountBadges();
+            renderMenuWithSorting();
+        });
+
+        function updateCategoryCountBadges() {
+            let products = getLiveProducts();
+            document.getElementById("count-all").textContent = products.length;
+            
+            // Initial count for Favorites
+            let favs = typeof getFavorites === "function" ? getFavorites() : [];
+            let favEl = document.getElementById("count-favorites");
+            if (favEl) favEl.textContent = favs.length;
+
+            const cats = ['sleepless', 'sogreen', 'snow', 'sweettooth', 'fruitfaves', 'package'];
+            cats.forEach(c => {
+                let el = document.getElementById("count-" + c);
+                if (el) {
+                    el.textContent = products.filter(p => p.category === c).length;
+                }
+            });
+        }
 
         function setActiveFilter(btn, category) {
-            document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".category-pill").forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
             currentActiveCategory = category;
-            renderMenu(currentActiveCategory, currentSearchQuery);
+            renderMenuWithSorting();
         }
 
         function handleMenuSearch(query) {
             currentSearchQuery = query.toLowerCase().trim();
-            renderMenu(currentActiveCategory, currentSearchQuery);
+            let clearBtn = document.getElementById("clear-search-btn");
+            if (clearBtn) {
+                clearBtn.style.display = currentSearchQuery.length > 0 ? "block" : "none";
+            }
+            renderMenuWithSorting();
+        }
+
+        function clearSearch() {
+            let input = document.getElementById("menu-search-input");
+            input.value = "";
+            document.getElementById("clear-search-btn").style.display = "none";
+            currentSearchQuery = "";
+            renderMenuWithSorting();
+            input.focus();
+        }
+
+        function handleSortChange(sortBy) {
+            currentSortOrder = sortBy;
+            renderMenuWithSorting();
+        }
+
+        function renderMenuWithSorting() {
+            renderMenu(currentActiveCategory, currentSearchQuery, currentSortOrder);
         }
 
         function setupScrollTopButton() {

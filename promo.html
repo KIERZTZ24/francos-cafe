@@ -4,108 +4,237 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Francos. Bakes and Brews - Promos & Vouchers</title>
+    <!-- Instant Anti-Flash Theme Loader -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
     <link rel="stylesheet" href="assets/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .promo-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 22px;
+            max-width: 950px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
         }
+
         .promo-card {
-            background: #fff;
-            border: 1px dashed #d47a24;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            background: var(--card-bg);
+            border: 1px dashed var(--accent-color);
+            border-radius: 18px;
+            padding: 26px;
+            box-shadow: var(--card-shadow);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            position: relative;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
-        .promo-code-badge {
-            background: #fff3d9;
-            color: #d47a24;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-weight: bold;
+
+        .promo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .promo-code-box {
+            background: var(--bg-color);
+            color: var(--accent-color);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: 800;
             font-family: monospace;
             font-size: 16px;
-            letter-spacing: 1px;
-            display: inline-block;
-            margin: 10px 0;
-            border: 1px dashed #d47a24;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 14px 0 16px;
+            border: 1px dashed var(--accent-color);
+        }
+
+        .promo-card.locked {
+            border-color: var(--border-color);
+            opacity: 0.9;
+        }
+
+        .promo-code-box.locked-code {
+            filter: blur(4px);
+            user-select: none;
+            opacity: 0.6;
+        }
+
+        .guest-banner {
+            max-width: 910px;
+            margin: 0 auto 30px;
+            background: rgba(212, 122, 36, 0.12);
+            border: 1px solid rgba(212, 122, 36, 0.35);
+            border-radius: 14px;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation Bar -->
     <header class="navbar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+        <div class="logo">
+            <img src="assets/images/logo.jpg" alt="Francos Logo">
             <span>Francos<span>.</span></span>
         </div>
-        <nav class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="menu.html">Menu</a>
-            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
-            <a href="my_orders.html">My Orders</a>
-            <a href="promo.html" class="active">Promos</a>
-            <a href="notifications.html">Notifications</a>
-            <a href="settings.html">Settings</a>
-            <a href="login.html" id="auth-link">Login</a>
-        </nav>
+        <nav class="nav-links"></nav>
     </header>
 
-    <!-- Page Header -->
     <section class="page-header">
-        <span class="eyebrow">SPECIAL OFFERS</span>
-        <h1>Promos & Voucher Codes</h1>
-        <p>Claim discount vouchers and apply them during checkout on your favorite brews!</p>
+        <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">MEMBER EXCLUSIVES</span>
+        <h1 id="promo-page-title">Promos & Vouchers</h1>
+        <p id="promo-page-subtitle">Sign in to unlock exclusive café discounts and apply them at checkout!</p>
     </section>
 
-    <div class="promo-grid">
-        <div class="promo-card">
-            <div>
-                <span style="background: #e8f5e9; color: #2e7d32; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px;">NEW USER</span>
-                <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; margin: 8px 0 4px;">Welcome Treat</h3>
-                <p style="font-size: 13px; color: #7c6d65;">Get ₱50 OFF on your first coffee order with no minimum spend!</p>
-                <div class="promo-code-badge">FRANCOS50</div>
+    <!-- Guest Alert Banner -->
+    <div id="guest-alert-banner" class="guest-banner" style="display: none;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                <i class="fa-solid fa-lock"></i>
             </div>
-            <button onclick="copyPromo('FRANCOS50')" style="background: #33251f; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%;">
-                <i class="fa-solid fa-copy"></i> Copy Code
-            </button>
+            <div>
+                <strong style="font-size: 14px; color: var(--text-color); display: block;">Member-Only Vouchers are Locked</strong>
+                <span style="font-size: 12px; color: var(--text-secondary);">Sign in or create a free account to reveal discount codes.</span>
+            </div>
         </div>
-
-        <div class="promo-card">
-            <div>
-                <span style="background: #e3f2fd; color: #1565c0; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px;">10% DISCOUNT</span>
-                <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; margin: 8px 0 4px;">Brew Lover Special</h3>
-                <p style="font-size: 13px; color: #7c6d65;">Enjoy 10% OFF on all espresso and cold brew drinks.</p>
-                <div class="promo-code-badge">WELCOME10</div>
-            </div>
-            <button onclick="copyPromo('WELCOME10')" style="background: #33251f; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%;">
-                <i class="fa-solid fa-copy"></i> Copy Code
-            </button>
+        <div style="display: flex; gap: 10px;">
+            <a href="login.html" style="padding: 8px 16px; border-radius: 8px; border: 1px solid var(--accent-color); color: var(--accent-color); text-decoration: none; font-size: 12px; font-weight: bold;">Login</a>
+            <a href="register.html" style="padding: 8px 16px; border-radius: 8px; background: var(--accent-color); color: #fff; text-decoration: none; font-size: 12px; font-weight: bold;">Register Free</a>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast">Code copied!</div>
+    <!-- Live Promos Container -->
+    <div class="promo-grid" id="promo-cards-container"></div>
 
-    <footer>
-        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
-    </footer>
+    <div id="toast" class="toast"></div>
+
+    <footer></footer>
 
     <script src="assets/script.js"></script>
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            renderPromoCards();
+
+            // Real-time listener: kapag nag-add o nagbura si Admin sa dashboard, kusa mag-re-render
+            window.addEventListener("storage", (e) => {
+                if (e.key === "storePromos") {
+                    renderPromoCards();
+                }
+            });
+        });
+
+        function getLivePromos() {
+            let promos = JSON.parse(localStorage.getItem("storePromos"));
+            if (!promos || promos.length === 0) {
+                promos = [
+                    { code: "FRANCOS50", title: "₱50 Welcome Treat", type: "fixed", value: 50, desc: "Enjoy ₱50 OFF on your first coffee order with no minimum spend!" },
+                    { code: "WELCOME10", title: "Brew Lover Special", type: "percent", value: 10, desc: "Get 10% OFF on all espresso mixes and Japanese matcha." }
+                ];
+                localStorage.setItem("storePromos", JSON.stringify(promos));
+            }
+            return promos;
+        }
+
+        function renderPromoCards() {
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            let isLoggedIn = currentUser && currentUser.email;
+
+            let banner = document.getElementById("guest-alert-banner");
+            let container = document.getElementById("promo-cards-container");
+            let promos = getLivePromos();
+
+            if (!isLoggedIn) {
+                banner.style.display = "flex";
+                document.getElementById("promo-page-title").textContent = "Member Reward Vouchers";
+                document.getElementById("promo-page-subtitle").textContent = "Create an account to unlock your welcome discount vouchers!";
+            } else {
+                banner.style.display = "none";
+                document.getElementById("promo-page-title").textContent = "Your Unlocked Promos";
+                document.getElementById("promo-page-subtitle").textContent = `Welcome back, ${currentUser.name || 'Member'}! Copy and apply these live vouchers at checkout.`;
+            }
+
+            if (promos.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-secondary); background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color);">
+                        <i class="fa-solid fa-ticket" style="font-size: 32px; color: var(--accent-color); margin-bottom: 10px;"></i>
+                        <p style="margin: 0; font-weight: bold; color: var(--text-color);">No active promos at the moment. Stay tuned!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = "";
+            promos.forEach((p) => {
+                let badgeText = p.type === "percent" ? `${p.value}% DISCOUNT` : `₱${p.value} OFF SPECIAL`;
+                let badgeBg = p.type === "percent" ? "rgba(21, 101, 192, 0.15)" : "rgba(46, 125, 50, 0.15)";
+                let badgeColor = p.type === "percent" ? "#1565c0" : "#2e7d32";
+
+                if (isLoggedIn) {
+                    html += `
+                        <div class="promo-card">
+                            <div>
+                                <span style="background: ${badgeBg}; color: ${badgeColor}; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px;">
+                                    🔓 ${badgeText}
+                                </span>
+                                <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); font-size: 22px; margin: 12px 0 6px;">${p.title}</h3>
+                                <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 0;">${p.desc}</p>
+                                
+                                <div class="promo-code-box">
+                                    <span>${p.code}</span>
+                                    <i class="fa-solid fa-tag" style="color: var(--accent-color);"></i>
+                                </div>
+                            </div>
+                            <button onclick="copyPromo('${p.code}')" style="background: var(--navbar-bg); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;">
+                                <i class="fa-solid fa-copy"></i> Copy Code & Order
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="promo-card locked">
+                            <div>
+                                <span style="background: rgba(198, 40, 40, 0.15); color: #c62828; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px;">
+                                    🔒 LOCKED (MEMBERS ONLY)
+                                </span>
+                                <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); font-size: 22px; margin: 12px 0 6px;">${p.title}</h3>
+                                <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 0;">${p.desc}</p>
+                                
+                                <div class="promo-code-box locked-code">
+                                    <span>${p.code}</span>
+                                    <i class="fa-solid fa-lock"></i>
+                                </div>
+                            </div>
+                            <button onclick="window.location.href='register.html'" style="background: var(--accent-color); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i class="fa-solid fa-user-plus"></i> Register to Unlock Code
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+
+            container.innerHTML = html;
+        }
+
         function copyPromo(code) {
             navigator.clipboard.writeText(code);
-            showToast(`Promo Code "${code}" copied to clipboard!`);
+            showToast(`Promo Code "${code}" copied! Redirecting to Menu...`);
+            setTimeout(() => {
+                window.location.href = "menu.html";
+            }, 800);
         }
     </script>
 </body>

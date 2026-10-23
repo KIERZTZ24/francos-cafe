@@ -3,56 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Francos. Bakes and Brews - Profile</title>
+    <title>Francos. Bakes and Brews - My Profile</title>
+    <!-- Instant Anti-Flash Theme Loader -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
     <link rel="stylesheet" href="assets/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .profile-container { max-width: 650px; margin: 0 auto 60px; padding: 0 20px; }
-        .loyalty-card-box { background: #33251f; color: #fff; border-radius: 16px; padding: 22px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(51,37,31,0.15); }
-        .stamps-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 18px 0 12px; }
-        .stamp-box { aspect-ratio: 1; background: rgba(255,255,255,0.1); border: 1px dashed rgba(255,255,255,0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #d4c1b5; font-size: 18px; }
-        .stamp-box.earned { background: #d47a24; border-style: solid; color: #fff; }
+        .profile-wrapper {
+            max-width: 950px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .profile-header-banner {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .avatar-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color), #70452f);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: 800;
+            box-shadow: 0 6px 18px rgba(212, 122, 36, 0.35);
+            flex-shrink: 0;
+        }
+
+        .profile-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .stat-box-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .loyalty-card-box { 
+            background: linear-gradient(135deg, #2b1d16, #42291d); 
+            color: #fff; 
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px; 
+            padding: 28px; 
+            margin-bottom: 24px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25); 
+        }
+
+        .stamps-grid { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 12px; 
+            margin: 20px 0 16px; 
+        }
+
+        .stamp-box { 
+            aspect-ratio: 1; 
+            background: rgba(255,255,255,0.08); 
+            border: 1.5px dashed rgba(255,255,255,0.25); 
+            border-radius: 14px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: #d4c1b5; 
+            font-size: 22px; 
+            transition: all 0.3s ease;
+        }
+
+        .stamp-box.earned { 
+            background: var(--accent-color); 
+            border-style: solid; 
+            border-color: var(--accent-color);
+            color: #fff; 
+            box-shadow: 0 0 15px rgba(212, 122, 36, 0.55);
+            transform: scale(1.05);
+        }
+
+        .profile-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 26px 30px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 24px;
+            color: var(--text-color);
+        }
+
+        .btn-edit-settings {
+            background: var(--bg-color);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 12.5px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-edit-settings:hover {
+            background: var(--accent-color);
+            color: #fff;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 13px;
+            background: rgba(198, 40, 40, 0.1);
+            color: #e53935;
+            border: 1px solid rgba(198, 40, 40, 0.25);
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(198, 40, 40, 0.2);
+            border-color: #e53935;
+        }
     </style>
 </head>
 <body>
 
     <header class="navbar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+        <div class="logo">
+            <img src="assets/images/logo.jpg" alt="Francos Logo">
             <span>Francos<span>.</span></span>
         </div>
         <nav class="nav-links"></nav>
     </header>
 
     <section class="page-header">
-        <span class="eyebrow">USER ACCOUNT</span>
+        <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">CUSTOMER HUB</span>
         <h1>My Account Profile</h1>
-        <p>View your membership details, loyalty rewards stamps, and account information.</p>
+        <p>Manage your membership tier, track earned loyalty stamps, and review personal preferences.</p>
     </section>
 
-    <div class="profile-container" id="profile-content" style="display: none;">
-        <div style="background: #fff; border: 1px solid #e4d9d1; border-radius: 12px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 40px; height: 40px; background: #fef3e7; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #d47a24;">
-                    <i class="fa-solid fa-award" style="font-size: 20px;"></i>
-                </div>
+    <div class="profile-wrapper" id="profile-content" style="display: none;">
+        
+        <div class="profile-header-banner">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="avatar-circle" id="user-avatar-initial">U</div>
                 <div>
-                    <span style="font-size: 10px; font-weight: 800; color: #7c6d65; letter-spacing: 1px; text-transform: uppercase;">MEMBERSHIP TIER</span>
-                    <h4 style="margin: 0; color: #33251f; font-size: 15px;">Bronze Bean Member</h4>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                        <h2 style="font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text-color); margin: 0;" id="banner-name">Valued Customer</h2>
+                        <span style="background: rgba(212, 122, 36, 0.15); color: var(--accent-color); border: 1px solid rgba(212, 122, 36, 0.3); font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px;">
+                            <i class="fa-solid fa-crown" style="font-size: 10px; color: #f59e0b;"></i> VIP MEMBER
+                        </span>
+                    </div>
+                    <span style="font-size: 13px; color: var(--text-secondary);" id="banner-email">name@example.com</span>
                 </div>
             </div>
-            <span style="background: #fef3e7; color: #d47a24; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 20px;" id="completed-orders-count">0 Completed Orders</span>
+
+            <div style="display: flex; gap: 10px;">
+                <a href="my_orders.html" style="background: var(--navbar-bg); color: #fff; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-receipt"></i> View Orders
+                </a>
+                <a href="settings.html" class="btn-edit-settings">
+                    <i class="fa-solid fa-gear"></i> Settings
+                </a>
+            </div>
+        </div>
+
+        <div class="profile-stats-grid">
+            <div class="stat-box">
+                <div class="stat-box-icon" style="background: rgba(46, 125, 50, 0.15); color: #2e7d32;"><i class="fa-solid fa-circle-check"></i></div>
+                <div>
+                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 800;">Completed Orders</span>
+                    <h3 style="margin: 2px 0 0; color: var(--text-color); font-size: 20px;" id="stat-completed-orders">0</h3>
+                </div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-box-icon" style="background: rgba(212, 122, 36, 0.15); color: var(--accent-color);"><i class="fa-solid fa-mug-hot"></i></div>
+                <div>
+                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 800;">Stamps Collected</span>
+                    <h3 style="margin: 2px 0 0; color: var(--text-color); font-size: 20px;" id="stat-stamps-count">0 / 5</h3>
+                </div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-box-icon" style="background: rgba(229, 57, 53, 0.15); color: #e53935;"><i class="fa-solid fa-heart"></i></div>
+                <div>
+                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 800;">Saved Favorites</span>
+                    <h3 style="margin: 2px 0 0; color: var(--text-color); font-size: 20px;" id="stat-favorites-count">0</h3>
+                </div>
+            </div>
         </div>
 
         <div class="loyalty-card-box">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <h3 style="font-family: 'DM Serif Display', serif; font-size: 20px; margin: 0; color: #fff;">Francos Loyalty Card</h3>
-                    <p style="font-size: 12px; color: #d4c1b5; margin-top: 2px;">Earn 1 Stamp for every completed order!</p>
+                    <span style="font-size: 11px; font-weight: 800; color: #ffd8b1; text-transform: uppercase; letter-spacing: 1.5px;">REWARDS CARD</span>
+                    <h3 style="font-family: 'DM Serif Display', serif; font-size: 24px; margin: 3px 0 0; color: #fff;">Francos Loyalty Pass</h3>
+                    <p style="font-size: 12.5px; color: #d4c1b5; margin-top: 4px;">Earn 1 stamp for every completed order. Complete 5 stamps for a FREE Spanish Latte!</p>
                 </div>
-                <i class="fa-solid fa-award" style="font-size: 28px; color: #ffd700;"></i>
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(255, 215, 0, 0.15); display: flex; align-items: center; justify-content: center; font-size: 24px; color: #ffd700;">
+                    <i class="fa-solid fa-award"></i>
+                </div>
             </div>
+
             <div class="stamps-grid" id="stamps-container">
                 <div class="stamp-box"><i class="fa-solid fa-mug-hot"></i></div>
                 <div class="stamp-box"><i class="fa-solid fa-mug-hot"></i></div>
@@ -60,38 +258,46 @@
                 <div class="stamp-box"><i class="fa-solid fa-mug-hot"></i></div>
                 <div class="stamp-box" style="border-color: #ffd700; color: #ffd700;"><i class="fa-solid fa-gift"></i></div>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #d4c1b5; font-weight: 600;">
-                <span id="stamps-count-label">0 / 5 Stamps Collected</span>
-                <span style="color: #ffd700;">Reward: FREE Spanish Latte!</span>
+
+            <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: #d4c1b5; font-weight: 600;">
+                <span id="stamps-count-label">0 of 5 stamps collected</span>
+                <span style="color: #ffd700;"><i class="fa-solid fa-gift"></i> Reward: FREE Spanish Latte</span>
             </div>
         </div>
 
-        <div style="background: #fff; border: 1px solid #e4d9d1; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; margin: 0; font-size: 18px;">
-                    <i class="fa-solid fa-user" style="color: #d47a24;"></i> Account Details
+        <div class="profile-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin: 0; font-size: 20px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-user-check" style="color: var(--accent-color);"></i> Personal Information
                 </h3>
-                <a href="settings.html" style="background: #faf7f3; border: 1px solid #d47a24; color: #d47a24; padding: 6px 14px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 12px;">
-                    <i class="fa-solid fa-gear"></i> Edit Settings
-                </a>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #51433b;">
-                <div><strong>Full Name:</strong> <span id="display-name">--</span></div>
-                <div><strong>Email Address:</strong> <span id="display-email">--</span></div>
-                <div><strong>Phone Number:</strong> <span id="display-phone">09XXXXXXXXX</span></div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; font-size: 13.5px;">
+                <div>
+                    <span style="color: var(--text-secondary); font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Full Name</span>
+                    <div style="font-weight: 600; color: var(--text-color); margin-top: 3px;" id="display-name">--</div>
+                </div>
+                <div>
+                    <span style="color: var(--text-secondary); font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Email Address</span>
+                    <div style="font-weight: 600; color: var(--text-color); margin-top: 3px;" id="display-email">--</div>
+                </div>
+                <div>
+                    <span style="color: var(--text-secondary); font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Phone Number</span>
+                    <div style="font-weight: 600; color: var(--text-color); margin-top: 3px;" id="display-phone">09XXXXXXXXX</div>
+                </div>
+                <div>
+                    <span style="color: var(--text-secondary); font-size: 11.5px; font-weight: 700; text-transform: uppercase;">Membership Tier</span>
+                    <div style="font-weight: 600; color: var(--accent-color); margin-top: 3px;">Bronze Bean Member</div>
+                </div>
             </div>
         </div>
 
-        <button onclick="logoutAppUser()" style="width: 100%; padding: 12px; background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px;">
-            <i class="fa-solid fa-right-from-bracket"></i> Logout Account
+        <button onclick="logoutAppUser(event)" class="btn-logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out from Account
         </button>
     </div>
 
-    <div id="toast" class="toast">Loaded!</div>
-
-    <footer>
-        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
-    </footer>
+    <footer></footer>
 
     <script src="assets/script.js"></script>
     <script>
@@ -103,20 +309,37 @@
                 return;
             }
             document.getElementById("profile-content").style.display = "block";
-            document.getElementById("display-name").textContent = currentUser.name || "User";
+            
+            let name = currentUser.name || "Valued Customer";
+            document.getElementById("banner-name").textContent = name;
+            document.getElementById("display-name").textContent = name;
+            document.getElementById("banner-email").textContent = currentUser.email || "";
             document.getElementById("display-email").textContent = currentUser.email || "";
             document.getElementById("display-phone").textContent = currentUser.phone || "09XXXXXXXXX";
             
-            let userOrders = JSON.parse(localStorage.getItem("userOrders")) || [];
+            let initial = name.charAt(0).toUpperCase() || "U";
+            document.getElementById("user-avatar-initial").textContent = initial;
+
+            let allOrders = JSON.parse(localStorage.getItem("storeOrders")) || [];
+            let userOrders = allOrders.filter(o => o.customerEmail === currentUser.email);
             let completedCount = userOrders.filter(o => o.status === "Completed").length;
-            document.getElementById("completed-orders-count").textContent = completedCount + " Completed Orders";
             
+            document.getElementById("stat-completed-orders").textContent = completedCount;
+
+            let favs = typeof getFavorites === "function" ? getFavorites() : [];
+            document.getElementById("stat-favorites-count").textContent = favs.length;
+
             let stampsEarned = completedCount % 5;
             let boxes = document.querySelectorAll(".stamps-grid .stamp-box");
             boxes.forEach((box, i) => {
-                if (i < stampsEarned) box.classList.add("earned");
+                if (i < stampsEarned) {
+                    box.classList.add("earned");
+                } else {
+                    box.classList.remove("earned");
+                }
             });
-            document.getElementById("stamps-count-label").textContent = `${stampsEarned} / 5 Stamps Collected`;
+            document.getElementById("stat-stamps-count").textContent = `${stampsEarned} / 5`;
+            document.getElementById("stamps-count-label").textContent = `${stampsEarned} of 5 stamps collected`;
         });
     </script>
 </body>

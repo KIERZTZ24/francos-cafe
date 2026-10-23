@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Francos. Bakes & Brews - Rider Delivery Portal</title>
+    <!-- Instant Anti-Flash Theme Loader -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
+    <link rel="stylesheet" href="assets/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .rider-container {
+            max-width: 760px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .rider-kpi-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .rider-kpi-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .rider-order-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 18px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .rider-order-card.priority-active {
+            border-color: #1976d2;
+            box-shadow: 0 4px 20px rgba(25, 118, 210, 0.18);
+        }
+
+        .rider-action-btn {
+            padding: 11px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-delivered {
+            background: #2e7d32;
+            color: #fff;
+            flex: 2;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.35);
+        }
+
+        .btn-delivered:hover {
+            background: #1b5e20;
+            transform: translateY(-2px);
+        }
+
+        .btn-navigate {
+            background: #1976d2;
+            color: #fff;
+            flex: 1.5;
+        }
+
+        .btn-call {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            flex: 1;
+        }
+
+        .delivery-instruction-badge {
+            background: rgba(212, 122, 36, 0.12);
+            border: 1px dashed var(--accent-color);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            color: var(--text-color);
+            margin: 12px 0 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">
+            <img src="assets/images/logo.jpg" alt="Francos Logo">
+            <span>Francos<span>.</span> <small style="font-size: 11px; color: var(--accent-color); font-family: 'Inter', sans-serif;">[RIDER DISPATCH]</small></span>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="my_orders.html">Customer View</a>
+            <a href="admin/dashboard.html">Admin KDS</a>
+        </nav>
+    </header>
+
+    <section class="page-header">
+        <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">BINALONAN DISPATCH & DELIVERY</span>
+        <h1>Active Rider Portal</h1>
+        <p>Live active deliveries assigned for transit. Navigate routes and confirm customer drop-offs.</p>
+    </section>
+
+    <div class="rider-container">
+        
+        <!-- Live Rider Metrics -->
+        <div class="rider-kpi-bar">
+            <div class="rider-kpi-box">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(25,118,210,0.15); color: #1976d2; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                    <i class="fa-solid fa-motorcycle"></i>
+                </div>
+                <div>
+                    <span style="font-size: 11px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase;">In-Transit Trips</span>
+                    <h3 style="margin: 2px 0 0; font-size: 22px; color: var(--text-color);" id="count-transit">0</h3>
+                </div>
+            </div>
+
+            <div class="rider-kpi-box">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(46,125,50,0.15); color: #2e7d32; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+                <div>
+                    <span style="font-size: 11px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase;">COD Cash to Remit</span>
+                    <h3 style="margin: 2px 0 0; font-size: 22px; color: var(--text-color);" id="cash-to-remit">₱0.00</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Tab -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <h3 style="font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text-color); margin: 0;">
+                Assigned Delivery Trips
+            </h3>
+            <span style="font-size: 12px; color: var(--text-secondary);">
+                Auto-syncs with Kitchen KDS in real-time
+            </span>
+        </div>
+
+        <!-- List of Deliveries -->
+        <div id="rider-deliveries-list"></div>
+
+    </div>
+
+    <div id="toast" class="toast">Action updated!</div>
+
+    <footer></footer>
+
+    <script src="assets/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            renderRiderDeliveries();
+
+            // Real-time listener: kapag may bagong out for delivery galing sa Kitchen Admin, lilitaw agad!
+            window.addEventListener("storage", (e) => {
+                if (e.key === "storeOrders") {
+                    renderRiderDeliveries();
+                }
+            });
+
+            // Auto polling
+            setInterval(renderRiderDeliveries, 4000);
+        });
+
+        function renderRiderDeliveries() {
+            let container = document.getElementById("rider-deliveries-list");
+            let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
+
+            // Kunin ang mga delivery orders na "Out for Delivery"
+            let activeDeliveries = orders.filter(o => 
+                (o.status === "Out for Delivery") &&
+                (o.fulfillmentMode !== "pickup")
+            );
+
+            // Compute metrics
+            let transitCount = activeDeliveries.length;
+            let codCash = activeDeliveries.reduce((sum, o) => {
+                let pay = (o.paymentMethod || "").toLowerCase();
+                return (pay.includes("cash") || pay.includes("cod")) ? sum + (o.total || 0) : sum;
+            }, 0);
+
+            document.getElementById("count-transit").textContent = transitCount;
+            document.getElementById("cash-to-remit").textContent = `₱${codCash.toFixed(2)}`;
+
+            if (activeDeliveries.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px 20px; background: var(--card-bg); border-radius: 18px; border: 1px solid var(--border-color); color: var(--text-secondary);">
+                        <i class="fa-solid fa-mug-saucer" style="font-size: 44px; color: var(--accent-color); margin-bottom: 14px;"></i>
+                        <h3 style="color: var(--text-color); margin: 0 0 6px;">No Active Deliveries Right Now</h3>
+                        <p style="font-size: 13px; margin: 0;">Wait for the kitchen baristas to dispatch orders as "Out for Delivery".</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = "";
+            activeDeliveries.forEach(order => {
+                let actualIndex = orders.findIndex(o => o.id === order.id);
+
+                let isCOD = (order.paymentMethod || "").toLowerCase().includes("cash");
+                let payBadge = isCOD
+                    ? `<span style="background: rgba(46,125,50,0.15); color: #2e7d32; font-weight: 800; font-size: 11px; padding: 4px 10px; border-radius: 20px;"><i class="fa-solid fa-money-bill"></i> COLLECT CASH: ₱${(order.total || 0).toFixed(2)}</span>`
+                    : `<span style="background: rgba(25,118,210,0.15); color: #1976d2; font-weight: 800; font-size: 11px; padding: 4px 10px; border-radius: 20px;"><i class="fa-solid fa-circle-check"></i> PAID ONLINE (GCASH)</span>`;
+
+                let itemsList = (order.items && order.items.length > 0)
+                    ? order.items.map(i => `${i.qty}x ${i.name}`).join(", ")
+                    : "Assorted Handcrafted Drinks";
+
+                // Google Maps query URL based on Binalonan address
+                let cleanAddress = order.baristaNotes ? order.baristaNotes.replace('Rider Delivery:', '').trim() : 'Binalonan Pangasinan';
+                let mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cleanAddress + ', Binalonan, Pangasinan')}`;
+
+                html += `
+                    <div class="rider-order-card priority-active">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                            <div>
+                                <span style="font-size: 11px; font-weight: 800; color: #1976d2; letter-spacing: 1px; text-transform: uppercase;">
+                                    🛵 DISPATCHED IN TRANSIT
+                                </span>
+                                <h3 style="font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text-color); margin: 3px 0 2px;">
+                                    Order #${order.id} — ${order.customerName || 'Valued Customer'}
+                                </h3>
+                                <span style="font-size: 12px; color: var(--text-secondary);">Destination: <strong>${order.deliveryLocation || 'Binalonan'}</strong></span>
+                            </div>
+                            <div>${payBadge}</div>
+                        </div>
+
+                        <!-- Delivery Instruction Box -->
+                        <div class="delivery-instruction-badge">
+                            <strong style="color: var(--accent-color); display: block; margin-bottom: 2px;">
+                                <i class="fa-solid fa-location-dot"></i> Customer Landmark & Instructions:
+                            </strong>
+                            <span>${order.baristaNotes || 'Deliver to Binalonan proper.'}</span>
+                        </div>
+
+                        <div style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 18px;">
+                            <strong>Package Contents:</strong> ${itemsList}
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a href="${mapUrl}" target="_blank" class="rider-action-btn btn-navigate">
+                                <i class="fa-solid fa-location-arrow"></i> Open GPS Map
+                            </a>
+                            <a href="tel:09123456789" class="rider-action-btn btn-call">
+                                <i class="fa-solid fa-phone"></i> Call
+                            </a>
+                            <button onclick="confirmOrderDelivered(${actualIndex})" class="rider-action-btn btn-delivered">
+                                <i class="fa-solid fa-circle-check"></i> Confirm Drop-off
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function confirmOrderDelivered(orderIndex) {
+            let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
+            let order = orders[orderIndex];
+            if (!order) return;
+
+            let isCOD = (order.paymentMethod || "").toLowerCase().includes("cash");
+            let promptMsg = isCOD 
+                ? `Confirm drop-off for Order #${order.id}?\n\nMake sure you have collected ₱${(order.total || 0).toFixed(2)} cash from the customer!`
+                : `Confirm that Order #${order.id} was handed over to ${order.customerName || 'the customer'}?`;
+
+            if (confirm(promptMsg)) {
+                order.status = "Completed";
+                order.completedAt = new Date().toLocaleTimeString();
+                localStorage.setItem("storeOrders", JSON.stringify(orders));
+
+                // Dagdagan ng 1 Loyalty stamp ang user kung registered
+                let users = JSON.parse(localStorage.getItem("appUsersList")) || [];
+                let user = users.find(u => u.email === order.customerEmail);
+                if (user) {
+                    user.stamps = Math.min(5, (user.stamps || 0) + 1);
+                    localStorage.setItem("appUsersList", JSON.stringify(users));
+                }
+
+                renderRiderDeliveries();
+                showToast(`🎉 Order #${order.id} marked as DELIVERED!`);
+            }
+        }
+    </script>
+</body>
+</html>

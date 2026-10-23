@@ -4,64 +4,139 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Francos. Bakes and Brews - Register</title>
+    <!-- Instant Anti-Flash Script (Pumipigil sa white flash / blink) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
     <link rel="stylesheet" href="assets/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            padding: 50px 20px;
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 35px 32px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--card-shadow);
+            color: var(--text-color);
+        }
+
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-toggle-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13.5px;
+            background: var(--bg-color) !important;
+            color: var(--text-color) !important;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-color) !important;
+        }
+
+        /* Chrome/Edge autofill dark mode fix */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus {
+            -webkit-text-fill-color: var(--text-color) !important;
+            -webkit-box-shadow: 0 0 0px 1000px var(--card-bg) inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+    </style>
 </head>
 <body>
 
     <!-- Navigation Bar -->
     <header class="navbar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+        <div class="logo">
+            <img src="assets/images/logo.jpg" alt="Francos Logo">
             <span>Francos<span>.</span></span>
         </div>
-        <nav class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="menu.html">Menu</a>
-            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
-            <a href="login.html">Login</a>
-        </nav>
+        <nav class="nav-links"></nav>
     </header>
 
     <!-- Page Header -->
     <section class="page-header">
-        <span class="eyebrow">CREATE AN ACCOUNT</span>
+        <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">CREATE AN ACCOUNT</span>
         <h1>Join Francos Family</h1>
         <p>Register now to quickly order your favorite coffee and bakes.</p>
     </section>
 
     <!-- Registration Form Container -->
     <section class="auth-container" style="padding-bottom: 60px;">
-        <div class="auth-card" style="max-width: 450px;">
-            <h2>Register Account</h2>
+        <div class="auth-card">
+            <h2 style="font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text-color); margin: 0 0 18px;">Register Account</h2>
 
-            <form id="register-form">
-                <div class="form-group">
+            <form id="register-form" onsubmit="handleRegisterSubmit(event)">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="reg-name">Full Name</label>
                     <input type="text" id="reg-name" placeholder="e.g. Juan Dela Cruz" required>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 15px;">
                     <label for="reg-email">Email Address</label>
                     <input type="email" id="reg-email" placeholder="e.g. name@example.com" required>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 20px;">
                     <label for="reg-password">Password</label>
-                    <input type="password" id="reg-password" placeholder="••••••••" required>
+                    <div class="password-wrap">
+                        <input type="password" id="reg-password" placeholder="••••••••" required style="padding-right: 38px;">
+                        <i class="fa-solid fa-eye password-toggle-icon" id="reg-pw-icon" onclick="toggleRegisterPassword()"></i>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn-primary auth-btn" style="width: 100%; padding: 12px; font-weight: bold; cursor: pointer; margin-top: 10px;">Create Account</button>
+                <button type="submit" class="auth-btn" style="width: 100%; padding: 12px; background: var(--accent-color); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;">
+                    Create Account
+                </button>
             </form>
 
-            <div style="text-align: center; margin-top: 15px; font-size: 13px; color: #7c6d65;">
-                Already have an account? <a href="login.html" style="color: #d47a24; font-weight: bold; text-decoration: none;">Login here</a>
+            <div style="text-align: center; margin-top: 18px; font-size: 13px; color: var(--text-secondary);">
+                Already have an account? <a href="login.html" style="color: var(--accent-color); font-weight: bold; text-decoration: none;">Login here</a>
             </div>
         </div>
     </section>
 
-    <!-- Toast Alert -->
-    <div id="toast" class="toast">Account created successfully!</div>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
 
     <footer>
         <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
@@ -69,7 +144,21 @@
 
     <script src="assets/script.js"></script>
     <script>
-        document.getElementById("register-form").addEventListener("submit", function(e) {
+        function toggleRegisterPassword() {
+            let pwField = document.getElementById("reg-password");
+            let icon = document.getElementById("reg-pw-icon");
+            if (pwField.type === "password") {
+                pwField.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                pwField.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+
+        function handleRegisterSubmit(e) {
             e.preventDefault();
 
             let name = document.getElementById("reg-name").value.trim();
@@ -80,19 +169,19 @@
                 name: name,
                 email: email,
                 password: password,
-                role: 'customer'
+                role: 'customer',
+                phone: "09XXXXXXXXX"
             };
 
             // Save registered user and auto-login
-            localStorage.setItem("registeredUser", JSON.stringify(newUser));
             localStorage.setItem("currentUser", JSON.stringify(newUser));
 
-            showToast("Registration successful!");
+            showToast("Registration successful! Welcome to Francos 🎉");
 
             setTimeout(() => {
                 window.location.href = "menu.html";
-            }, 1000);
-        });
+            }, 900);
+        }
     </script>
 </body>
 </html>

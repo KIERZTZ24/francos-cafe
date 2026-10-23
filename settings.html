@@ -4,56 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Francos. Bakes and Brews - Settings</title>
+    <!-- Instant Anti-Flash Script para HINDI mag-blink ng puti -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
     <link rel="stylesheet" href="assets/style.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .settings-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+            color: var(--text-color);
+        }
+
+        .settings-card label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .settings-card input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+            border-radius: 8px;
+            font-size: 13.5px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .settings-card input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .btn-save-settings {
+            width: 100%;
+            padding: 13px;
+            background: var(--accent-color);
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(212, 122, 36, 0.3);
+        }
+
+        .btn-save-settings:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+    </style>
 </head>
 <body>
 
     <header class="navbar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+        <div class="logo">
+            <img src="assets/images/logo.jpg" alt="Francos Logo">
             <span>Francos<span>.</span></span>
         </div>
         <nav class="nav-links"></nav>
     </header>
 
     <section class="page-header">
-        <span class="eyebrow">PREFERENCES & ACCOUNT</span>
+        <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">PREFERENCES & ACCOUNT</span>
         <h1>Edit Settings & Details</h1>
-        <p>Update your personal information, security password, and default delivery address.</p>
+        <p>Update your personal information, security password, and contact details.</p>
     </section>
 
-    <div class="container" id="settings-content" style="max-width: 600px; margin: 0 auto 60px; padding: 0 20px; display: none;">
-        <div style="background: #fff; border: 1px solid #e4d9d1; border-radius: 16px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px;">
-            <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; margin-bottom: 20px; font-size: 20px;">
-                <i class="fa-solid fa-user-pen" style="color: #d47a24;"></i> Edit Account Details
+    <div class="container" id="settings-content" style="max-width: 580px; margin: 0 auto 60px; padding: 0 20px; display: none;">
+        <div class="settings-card">
+            <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin-bottom: 22px; font-size: 21px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-user-pen" style="color: var(--accent-color);"></i> Edit Account Details
             </h3>
+            
             <form id="settings-form" onsubmit="saveAccountSettings(event)">
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="font-size: 12px; font-weight: 700; color: #33251f; display: block; margin-bottom: 5px;">Full Name</label>
-                    <input type="text" id="setting-name" required style="width: 100%; padding: 10px; border: 1px solid #e4d9d1; border-radius: 8px; font-size: 13px; outline: none;">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>Full Name</label>
+                    <input type="text" id="setting-name" required placeholder="Your full name">
                 </div>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="font-size: 12px; font-weight: 700; color: #33251f; display: block; margin-bottom: 5px;">Email Address</label>
-                    <input type="email" id="setting-email" required style="width: 100%; padding: 10px; border: 1px solid #e4d9d1; border-radius: 8px; font-size: 13px; outline: none;">
+                
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>Email Address</label>
+                    <input type="email" id="setting-email" required placeholder="name@example.com">
                 </div>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="font-size: 12px; font-weight: 700; color: #33251f; display: block; margin-bottom: 5px;">Contact / Phone Number</label>
-                    <input type="text" id="setting-phone" placeholder="09XXXXXXXXX" style="width: 100%; padding: 10px; border: 1px solid #e4d9d1; border-radius: 8px; font-size: 13px; outline: none;">
+                
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>Contact / Phone Number</label>
+                    <input type="text" id="setting-phone" placeholder="09XXXXXXXXX">
                 </div>
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="font-size: 12px; font-weight: 700; color: #33251f; display: block; margin-bottom: 5px;">New Password (Optional)</label>
-                    <input type="password" id="setting-password" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #e4d9d1; border-radius: 8px; font-size: 13px; outline: none;">
+                
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label>New Password (Optional)</label>
+                    <input type="password" id="setting-password" placeholder="Leave blank to keep current">
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%; padding: 12px; background: #70452f; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff;">
-                    Save Settings
+                
+                <button type="submit" class="btn-save-settings">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Settings
                 </button>
             </form>
         </div>
 
         <div style="text-align: center;">
-            <a href="profile.html" style="color: #d47a24; font-weight: bold; text-decoration: none; font-size: 14px;">
+            <a href="profile.html" style="color: var(--accent-color); font-weight: bold; text-decoration: none; font-size: 14px;">
                 ← Back to My Profile
             </a>
         </div>
@@ -91,7 +157,7 @@
 
             localStorage.setItem("currentUser", JSON.stringify(currentUser));
             showToast("Settings updated successfully!");
-            setTimeout(() => { window.location.href = "profile.html"; }, 1000);
+            setTimeout(() => { window.location.href = "profile.html"; }, 800);
         }
     </script>
 </body>

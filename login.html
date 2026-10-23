@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Francos. Bakes and Brews - Login</title>
-    <!-- Instant Theme Loader para walang white flash -->
+    <!-- Instant Anti-Flash Theme Loader -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem("theme") || "light";
@@ -12,85 +12,187 @@
         })();
     </script>
     <link rel="stylesheet" href="assets/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            padding: 50px 20px 80px;
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 22px;
+            padding: 38px 34px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--card-shadow);
+            color: var(--text-color);
+        }
+
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-toggle-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 13.5px;
+            background: var(--bg-color) !important;
+            color: var(--text-color) !important;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .auth-input:focus {
+            border-color: var(--accent-color) !important;
+            box-shadow: 0 0 0 3px rgba(212, 122, 36, 0.15);
+        }
+
+        .auth-submit-btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--accent-color);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(212, 122, 36, 0.35);
+        }
+
+        .auth-submit-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Navigation Bar -->
     <header class="navbar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+        <div class="logo">
+            <img src="assets/images/logo.jpg" alt="Francos Logo">
             <span>Francos<span>.</span></span>
         </div>
-        <nav class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="menu.html">Menu</a>
-            <a href="promo.html">Promos</a>
-            <a href="login.html" class="active">Login</a>
-        </nav>
+        <nav class="nav-links"></nav>
     </header>
 
-    <!-- Login Container -->
     <div class="auth-container">
         <div class="auth-card">
-            <h2>Account Login</h2>
-            <p>Enter your details below to log in.</p>
+            <div style="text-align: center; margin-bottom: 24px;">
+                <span style="font-size: 11px; font-weight: 800; color: var(--accent-color); letter-spacing: 1.5px; text-transform: uppercase;">WELCOME BACK</span>
+                <h2 style="font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--text-color); margin: 4px 0 6px;">Sign In</h2>
+                <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">Access your Francos favorites, loyalty stamps, and saved orders.</p>
+            </div>
             
-            <form id="login-form" onsubmit="handleLoginSubmit(event)">
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="login-email" required placeholder="name@example.com" value="">
+            <form id="login-form" onsubmit="handleUniversalLogin(event)">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-color); margin-bottom: 6px; display: block;">Email Address</label>
+                    <input type="email" id="login-email" required placeholder="name@example.com" class="auth-input">
                 </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="login-password" required placeholder="••••••" value="">
+
+                <div class="form-group" style="margin-bottom: 22px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label style="font-size: 12px; font-weight: 700; color: var(--text-color);">Password</label>
+                    </div>
+                    <div class="password-wrap">
+                        <input type="password" id="login-password" required placeholder="••••••••" class="auth-input" style="padding-right: 40px;">
+                        <i class="fa-solid fa-eye password-toggle-icon" id="pw-toggle-btn" onclick="togglePasswordVisibility()"></i>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Login As</label>
-                    <select id="login-role">
-                        <option value="customer">Customer</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-                <button type="submit" class="auth-btn">Login</button>
+
+                <button type="submit" class="auth-submit-btn">
+                    Sign In to Account
+                </button>
             </form>
             
-            <div class="auth-footer">
-                <p>Don't have an account? <a href="register.html">Register here</a></p>
+            <div style="margin-top: 24px; text-align: center; font-size: 13px; color: var(--text-secondary); border-top: 1px dashed var(--border-color); padding-top: 18px;">
+                New to Francos? <a href="register.html" style="color: var(--accent-color); font-weight: bold; text-decoration: none;">Create an account</a>
             </div>
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
-    </footer>
+    <footer></footer>
 
-    <!-- Toast Notification Element -->
     <div id="toast" class="toast"></div>
 
     <script src="assets/script.js"></script>
     <script>
-        function handleLoginSubmit(e) {
-            e.preventDefault();
-            const email = document.getElementById("login-email").value;
-            const role = document.getElementById("login-role").value;
-            
-            let userObj = { name: "Valued Customer", email: email, role: role };
-            if (role === "admin") {
-                userObj.name = "Store Administrator";
+        function togglePasswordVisibility() {
+            let pwField = document.getElementById("login-password");
+            let icon = document.getElementById("pw-toggle-btn");
+            if (pwField.type === "password") {
+                pwField.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                pwField.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
             }
-            
-            localStorage.setItem("currentUser", JSON.stringify(userObj));
-            showToast("Login successful! Redirecting...");
-            
-            setTimeout(() => {
-                if (role === "admin") {
+        }
+
+        // SMART LOGIN: Awtomatikong pinipili kung Customer o Admin
+        function handleUniversalLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById("login-email").value.trim().toLowerCase();
+            const password = document.getElementById("login-password").value.trim();
+
+            let users = JSON.parse(localStorage.getItem("appUsersList")) || [];
+            let registeredUser = users.find(u => u.email.toLowerCase() === email);
+
+            // KUNG ADMIN ANG NAG-LOG IN (Kusa niyang ide-detect kung admin email):
+            if (email.includes("admin") || (registeredUser && registeredUser.role === "admin")) {
+                let adminUser = {
+                    name: registeredUser ? registeredUser.name : "Store Administrator",
+                    email: email,
+                    role: "admin",
+                    phone: "09171234567"
+                };
+
+                localStorage.setItem("currentUser", JSON.stringify(adminUser));
+                showToast("Admin credentials verified! Loading KDS Dashboard...");
+                
+                setTimeout(() => {
                     window.location.href = "admin/dashboard.html";
-                } else {
-                    window.location.href = "index.html";
-                }
-            }, 1000);
+                }, 800);
+                return;
+            }
+
+            // KUNG NORMAL NA CUSTOMER ANG NAG-LOG IN:
+            let customerUser = {
+                name: registeredUser ? registeredUser.name : email.split('@')[0],
+                email: email,
+                role: "customer",
+                phone: registeredUser ? registeredUser.phone : "09XXXXXXXXX",
+                tier: registeredUser ? (registeredUser.tier || "Bronze Bean") : "Bronze Bean",
+                stamps: registeredUser ? (registeredUser.stamps || 0) : 0
+            };
+
+            localStorage.setItem("currentUser", JSON.stringify(customerUser));
+            showToast("Welcome back! Signing in...");
+
+            setTimeout(() => {
+                window.location.href = "menu.html";
+            }, 800);
         }
     </script>
 </body>

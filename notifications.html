@@ -4,50 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Francos. Bakes and Brews - Notifications</title>
+    <!-- Instant Anti-Flash Script para walang white flash -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
     <link rel="stylesheet" href="assets/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .notif-container { max-width: 650px; margin: 0 auto 60px; padding: 0 20px; }
-        .notif-card { background: #fff; border: 1px solid #e4d9d1; border-radius: 12px; padding: 16px 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .notif-icon { width: 42px; height: 42px; border-radius: 50%; background: #fef3e7; color: #d47a24; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .notif-container { 
+            max-width: 680px; 
+            margin: 0 auto 60px; 
+            padding: 0 20px; 
+        }
+
+        .notif-card { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border-color); 
+            border-radius: 14px; 
+            padding: 18px 20px; 
+            margin-bottom: 14px; 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 16px; 
+            box-shadow: var(--card-shadow); 
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .notif-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-color);
+        }
+
+        .notif-icon { 
+            width: 44px; 
+            height: 44px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 18px; 
+            flex-shrink: 0; 
+        }
+
+        .icon-order-pending { background: rgba(212, 122, 36, 0.15); color: var(--accent-color); }
+        .icon-order-prep { background: rgba(25, 118, 210, 0.15); color: #1976d2; }
+        .icon-order-delivery { background: rgba(156, 39, 176, 0.15); color: #9c27b0; }
+        .icon-order-completed { background: rgba(46, 125, 50, 0.15); color: #2e7d32; }
+        .icon-promo { background: rgba(212, 122, 36, 0.15); color: var(--accent-color); }
     </style>
 </head>
 <body>
 
     <header class="navbar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+        <div class="logo">
+            <img src="assets/images/logo.jpg" alt="Francos Logo">
             <span>Francos<span>.</span></span>
         </div>
         <nav class="nav-links"></nav>
     </header>
 
     <section class="page-header">
-        <span class="eyebrow">UPDATES & ALERTS</span>
-        <h1>Notifications</h1>
-        <p>Stay updated on your live order status, special promos, and loyalty rewards.</p>
+        <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">UPDATES & ALERTS</span>
+        <h1>Activity & Notifications</h1>
+        <p>Stay informed on your live order progress, barista preparations, and reward vouchers.</p>
     </section>
 
     <div class="notif-container" id="notif-wrapper" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; font-size: 18px; margin: 0;">Recent Activity</h3>
-            <button onclick="clearNotifications()" style="background: none; border: none; color: #d47a24; font-weight: bold; cursor: pointer; font-size: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); font-size: 20px; margin: 0;">
+                Live Alerts (<span id="notif-count">0</span>)
+            </h3>
+            <button onclick="clearNotifications()" style="background: none; border: none; color: var(--accent-color); font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-trash-can"></i> Clear All
             </button>
         </div>
 
         <div id="notif-list">
-            <div class="notif-card">
-                <div class="notif-icon"><i class="fa-solid fa-ticket"></i></div>
-                <div style="flex-grow: 1;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h4 style="margin: 0; font-size: 14px; color: #33251f;">Welcome Voucher Unlocked!</h4>
-                        <span style="font-size: 11px; color: #7c6d65;">System Alert</span>
-                    </div>
-                    <p style="margin: 4px 0 0; font-size: 12px; color: #6b5a51;">Use code <strong>FRANCOS50</strong> on checkout to enjoy ₱50 OFF your coffee order!</p>
-                </div>
-            </div>
+            <!-- Dynamically injected -->
         </div>
     </div>
 
@@ -66,11 +103,90 @@
                 window.location.href = "login.html";
                 return;
             }
+
             document.getElementById("notif-wrapper").style.display = "block";
+            renderLiveNotifications();
         });
 
+        function renderLiveNotifications() {
+            let container = document.getElementById("notif-list");
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            let allOrders = JSON.parse(localStorage.getItem("storeOrders")) || [];
+            
+            // Filter orders for current user
+            let userOrders = allOrders.filter(o => o.customerEmail === currentUser.email);
+
+            let notifications = [];
+
+            // 1. Order Status Updates
+            userOrders.forEach(order => {
+                let status = order.status || "Pending";
+                let notifObj = {
+                    title: `Order #${order.id} Update`,
+                    time: order.date || "Recently",
+                    iconClass: "icon-order-pending",
+                    icon: "fa-receipt",
+                    message: `Your order of ${order.items ? order.items.length : 1} item(s) has been successfully placed.`,
+                    link: "my_orders.html"
+                };
+
+                if (status === "Preparing") {
+                    notifObj.iconClass = "icon-order-prep";
+                    notifObj.icon = "fa-mug-hot";
+                    notifObj.message = `Our baristas are now brewing and handcrafting your drinks!`;
+                } else if (status === "Out for Delivery") {
+                    notifObj.iconClass = "icon-order-delivery";
+                    notifObj.icon = "fa-motorcycle";
+                    notifObj.message = `Rider is on the way to your delivery address in Binalonan!`;
+                } else if (status === "Completed") {
+                    notifObj.iconClass = "icon-order-completed";
+                    notifObj.icon = "fa-circle-check";
+                    notifObj.message = `Your order is completed! 1 Loyalty Stamp has been added to your profile.`;
+                }
+
+                notifications.push(notifObj);
+            });
+
+            // 2. Default Welcome Promo Alert
+            notifications.push({
+                title: "Welcome Voucher Unlocked!",
+                time: "System Alert",
+                iconClass: "icon-promo",
+                icon: "fa-ticket",
+                message: "Use voucher code <strong>FRANCOS50</strong> on checkout to enjoy ₱50 OFF your coffee order!",
+                link: "promo.html"
+            });
+
+            document.getElementById("notif-count").textContent = notifications.length;
+
+            let html = "";
+            notifications.forEach(n => {
+                html += `
+                    <div class="notif-card">
+                        <div class="notif-icon ${n.iconClass}"><i class="fa-solid ${n.icon}"></i></div>
+                        <div style="flex-grow: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <h4 style="margin: 0; font-size: 15px; color: var(--text-color);">${n.title}</h4>
+                                <span style="font-size: 11.5px; color: var(--text-secondary);">${n.time}</span>
+                            </div>
+                            <p style="margin: 0 0 8px; font-size: 13px; color: var(--text-secondary); line-height: 1.5;">${n.message}</p>
+                            <a href="${n.link}" style="font-size: 12px; font-weight: bold; color: var(--accent-color); text-decoration: none;">View Details →</a>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
         function clearNotifications() {
-            document.getElementById("notif-list").innerHTML = `<div style="text-align: center; padding: 30px; color: #7c6d65; background: #fff; border-radius: 12px; border: 1px solid #e4d9d1;">No active notifications.</div>`;
+            document.getElementById("notif-list").innerHTML = `
+                <div style="text-align: center; padding: 45px 20px; color: var(--text-secondary); background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border-color);">
+                    <i class="fa-regular fa-bell-slash" style="font-size: 34px; color: var(--accent-color); margin-bottom: 10px;"></i>
+                    <p style="margin: 0; font-weight: bold; color: var(--text-color);">No active notifications.</p>
+                </div>
+            `;
+            document.getElementById("notif-count").textContent = "0";
             showToast("Notifications cleared!");
         }
     </script>

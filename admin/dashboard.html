@@ -3,97 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Francos. Bakes and Brews - Admin Panel</title>
+    <title>Francos. Bakes and Brews - Admin KDS Panel</title>
+    <!-- Instant Anti-Flash Theme Loader & Security Guard -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem("theme") || "light";
             document.documentElement.setAttribute("data-theme", savedTheme);
+
+            // AUTH GUARD
+            const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (!currentUser || currentUser.role !== "admin") {
+                alert("Access Denied! Staff or Administrator credentials required.");
+                window.location.href = "../login.html";
+            }
         })();
     </script>
     <link rel="stylesheet" href="../assets/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .admin-nav-btn {
             background: var(--card-bg);
             color: var(--text-color);
             border: 1px solid var(--border-color);
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
             font-weight: 700;
             font-size: 13px;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
         }
         .admin-nav-btn.active {
             background: var(--accent-color);
             color: #fff;
             border-color: var(--accent-color);
+            box-shadow: 0 4px 14px rgba(212, 122, 36, 0.35);
         }
+
         .kpi-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 22px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            gap: 16px;
+            box-shadow: var(--card-shadow);
         }
+
         .order-admin-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 18px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            transition: transform 0.2s ease, border-color 0.2s ease;
         }
-        .inventory-item-row {
+
+        .order-admin-card.is-new {
+            border: 1.5px solid #e65100;
+            box-shadow: 0 0 15px rgba(230, 81, 0, 0.25);
+        }
+
+        .status-filter-pills {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-pill.active {
+            background: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+        }
+
+        .quick-action-btn {
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .inventory-item-row, .promo-admin-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
+            padding: 16px;
             border-bottom: 1px solid var(--border-color);
             gap: 15px;
+            flex-wrap: wrap;
+            background: var(--card-bg);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
         }
-        #receipt-modal-overlay {
+
+        .customer-card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            gap: 15px;
+            flex-wrap: wrap;
+            background: var(--card-bg);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .vip-badge-pill {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .vip-regular { background: rgba(120, 144, 156, 0.15); color: #546e7a; }
+        .vip-silver { background: rgba(33, 150, 243, 0.15); color: #1976d2; }
+        .vip-gold { background: rgba(255, 193, 7, 0.2); color: #d97706; }
+        .vip-crown { background: rgba(230, 81, 0, 0.15); color: #e65100; border: 1px solid rgba(230,81,0,0.3); }
+
+        /* Modal Overlays */
+        .admin-modal-overlay {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 2000;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 9999;
             justify-content: center;
             align-items: center;
-            padding: 15px;
+            padding: 20px;
+            backdrop-filter: blur(8px);
         }
-        .receipt-box {
-            background: var(--card-bg);
-            color: var(--text-color);
+
+        .admin-modal-box {
+            background: var(--card-bg) !important;
+            color: var(--text-color) !important;
             width: 100%;
-            max-width: 480px;
-            border-radius: 16px;
+            max-width: 520px;
+            border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+            border: 1px solid var(--border-color) !important;
             position: relative;
             max-height: 90vh;
             overflow-y: auto;
+            z-index: 10000;
+        }
+
+        [data-theme="dark"] .admin-modal-box {
+            background: #241d19 !important;
+            border: 1px solid #4a3b32 !important;
+        }
+
+        [data-theme="light"] .admin-modal-box {
+            background: #ffffff !important;
+            border: 1px solid #d4c1b5 !important;
+        }
+
+        /* CUP LABEL STICKER STYLING (PRINT OPTIMIZED) */
+        .cup-sticker-badge {
+            background: #fff;
+            color: #111;
+            border: 2px solid #222;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 14px;
+            font-family: 'Inter', monospace;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            page-break-inside: avoid;
+        }
+
+        .cup-sticker-badge h4 {
+            margin: 0 0 4px;
+            font-size: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-bottom: 1.5px solid #222;
+            padding-bottom: 4px;
+        }
+
+        .cup-sticker-meta {
+            font-size: 11px;
+            color: #444;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .cup-sticker-spec {
+            font-size: 12px;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+
+        /* Z-READING REPORT CARD STYLES */
+        .z-reading-box {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 15px;
+        }
+
+        .z-reading-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        /* PRINT STYLES FOR DOCKET, STICKERS, AND Z-READING */
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+            .printable-area, .printable-area * {
+                visibility: visible !important;
+            }
+            .printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100% !important;
+                background: #fff !important;
+                color: #000 !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 10px !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .cup-sticker-badge {
+                border: 2px solid #000 !important;
+                margin-bottom: 20px !important;
+                page-break-after: always;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Admin Navigation Bar -->
-    <header class="navbar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-            <img src="../assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
-            <span>Francos<span>.</span> <small style="font-size: 11px; opacity: 0.8; color: var(--accent-color);">[ADMIN]</small></span>
+    <header class="navbar no-print">
+        <div class="logo">
+            <img src="../assets/images/logo.jpg" alt="Francos Logo">
+            <span>Francos<span>.</span> <small style="font-size: 11px; opacity: 0.85; color: var(--accent-color); font-family: 'Inter', sans-serif;">[KDS ADMIN]</small></span>
         </div>
         <nav class="nav-links">
             <a href="../index.html">Home</a>
@@ -104,177 +291,543 @@
         </nav>
     </header>
 
-    <!-- Page Header -->
-    <section class="page-header">
-        <span class="eyebrow" style="color: var(--accent-color); font-weight: 700; font-size: 11px; letter-spacing: 1px;">STORE MANAGEMENT</span>
-        <h1>Admin Control Panel</h1>
-        <p>Track live customer orders, update delivery status, prices, and manage drink inventory.</p>
+    <section class="page-header no-print">
+        <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">STORE & KITCHEN SYSTEM</span>
+        <h1>Admin Control Dashboard</h1>
+        <p>Live kitchen orders, barista cup stickers, catalog pricing, and VIP customer accounts.</p>
     </section>
 
-    <div class="container" style="max-width: 1100px; margin: 0 auto 60px; padding: 0 20px;">
+    <div class="container no-print" style="max-width: 1100px; margin: 0 auto 60px; padding: 0 20px;">
         
-        <!-- KPI Summary Analytics Row -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <!-- KPI Analytics -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 25px;">
             <div class="kpi-card">
-                <div class="kpi-icon" style="background: rgba(25,118,210,0.15); color: #1976d2; width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-receipt"></i></div>
+                <div style="background: rgba(25,118,210,0.15); color: #1976d2; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fa-solid fa-receipt"></i></div>
                 <div>
-                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: bold;">Total Orders</span>
-                    <h2 id="kpi-total-orders" style="margin: 2px 0 0; color: var(--text-color);">0</h2>
+                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Total Orders</span>
+                    <h2 id="kpi-total-orders" style="margin: 2px 0 0; color: var(--text-color); font-size: 26px;">0</h2>
                 </div>
             </div>
 
             <div class="kpi-card">
-                <div class="kpi-icon" style="background: rgba(212,122,36,0.15); color: var(--accent-color); width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-clock"></i></div>
+                <div style="background: rgba(212,122,36,0.15); color: var(--accent-color); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fa-solid fa-mug-hot"></i></div>
                 <div>
-                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: bold;">Pending / Preparing</span>
-                    <h2 id="kpi-pending-orders" style="margin: 2px 0 0; color: var(--text-color);">0</h2>
+                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Active / Brewing</span>
+                    <h2 id="kpi-pending-orders" style="margin: 2px 0 0; color: var(--text-color); font-size: 26px;">0</h2>
                 </div>
             </div>
 
             <div class="kpi-card">
-                <div class="kpi-icon" style="background: rgba(46,125,50,0.15); color: #2e7d32; width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-peso-sign"></i></div>
+                <div style="background: rgba(46,125,50,0.15); color: #2e7d32; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fa-solid fa-peso-sign"></i></div>
                 <div>
-                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: bold;">Total Revenue</span>
-                    <h2 id="kpi-total-revenue" style="margin: 2px 0 0; color: var(--text-color);">₱0.00</h2>
+                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Total Store Revenue</span>
+                    <h2 id="kpi-total-revenue" style="margin: 2px 0 0; color: var(--text-color); font-size: 26px;">₱0.00</h2>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div style="background: rgba(156,39,176,0.15); color: #9c27b0; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fa-solid fa-ticket"></i></div>
+                <div>
+                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Active Promos</span>
+                    <h2 id="kpi-total-promos" style="margin: 2px 0 0; color: var(--text-color); font-size: 26px;">0</h2>
                 </div>
             </div>
         </div>
 
-        <!-- Section Switcher Buttons -->
-        <div style="display: flex; gap: 10px; margin-bottom: 25px;">
-            <button class="admin-nav-btn active" id="btn-tab-orders" onclick="switchTab('orders')">
-                <i class="fa-solid fa-receipt"></i> Orders Tracking
-            </button>
-            <button class="admin-nav-btn" id="btn-tab-inventory" onclick="switchTab('inventory')">
-                <i class="fa-solid fa-boxes-stacked"></i> Menu, Price & Stock Manager
-            </button>
-        </div>
-
-        <!-- TAB 1: Live Orders Tracking -->
-        <div id="tab-orders-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin: 0;">Recent Customer Orders</h3>
-                <input type="text" id="order-search-input" placeholder="Search order ID or customer..." onkeyup="renderOrdersList()" style="padding: 8px 14px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 12px; outline: none; background: var(--card-bg); color: var(--text-color); width: 240px;">
-            </div>
-
-            <div id="admin-orders-list">
-                <!-- Injected Dynamically -->
-            </div>
-        </div>
-
-        <!-- TAB 2: Menu & Stock Inventory Manager -->
-        <div id="tab-inventory-section" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin: 0;">Catalog, Price & Direct Stock Manager</h3>
-                <button onclick="toggleAddStockModal()" style="background: var(--accent-color); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;">
-                    + Add New Menu Item
+        <!-- Section Switchers + End-of-Day + Rider Portal Shortcuts -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="admin-nav-btn active" id="btn-tab-orders" onclick="switchTab('orders')">
+                    <i class="fa-solid fa-bell-concierge"></i> Live Kitchen Orders
+                </button>
+                <button class="admin-nav-btn" id="btn-tab-inventory" onclick="switchTab('inventory')">
+                    <i class="fa-solid fa-boxes-stacked"></i> Drink Pricing & Stock
+                </button>
+                <button class="admin-nav-btn" id="btn-tab-customers" onclick="switchTab('customers')">
+                    <i class="fa-solid fa-users-gear"></i> Customer & VIP Accounts
+                </button>
+                <button class="admin-nav-btn" id="btn-tab-promos" onclick="switchTab('promos')">
+                    <i class="fa-solid fa-ticket"></i> Promo & Vouchers
                 </button>
             </div>
 
-            <div id="admin-inventory-list" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px;">
-                <!-- Inventory Items Injected Here -->
+            <!-- RIGHT ACTION BUTTONS: RIDER PORTAL & DAILY Z-READING -->
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="../rider.html" target="_blank" style="background: #1976d2; color: #fff; padding: 10px 16px; border-radius: 10px; font-weight: 800; font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(25, 118, 210, 0.35);">
+                    <i class="fa-solid fa-motorcycle"></i> Open Rider View ↗
+                </a>
+
+                <button onclick="openEndOfDayModal()" style="background: #2e7d32; color: #fff; border: none; padding: 10px 16px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(46, 125, 50, 0.35);">
+                    <i class="fa-solid fa-chart-pie"></i> Daily Z-Reading
+                </button>
             </div>
+        </div>
+
+        <!-- TAB 1: Live Kitchen Orders -->
+        <div id="tab-orders-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 12px;">
+                <div class="status-filter-pills">
+                    <button class="filter-pill active" onclick="setOrderStatusFilter('all', this)">All Orders (<span id="count-order-all">0</span>)</button>
+                    <button class="filter-pill" onclick="setOrderStatusFilter('active', this)">Active / Brewing (<span id="count-order-active">0</span>)</button>
+                    <button class="filter-pill" onclick="setOrderStatusFilter('delivery', this)">Out for Delivery (<span id="count-order-delivery">0</span>)</button>
+                    <button class="filter-pill" onclick="setOrderStatusFilter('completed', this)">Completed (<span id="count-order-completed">0</span>)</button>
+                </div>
+
+                <input type="text" id="order-search-input" placeholder="Search order ID or customer..." onkeyup="renderOrdersList()" style="padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 12.5px; outline: none; background: var(--card-bg); color: var(--text-color); width: 240px; box-shadow: var(--card-shadow);">
+            </div>
+
+            <div id="admin-orders-list"></div>
+        </div>
+
+        <!-- TAB 2: Catalog & Stock Manager -->
+        <div id="tab-inventory-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin: 0; font-size: 22px;">Catalog & Direct Stock Manager</h3>
+                <button onclick="toggleAddStockModal()" style="background: var(--accent-color); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-plus"></i> Add New Menu Item
+                </button>
+            </div>
+
+            <div id="admin-inventory-list" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 22px; box-shadow: var(--card-shadow);"></div>
+        </div>
+
+        <!-- TAB 3: Customer & VIP Accounts Manager -->
+        <div id="tab-customers-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin: 0; font-size: 22px;">Customer Accounts & VIP Tiers</h3>
+                    <p style="font-size: 12.5px; color: var(--text-secondary); margin: 2px 0 0;">Manage VIP memberships, loyalty stamp rewards, contact details, and roles.</p>
+                </div>
+                <input type="text" id="customer-search-input" placeholder="Search customer name or email..." onkeyup="renderCustomersList()" style="padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 12.5px; outline: none; background: var(--card-bg); color: var(--text-color); width: 260px; box-shadow: var(--card-shadow);">
+            </div>
+
+            <div id="admin-customers-list"></div>
+        </div>
+
+        <!-- TAB 4: Promo & Voucher Manager -->
+        <div id="tab-promos-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin: 0; font-size: 22px;">Promo Vouchers & Discounts</h3>
+                    <p style="font-size: 12.5px; color: var(--text-secondary); margin: 2px 0 0;">Create and manage live discount codes for customers during checkout.</p>
+                </div>
+                <button onclick="toggleAddPromoModal()" style="background: var(--accent-color); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-plus"></i> Create New Promo Code
+                </button>
+            </div>
+
+            <div id="admin-promos-list"></div>
         </div>
 
     </div>
 
-    <!-- Receipt Modal Popup -->
-    <div id="receipt-modal-overlay">
-        <div class="receipt-box">
-            <button onclick="closeReceiptModal()" style="position: absolute; top: 15px; right: 15px; border: none; background: none; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h3 style="font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text-color); margin: 0;">Francos. Bakes & Brews</h3>
-                <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Admin Order Transaction Viewer</p>
+    <!-- END-OF-DAY (Z-READING) SALES REPORT MODAL -->
+    <div id="eod-modal-overlay" class="admin-modal-overlay">
+        <div class="admin-modal-box printable-area" style="max-width: 540px;">
+            <button onclick="closeEndOfDayModal()" class="no-print" style="position: absolute; top: 18px; right: 18px; border: none; background: none; font-size: 20px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
+
+            <!-- Store Header -->
+            <div style="text-align: center; border-bottom: 1.5px dashed var(--border-color); padding-bottom: 14px; margin-bottom: 16px;">
+                <h2 style="font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text-color); margin: 0;">Francos. Bakes & Brews</h2>
+                <span style="font-size: 11.5px; font-weight: 800; color: var(--accent-color); letter-spacing: 1.5px; text-transform: uppercase;">DAILY Z-READING SALES REPORT</span>
+                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;" id="zreading-timestamp">Date & Time: --</div>
+                <div style="font-size: 10.5px; color: var(--text-secondary);">Store Branch: Brgy. Canarvacanan, Binalonan, Pangasinan</div>
             </div>
-            <div id="receipt-modal-content" style="font-size: 13px;">
-                <!-- Receipt details injected here -->
+
+            <!-- Core Financials -->
+            <div class="z-reading-box">
+                <div class="z-reading-row" style="font-size: 15px; font-weight: 800; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
+                    <span>GROSS SALES REVENUE:</span>
+                    <span id="zreading-gross">₱0.00</span>
+                </div>
+                <div class="z-reading-row" style="margin-top: 6px;">
+                    <span>Total Orders Placed:</span>
+                    <strong id="zreading-total-orders">0</strong>
+                </div>
+                <div class="z-reading-row">
+                    <span>Completed / Settled Orders:</span>
+                    <strong id="zreading-completed-orders" style="color: #2e7d32;">0</strong>
+                </div>
+                <div class="z-reading-row">
+                    <span>Total Drink Cups Prepared:</span>
+                    <strong id="zreading-total-cups">0 cups</strong>
+                </div>
+                <div class="z-reading-row">
+                    <span>Discounts Claimed:</span>
+                    <strong id="zreading-total-discounts" style="color: #c62828;">-₱0.00</strong>
+                </div>
             </div>
-            <button onclick="closeReceiptModal()" style="width: 100%; margin-top: 20px; background: var(--accent-color); color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;">Close Receipt</button>
+
+            <!-- Payment Methods Breakdown -->
+            <div class="z-reading-box">
+                <strong style="display: block; font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
+                    <i class="fa-solid fa-wallet"></i> Payment Channel Breakdown:
+                </strong>
+                <div class="z-reading-row">
+                    <span><i class="fa-solid fa-mobile-screen" style="color: #1976d2;"></i> GCash / Maya QR:</span>
+                    <strong id="zreading-pay-gcash">₱0.00 (0 orders)</strong>
+                </div>
+                <div class="z-reading-row">
+                    <span><i class="fa-solid fa-money-bill-wave" style="color: #2e7d32;"></i> Cash on Delivery / Counter:</span>
+                    <strong id="zreading-pay-cash">₱0.00 (0 orders)</strong>
+                </div>
+            </div>
+
+            <!-- Fulfillment Mode Breakdown -->
+            <div class="z-reading-box">
+                <strong style="display: block; font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
+                    <i class="fa-solid fa-truck-ramp-box"></i> Order Fulfillment Mode:
+                </strong>
+                <div class="z-reading-row">
+                    <span><i class="fa-solid fa-motorcycle" style="color: var(--accent-color);"></i> Local Address Deliveries:</span>
+                    <strong id="zreading-mode-delivery">0 orders</strong>
+                </div>
+                <div class="z-reading-row">
+                    <span><i class="fa-solid fa-store" style="color: #1565c0;"></i> Customer Store Pick-ups:</span>
+                    <strong id="zreading-mode-pickup">0 orders</strong>
+                </div>
+            </div>
+
+            <!-- Top 3 Best-Selling Drinks -->
+            <div class="z-reading-box">
+                <strong style="display: block; font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
+                    <i class="fa-solid fa-trophy" style="color: #f59e0b;"></i> Top 3 Best Selling Drinks Today:
+                </strong>
+                <div id="zreading-top-drinks" style="font-size: 12.5px; color: var(--text-color);">
+                    <!-- Dynamically calculated -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="no-print" style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="window.print()" style="flex: 2; padding: 12px; background: #2e7d32; color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fa-solid fa-print"></i> Print / Save Daily Report
+                </button>
+                <button onclick="closeEndOfDayModal()" style="flex: 1; padding: 12px; background: transparent; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px;">
+                    Close
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Floating Scroll To Top Button -->
-    <button id="scrollTopBtn" onclick="scrollToTop()" title="Scroll to top"><i class="fa-solid fa-arrow-up"></i></button>
-
-    <!-- Modal for Adding New Menu Item -->
-    <div id="add-menu-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
-        <div style="background: var(--card-bg); color: var(--text-color); border-radius: 16px; max-width: 420px; width: 100%; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; border: 1px solid var(--border-color);">
-            <button onclick="toggleAddStockModal()" style="position: absolute; top: 15px; right: 15px; border: none; background: none; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
-            <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin-bottom: 15px;">Add New Menu Item</h3>
+    <!-- DOCKET & CUP LABEL STICKER MODAL -->
+    <div id="receipt-modal-overlay" class="admin-modal-overlay">
+        <div class="admin-modal-box printable-area">
+            <button onclick="closeReceiptModal()" class="no-print" style="position: absolute; top: 18px; right: 18px; border: none; background: none; font-size: 20px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
             
-            <form onsubmit="addNewMenuItem(event)">
-                <div style="margin-bottom: 10px;">
-                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color);">Item Name</label>
-                    <input type="text" id="new-item-name" required placeholder="e.g. Hazelnut Cold Brew" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 6px; outline: none; margin-top: 4px;">
+            <!-- View Selector Tabs in Modal -->
+            <div class="no-print" style="display: flex; gap: 8px; margin-bottom: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                <button id="btn-view-docket" onclick="switchPrintView('docket')" style="flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--accent-color); background: var(--accent-color); color: #fff; font-weight: bold; font-size: 12px; cursor: pointer;">
+                    📄 Order Docket
+                </button>
+                <button id="btn-view-stickers" onclick="switchPrintView('stickers')" style="flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: transparent; color: var(--text-color); font-weight: bold; font-size: 12px; cursor: pointer;">
+                    🏷️ Cup Stickers (Print Labels)
+                </button>
+            </div>
+
+            <!-- Content Area 1: Standard Docket View -->
+            <div id="docket-view-content">
+                <div style="text-align: center; margin-bottom: 16px; border-bottom: 1px dashed var(--border-color); padding-bottom: 12px;">
+                    <h3 style="font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--text-color); margin: 0;">Francos. Bakes & Brews</h3>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 3px; text-transform: uppercase;">Kitchen Docket & Customer Transaction</p>
                 </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color);">Category</label>
-                    <select id="new-item-category" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 6px; margin-top: 4px;">
-                        <option value="sleepless">Sleepless (Coffee)</option>
-                        <option value="oatmilk">Oat Milk</option>
-                        <option value="sogreen">So Green (Matcha)</option>
-                        <option value="snow">Snow Frappes</option>
-                        <option value="sweettooth">Sweet Tooth</option>
-                        <option value="fruitfaves">Fruit Faves</option>
-                        <option value="package">Event Package</option>
-                    </select>
+                <div id="receipt-modal-content"></div>
+            </div>
+
+            <!-- Content Area 2: Barista Cup Stickers View -->
+            <div id="stickers-view-content" style="display: none;">
+                <p class="no-print" style="font-size: 11.5px; color: var(--text-secondary); margin: 0 0 12px;">
+                    <i class="fa-solid fa-circle-info"></i> Individual stickers formatted for direct cup placement:
+                </p>
+                <div id="cup-stickers-container"></div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="no-print" style="display: flex; gap: 10px; margin-top: 22px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                <button onclick="window.print()" style="flex: 1; background: var(--accent-color); border: none; color: #fff; padding: 11px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fa-solid fa-print"></i> Print Now
+                </button>
+                <button onclick="closeReceiptModal()" style="flex: 1; background: transparent; border: 1px solid var(--border-color); color: var(--text-color); padding: 11px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Customer Modal -->
+    <div id="edit-customer-modal" class="admin-modal-overlay">
+        <div class="admin-modal-box">
+            <button onclick="closeEditCustomerModal()" style="position: absolute; top: 18px; right: 18px; border: none; background: none; font-size: 20px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
+            <h3 style="font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text-color); margin: 0 0 16px;">
+                <i class="fa-solid fa-user-pen" style="color: var(--accent-color);"></i> Edit Customer & VIP Profile
+            </h3>
+            
+            <form onsubmit="saveCustomerDetails(event)">
+                <input type="hidden" id="edit-cust-email-key">
+
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Full Name</label>
+                    <input type="text" id="edit-cust-name" required style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none;">
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Phone Number</label>
+                    <input type="text" id="edit-cust-phone" placeholder="09XXXXXXXXX" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
                     <div>
-                        <label style="font-size: 12px; font-weight: bold; color: var(--text-color);">Price (₱)</label>
-                        <input type="number" id="new-item-price" required placeholder="130" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 6px; outline: none; margin-top: 4px;">
+                        <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">VIP Membership Tier</label>
+                        <select id="edit-cust-tier" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px;">
+                            <option value="Bronze Bean">Bronze Bean (Regular)</option>
+                            <option value="Silver Sipper">Silver Sipper</option>
+                            <option value="Gold Brewer">Gold Brewer</option>
+                            <option value="VIP Crown Member">VIP Crown Member ⭐</option>
+                        </select>
                     </div>
+
                     <div>
-                        <label style="font-size: 12px; font-weight: bold; color: var(--text-color);">Stock Qty</label>
-                        <input type="number" id="new-item-stock" required placeholder="15" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 6px; outline: none; margin-top: 4px;">
+                        <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Account Role</label>
+                        <select id="edit-cust-role" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px;">
+                            <option value="customer">Customer</option>
+                            <option value="admin">Administrator / Staff</option>
+                        </select>
                     </div>
                 </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color);">Description</label>
-                    <textarea id="new-item-desc" placeholder="Brief description..." style="width: 100%; padding: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 6px; outline: none; height: 60px; margin-top: 4px; font-family: inherit;"></textarea>
+
+                <div style="margin-bottom: 16px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 6px;">
+                        <i class="fa-solid fa-mug-hot" style="color: var(--accent-color);"></i> Loyalty Stamps (0 to 5)
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="number" id="edit-cust-stamps" min="0" max="5" value="0" style="width: 70px; padding: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 6px; font-weight: bold; font-size: 14px;">
+                        <small style="font-size: 11px; color: var(--text-secondary);">5 stamps = 1 FREE Spanish Latte!</small>
+                    </div>
                 </div>
-                <button type="submit" style="width: 100%; padding: 10px; background: var(--accent-color); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Save & Publish to Menu</button>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Reset Password (Optional)</label>
+                    <input type="text" id="edit-cust-password" placeholder="Leave blank to keep current password" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none;">
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="closeEditCustomerModal()" style="flex: 1; padding: 11px; background: transparent; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 8px; font-weight: bold; cursor: pointer;">Cancel</button>
+                    <button type="submit" style="flex: 2; padding: 11px; background: var(--accent-color); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Save Changes</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- Notification Toast -->
-    <div id="toast" class="toast">Action completed!</div>
+    <!-- Create Promo Modal -->
+    <div id="add-promo-modal" class="admin-modal-overlay">
+        <div class="admin-modal-box">
+            <button onclick="toggleAddPromoModal()" style="position: absolute; top: 18px; right: 18px; border: none; background: none; font-size: 20px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
+            <h3 style="font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text-color); margin: 0 0 16px;">
+                <i class="fa-solid fa-ticket" style="color: var(--accent-color);"></i> Create New Promo Voucher
+            </h3>
 
-    <footer>
-        <p>&copy; 2026 Francos. Bakes and Brews · Admin Control Panel</p>
-    </footer>
+            <form onsubmit="handleCreatePromoSubmit(event)">
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Promo Title</label>
+                    <input type="text" id="promo-title" required placeholder="e.g. Payday Weekend Treat" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none;">
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Promo Code (Unique)</label>
+                    <input type="text" id="promo-code" required placeholder="e.g. PAYDAY30" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--accent-color); font-weight: bold; text-transform: uppercase; border-radius: 8px; outline: none;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Discount Type</label>
+                        <select id="promo-type" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px;">
+                            <option value="fixed">Fixed Peso Off (₱)</option>
+                            <option value="percent">Percentage Off (%)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Discount Value</label>
+                        <input type="number" id="promo-value" required placeholder="30" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Description</label>
+                    <textarea id="promo-desc" required placeholder="Short explanation for customers..." style="width: 100%; height: 65px; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none; font-family: inherit;"></textarea>
+                </div>
+
+                <button type="submit" style="width: 100%; padding: 12px; background: var(--accent-color); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;">Publish Live Promo</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Adding New Menu Item -->
+    <div id="add-menu-modal" class="admin-modal-overlay">
+        <div class="admin-modal-box">
+            <button onclick="toggleAddStockModal()" style="position: absolute; top: 18px; right: 18px; border: none; background: none; font-size: 20px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
+            <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin: 0 0 16px; font-size: 22px;">Add New Menu Item</h3>
+            
+            <form onsubmit="addNewMenuItem(event)">
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Drink / Item Name</label>
+                    <input type="text" id="new-item-name" required placeholder="e.g. Hazelnut Cold Brew" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Category</label>
+                    <select id="new-item-category" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px;">
+                        <option value="sleepless">Sleepless (Coffee)</option>
+                        <option value="sogreen">So Green (Matcha)</option>
+                        <option value="snow">Snow Frappes</option>
+                        <option value="sweettooth">Sweet Tooth</option>
+                        <option value="fruitfaves">Fruit Faves</option>
+                        <option value="oatmilk">Oat Milk Alternative</option>
+                        <option value="package">Event Package</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Price (₱)</label>
+                        <input type="number" id="new-item-price" required placeholder="130" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Stock Qty</label>
+                        <input type="number" id="new-item-stock" required placeholder="20" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none;">
+                    </div>
+                </div>
+                <div style="margin-bottom: 18px;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Description</label>
+                    <textarea id="new-item-desc" placeholder="Handcrafted recipe description..." style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none; height: 60px; font-family: inherit;"></textarea>
+                </div>
+                <button type="submit" style="width: 100%; padding: 12px; background: var(--accent-color); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;">Publish to Store Menu</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <footer></footer>
 
     <script src="../assets/script.js"></script>
     <script>
+        let currentStatusFilter = "all";
+        let activeSelectedOrder = null;
+
         document.addEventListener("DOMContentLoaded", () => {
+            initializeDemoUsersIfEmpty();
+            initializeDefaultPromosIfEmpty();
             loadKPIs();
             renderOrdersList();
             renderInventoryList();
-            setupScrollTopButton();
+            renderCustomersList();
+            renderPromosList();
+            checkAndAlertNewOrders();
+
+            window.addEventListener("storage", (e) => {
+                if (e.key === "storeOrders") {
+                    loadKPIs();
+                    renderOrdersList();
+                    renderCustomersList();
+                    checkAndAlertNewOrders();
+                } else if (e.key === "adminMenuItems") {
+                    renderInventoryList();
+                } else if (e.key === "appUsersList") {
+                    renderCustomersList();
+                    loadKPIs();
+                } else if (e.key === "storePromos") {
+                    renderPromosList();
+                    loadKPIs();
+                }
+            });
+
+            setInterval(() => {
+                loadKPIs();
+                renderOrdersList();
+            }, 4000);
         });
+
+        function initializeDefaultPromosIfEmpty() {
+            let promos = JSON.parse(localStorage.getItem("storePromos"));
+            if (!promos || promos.length === 0) {
+                promos = [
+                    { code: "FRANCOS50", title: "₱50 Welcome Treat", type: "fixed", value: 50, desc: "₱50 OFF your coffee order with no minimum spend!" },
+                    { code: "WELCOME10", title: "Brew Lover Special", type: "percent", value: 10, desc: "Get 10% OFF on all espresso mixes and Japanese matcha." }
+                ];
+                localStorage.setItem("storePromos", JSON.stringify(promos));
+            }
+        }
+
+        function initializeDemoUsersIfEmpty() {
+            let users = JSON.parse(localStorage.getItem("appUsersList"));
+            if (!users || users.length === 0) {
+                users = [
+                    { name: "Juan Dela Cruz", email: "juan@example.com", phone: "09987654321", role: "customer", tier: "VIP Crown Member", stamps: 3 },
+                    { name: "Maria Santos", email: "maria@example.com", phone: "09181234567", role: "customer", tier: "Gold Brewer", stamps: 4 },
+                    { name: "Store Administrator", email: "admin@francos.com", phone: "09171234567", role: "admin", tier: "VIP Crown Member", stamps: 5 }
+                ];
+                localStorage.setItem("appUsersList", JSON.stringify(users));
+            }
+        }
+
+        function playChimeSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            } catch (err) {
+                console.log("Audio waiting for user gesture");
+            }
+        }
+
+        function checkAndAlertNewOrders() {
+            let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
+            let hasNew = orders.some(o => o.isNew);
+            if (hasNew) {
+                playChimeSound();
+                showToast("🔔 New Live Order Waiting for Kitchen Review!");
+            }
+        }
 
         function switchTab(tab) {
             let ordersTab = document.getElementById("tab-orders-section");
             let inventoryTab = document.getElementById("tab-inventory-section");
+            let customersTab = document.getElementById("tab-customers-section");
+            let promosTab = document.getElementById("tab-promos-section");
+
             let btnOrders = document.getElementById("btn-tab-orders");
             let btnInventory = document.getElementById("btn-tab-inventory");
+            let btnCustomers = document.getElementById("btn-tab-customers");
+            let btnPromos = document.getElementById("btn-tab-promos");
 
-            if (tab === "orders") {
-                ordersTab.style.display = "block";
-                inventoryTab.style.display = "none";
-                btnOrders.classList.add("active");
-                btnInventory.classList.remove("active");
-            } else {
-                ordersTab.style.display = "none";
-                inventoryTab.style.display = "block";
-                btnOrders.classList.remove("active");
-                btnInventory.classList.add("active");
-            }
+            ordersTab.style.display = tab === "orders" ? "block" : "none";
+            inventoryTab.style.display = tab === "inventory" ? "block" : "none";
+            customersTab.style.display = tab === "customers" ? "block" : "none";
+            promosTab.style.display = tab === "promos" ? "block" : "none";
+
+            btnOrders.classList.toggle("active", tab === "orders");
+            btnInventory.classList.toggle("active", tab === "inventory");
+            btnCustomers.classList.toggle("active", tab === "customers");
+            btnPromos.classList.toggle("active", tab === "promos");
+        }
+
+        function setOrderStatusFilter(filter, btn) {
+            currentStatusFilter = filter;
+            document.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
+            btn.classList.add("active");
+            renderOrdersList();
         }
 
         function loadKPIs() {
-            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
+            let promos = JSON.parse(localStorage.getItem("storePromos")) || [];
+
             let totalCount = orders.length;
             let pendingCount = orders.filter(o => o.status === "Pending" || o.status === "Preparing").length;
             let totalRev = orders.reduce((sum, o) => sum + (o.total || 0), 0);
@@ -282,55 +835,103 @@
             document.getElementById("kpi-total-orders").textContent = totalCount;
             document.getElementById("kpi-pending-orders").textContent = pendingCount;
             document.getElementById("kpi-total-revenue").textContent = `₱${totalRev.toFixed(2)}`;
+            document.getElementById("kpi-total-promos").textContent = promos.length;
+
+            document.getElementById("count-order-all").textContent = totalCount;
+            document.getElementById("count-order-active").textContent = pendingCount;
+            document.getElementById("count-order-delivery").textContent = orders.filter(o => o.status === "Out for Delivery").length;
+            document.getElementById("count-order-completed").textContent = orders.filter(o => o.status === "Completed").length;
         }
 
         function renderOrdersList() {
             let container = document.getElementById("admin-orders-list");
-            let orders = JSON.parse(localStorage.getItem("orders")) || [];
-            let query = document.getElementById("order-search-input").value.toLowerCase().trim();
+            let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
+            let searchInput = document.getElementById("order-search-input");
+            let query = searchInput ? searchInput.value.toLowerCase().trim() : "";
 
             if (orders.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:40px; background:var(--card-bg); border-radius:12px; border:1px solid var(--border-color); color:var(--text-secondary);">No orders received yet.</div>`;
+                container.innerHTML = `<div style="text-align:center; padding:50px 20px; background:var(--card-bg); border-radius:16px; border:1px solid var(--border-color); color:var(--text-secondary);"><i class="fa-solid fa-mug-saucer" style="font-size:36px; margin-bottom:10px; color:var(--accent-color);"></i><p style="margin:0; font-weight:bold;">No customer orders received yet.</p></div>`;
                 return;
             }
 
-            let filtered = orders.filter(o => 
-                (o.id && o.id.toString().includes(query)) || 
-                (o.customer && o.customer.toLowerCase().includes(query))
-            );
+            let filtered = orders.filter(o => {
+                let st = (o.status || "Pending").toLowerCase();
+                if (currentStatusFilter === "active") return st === "pending" || st === "preparing";
+                if (currentStatusFilter === "delivery") return st === "out for delivery";
+                if (currentStatusFilter === "completed") return st === "completed";
+                return true;
+            });
+
+            if (query !== "") {
+                filtered = filtered.filter(o => 
+                    (o.id && o.id.toString().toLowerCase().includes(query)) || 
+                    (o.customerName && o.customerName.toLowerCase().includes(query))
+                );
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:35px; background:var(--card-bg); border-radius:14px; border:1px solid var(--border-color); color:var(--text-secondary);">No orders found under this filter.</div>`;
+                return;
+            }
 
             let html = "";
-            filtered.forEach((order, index) => {
+            filtered.forEach((order) => {
+                let actualIndex = orders.findIndex(o => o.id === order.id);
+
                 let itemsList = (order.items && order.items.length) 
-                    ? order.items.map(i => `${i.qty}x ${i.name} (₱${i.price})`).join(", ")
+                    ? order.items.map(i => `<span style="display:inline-block; margin-right:8px; margin-bottom:4px; padding:3px 8px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px;"><strong>${i.qty}x</strong> ${i.name}</span>`).join("")
                     : "No items listed";
 
+                let newOrderBadge = order.isNew ? `<span style="background: #e65100; color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; margin-left: 8px;">🔔 NEW ORDER</span>` : "";
+
+                let quickActionBtn = "";
+                let st = order.status || "Pending";
+                if (st === "Pending") {
+                    quickActionBtn = `<button class="quick-action-btn" onclick="updateOrderStatus(${actualIndex}, 'Preparing')" style="background:#e8f5e9; color:#2e7d32;"><i class="fa-solid fa-mug-hot"></i> Start Brewing</button>`;
+                } else if (st === "Preparing") {
+                    quickActionBtn = `<button class="quick-action-btn" onclick="updateOrderStatus(${actualIndex}, 'Out for Delivery')" style="background:#e3f2fd; color:#1565c0;"><i class="fa-solid fa-motorcycle"></i> Dispatch Rider</button>`;
+                } else if (st === "Out for Delivery") {
+                    quickActionBtn = `
+                        <div style="display:inline-flex; gap:6px;">
+                            <a href="../rider.html" target="_blank" style="background:#e3f2fd; color:#1565c0; border:1px solid #1976d2; padding:6px 10px; border-radius:6px; font-weight:bold; font-size:11px; text-decoration:none;"><i class="fa-solid fa-motorcycle"></i> Track Rider</a>
+                            <button class="quick-action-btn" onclick="updateOrderStatus(${actualIndex}, 'Completed')" style="background:#f3e5f5; color:#7b1fa2;"><i class="fa-solid fa-circle-check"></i> Mark Completed</button>
+                        </div>
+                    `;
+                }
+
                 html += `
-                    <div class="order-admin-card">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                    <div class="order-admin-card ${order.isNew ? 'is-new' : ''}">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
                             <div>
-                                <strong style="font-size:16px; color:var(--text-color);">Order #${order.id} - ${order.customer}</strong>
-                                <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">Payment: ${order.paymentMethod} (${order.refNumber}) | Date: ${order.date || 'Today'}</div>
+                                <strong style="font-size:17px; color:var(--text-color); font-family:'DM Serif Display', serif;">Order #${order.id} - ${order.customerName || 'Valued Customer'}</strong> ${newOrderBadge}
+                                <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">
+                                    ${order.date || 'Today'} · <strong style="color:var(--accent-color);">${order.paymentMethod}</strong>
+                                </div>
                             </div>
                             <div style="display:flex; gap:10px; align-items:center;">
-                                <button onclick="openAdminReceiptModal(${index})" style="background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-color); padding:5px 10px; border-radius:6px; font-weight:bold; font-size:11px; cursor:pointer;"><i class="fa-solid fa-file-invoice"></i> Receipt</button>
-                                <strong style="color:var(--accent-color); font-size:16px;">₱${(order.total || 0).toFixed(2)}</strong>
+                                <button onclick="openAdminReceiptModal(${actualIndex})" style="background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-color); padding:7px 12px; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;"><i class="fa-solid fa-receipt"></i> Docket & Labels</button>
+                                <strong style="color:var(--accent-color); font-size:18px;">₱${(order.total || 0).toFixed(2)}</strong>
                             </div>
                         </div>
 
-                        <div style="background:var(--bg-color); border:1px solid var(--border-color); border-radius:8px; padding:10px; font-size:12px; color:var(--text-color); margin-bottom:12px;">
-                            <strong>Items Ordered:</strong> ${itemsList}<br>
-                            <strong>Barista Note:</strong> <span style="color:var(--text-secondary);">${order.notes || 'No special requests.'}</span>
+                        <div style="background:var(--bg-color); border:1px solid var(--border-color); border-radius:10px; padding:12px; font-size:12.5px; color:var(--text-color); margin-bottom:14px;">
+                            <div style="margin-bottom:6px;"><strong>Ordered Drinks:</strong><br><div style="margin-top:4px;">${itemsList}</div></div>
+                            <div><strong>Barista Notes:</strong> <span style="color:var(--text-secondary);">${order.baristaNotes || 'No special requests.'}</span></div>
                         </div>
 
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:12px; font-weight:bold; color:var(--text-color);">Status: <span style="color:var(--accent-color);">${order.status || 'Pending'}</span></span>
-                            <select onchange="updateOrderStatus(${index}, this.value)" style="padding:6px 12px; border:1px solid var(--border-color); border-radius:6px; font-size:12px; background:var(--card-bg); color:var(--text-color); cursor:pointer;">
-                                <option value="Pending" ${order.status === "Pending" ? "selected" : ""}>Pending</option>
-                                <option value="Preparing" ${order.status === "Preparing" ? "selected" : ""}>Preparing</option>
-                                <option value="Out for Delivery" ${order.status === "Out for Delivery" ? "selected" : ""}>Out for Delivery</option>
-                                <option value="Completed" ${order.status === "Completed" ? "selected" : ""}>Completed</option>
-                            </select>
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:12.5px; font-weight:bold; color:var(--text-color);">Status:</span>
+                                <select onchange="updateOrderStatus(${actualIndex}, this.value)" style="padding:7px 12px; border:1px solid var(--border-color); border-radius:8px; font-size:12px; background:var(--card-bg); color:var(--text-color); cursor:pointer; font-weight:600;">
+                                    <option value="Pending" ${order.status === "Pending" ? "selected" : ""}>Pending</option>
+                                    <option value="Preparing" ${order.status === "Preparing" ? "selected" : ""}>Brewing & Preparing</option>
+                                    <option value="Out for Delivery" ${order.status === "Out for Delivery" ? "selected" : ""}>Out for Delivery</option>
+                                    <option value="Completed" ${order.status === "Completed" ? "selected" : ""}>Completed</option>
+                                    <option value="Cancelled" ${order.status === "Cancelled" ? "selected" : ""}>Cancelled</option>
+                                </select>
+                            </div>
+
+                            <div>${quickActionBtn}</div>
                         </div>
                     </div>
                 `;
@@ -339,10 +940,114 @@
             container.innerHTML = html;
         }
 
+        // =========================================================
+        // DAILY SALES & END-OF-DAY (Z-READING) ENGINE
+        // =========================================================
+        function openEndOfDayModal() {
+            let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
+
+            let now = new Date();
+            document.getElementById("zreading-timestamp").textContent = `Generated: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
+
+            let grossRevenue = 0;
+            let totalDiscounts = 0;
+            let totalCups = 0;
+            let completedOrders = 0;
+
+            let gcashRevenue = 0;
+            let gcashCount = 0;
+            let cashRevenue = 0;
+            let cashCount = 0;
+
+            let deliveryCount = 0;
+            let pickupCount = 0;
+
+            let drinkTally = {};
+
+            orders.forEach(o => {
+                grossRevenue += (o.total || 0);
+                totalDiscounts += (o.discount || 0);
+                if (o.status === "Completed") completedOrders++;
+
+                let pay = (o.paymentMethod || "").toLowerCase();
+                if (pay.includes("gcash") || pay.includes("maya")) {
+                    gcashRevenue += (o.total || 0);
+                    gcashCount++;
+                } else {
+                    cashRevenue += (o.total || 0);
+                    cashCount++;
+                }
+
+                let mode = (o.fulfillmentMode || "").toLowerCase();
+                let loc = (o.deliveryLocation || "").toLowerCase();
+                if (mode === "pickup" || loc.includes("pick-up")) {
+                    pickupCount++;
+                } else {
+                    deliveryCount++;
+                }
+
+                if (o.items && o.items.length > 0) {
+                    o.items.forEach(i => {
+                        totalCups += i.qty;
+                        drinkTally[i.name] = (drinkTally[i.name] || 0) + i.qty;
+                    });
+                }
+            });
+
+            document.getElementById("zreading-gross").textContent = `₱${grossRevenue.toFixed(2)}`;
+            document.getElementById("zreading-total-orders").textContent = orders.length;
+            document.getElementById("zreading-completed-orders").textContent = `${completedOrders} of ${orders.length}`;
+            document.getElementById("zreading-total-cups").textContent = `${totalCups} handcrafted cups`;
+            document.getElementById("zreading-total-discounts").textContent = `-₱${totalDiscounts.toFixed(2)}`;
+
+            document.getElementById("zreading-pay-gcash").textContent = `₱${gcashRevenue.toFixed(2)} (${gcashCount} orders)`;
+            document.getElementById("zreading-pay-cash").textContent = `₱${cashRevenue.toFixed(2)} (${cashCount} orders)`;
+
+            document.getElementById("zreading-mode-delivery").textContent = `${deliveryCount} deliveries`;
+            document.getElementById("zreading-mode-pickup").textContent = `${pickupCount} store pick-ups`;
+
+            let topDrinksArray = Object.keys(drinkTally).map(name => ({ name: name, qty: drinkTally[name] }));
+            topDrinksArray.sort((a, b) => b.qty - a.qty);
+
+            let topHTML = "";
+            if (topDrinksArray.length === 0) {
+                topHTML = `<div style="color:var(--text-secondary);">No drinks sold yet today.</div>`;
+            } else {
+                topDrinksArray.slice(0, 3).forEach((item, index) => {
+                    let medal = index === 0 ? "🥇" : (index === 1 ? "🥈" : "🥉");
+                    topHTML += `
+                        <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
+                            <span>${medal} <strong>${item.name}</strong></span>
+                            <span style="font-weight:bold; color:var(--accent-color);">${item.qty} cups sold</span>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById("zreading-top-drinks").innerHTML = topHTML;
+
+            document.getElementById("eod-modal-overlay").style.display = "flex";
+        }
+
+        function closeEndOfDayModal() {
+            document.getElementById("eod-modal-overlay").style.display = "none";
+        }
+
+        // =========================================================
+        // DOCKET & BARISTA CUP STICKERS ENGINE
+        // =========================================================
         function openAdminReceiptModal(orderIndex) {
-            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
             let order = orders[orderIndex];
             if (!order) return;
+
+            activeSelectedOrder = order;
+
+            if (order.isNew) {
+                order.isNew = false;
+                localStorage.setItem("storeOrders", JSON.stringify(orders));
+                renderOrdersList();
+                loadKPIs();
+            }
 
             let itemsListHTML = "";
             let subtotal = 0;
@@ -350,40 +1055,109 @@
                 order.items.forEach(i => {
                     let itemTotal = i.price * i.qty;
                     subtotal += itemTotal;
+                    let customTag = i.customSummary ? `<div style="font-size:11px; color:var(--text-secondary);">${i.customSummary}</div>` : '';
                     itemsListHTML += `
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px;">
-                            <span>${i.qty}x ${i.name}</span>
-                            <span>₱${itemTotal.toFixed(2)}</span>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;">
+                            <div>
+                                <strong style="color:var(--text-color);">${i.qty}x ${i.name}</strong>
+                                ${customTag}
+                            </div>
+                            <strong style="color:var(--text-color);">₱${itemTotal.toFixed(2)}</strong>
                         </div>
                     `;
                 });
             }
 
-            let deliveryFee = 50.00;
+            let deliveryFee = order.deliveryFee || 0;
             let receiptHTML = `
-                <div style="border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; margin-bottom: 12px;">
-                    <strong>Order ID:</strong> #${order.id}<br>
-                    <strong>Customer:</strong> ${order.customer}<br>
-                    <strong>Date:</strong> ${order.date || 'Today'}<br>
-                    <strong>Payment Method:</strong> ${order.paymentMethod} (${order.refNumber})<br>
-                    <strong>Status:</strong> ${order.status || 'Pending'}
+                <div style="border-bottom: 1px dashed var(--border-color); padding-bottom: 12px; margin-bottom: 14px;">
+                    <div><strong>Order ID:</strong> #${order.id}</div>
+                    <div><strong>Customer:</strong> ${order.customerName || 'Valued Customer'}</div>
+                    <div><strong>Date & Time:</strong> ${order.date || 'Today'}</div>
+                    <div><strong>Payment Method:</strong> <span style="color:var(--accent-color); font-weight:bold;">${order.paymentMethod}</span></div>
+                    <div><strong>Status:</strong> ${order.status || 'Pending'}</div>
                 </div>
-                <div style="margin-bottom: 12px;">
-                    <strong style="display: block; margin-bottom: 6px; color: var(--accent-color);">Ordered Items:</strong>
+
+                <div style="margin-bottom: 14px;">
+                    <strong style="display: block; margin-bottom: 8px; color: var(--accent-color); font-size: 12px; text-transform: uppercase;">Drink Orders & Recipe:</strong>
                     ${itemsListHTML}
                 </div>
-                <div style="border-top: 1px dashed var(--border-color); padding-top: 10px; font-size: 12px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Subtotal:</span><span>₱${subtotal.toFixed(2)}</span></div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Delivery Fee:</span><span>₱${deliveryFee.toFixed(2)}</span></div>
-                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; color: var(--accent-color); margin-top: 6px;"><span>Total:</span><span>₱${(order.total || subtotal + deliveryFee).toFixed(2)}</span></div>
+
+                <div style="border-top: 1px dashed var(--border-color); padding-top: 12px; font-size: 13px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Subtotal:</span><span>₱${(order.subtotal || subtotal).toFixed(2)}</span></div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><span>Fulfillment / Delivery:</span><span>${deliveryFee === 0 ? 'FREE' : '₱' + deliveryFee.toFixed(2)}</span></div>
+                    ${order.discount ? `<div style="display: flex; justify-content: space-between; color: #2e7d32; margin-bottom: 4px;"><span>Discount:</span><span>-₱${order.discount.toFixed(2)}</span></div>` : ''}
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 17px; color: var(--accent-color); margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 6px;">
+                        <span>Total Amount:</span><span>₱${(order.total || subtotal + deliveryFee).toFixed(2)}</span>
+                    </div>
                 </div>
-                <div style="margin-top: 15px; background: var(--bg-color); padding: 8px; border-radius: 6px; font-size: 11px; color: var(--text-secondary);">
-                    <strong>Barista Notes:</strong> ${order.notes || 'None'}
+
+                <div style="margin-top: 15px; background: var(--bg-color); border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; font-size: 12px; color: var(--text-color);">
+                    <strong style="color:var(--accent-color);"><i class="fa-solid fa-note-sticky"></i> Instructions:</strong>
+                    <div style="margin-top: 3px; color: var(--text-secondary);">${order.baristaNotes || 'None'}</div>
                 </div>
             `;
-
             document.getElementById("receipt-modal-content").innerHTML = receiptHTML;
+
+            let stickersHTML = "";
+            let cupCounter = 1;
+            let totalCups = order.items ? order.items.reduce((sum, item) => sum + item.qty, 0) : 1;
+
+            if (order.items && order.items.length > 0) {
+                order.items.forEach(item => {
+                    for (let c = 0; c < item.qty; c++) {
+                        let addOnsText = (item.addOns && item.addOns.length > 0) 
+                            ? item.addOns.map(a => a.name).join(", ") 
+                            : "No extra add-ons";
+
+                        stickersHTML += `
+                            <div class="cup-sticker-badge">
+                                <h4>Francos. Bakes & Brews</h4>
+                                <div class="cup-sticker-meta">
+                                    <span><strong>#${order.id}</strong> · ${order.customerName || 'Customer'}</span>
+                                    <span><strong>[Cup ${cupCounter} of ${totalCups}]</strong></span>
+                                </div>
+                                <div style="font-size: 14px; font-weight: 800; color: #000; margin: 4px 0;">
+                                    ${item.name}
+                                </div>
+                                <div class="cup-sticker-spec">
+                                    <div><strong>Recipe:</strong> ${item.customSummary || 'Standard Cup'}</div>
+                                    <div><strong>Add-ons:</strong> ${addOnsText}</div>
+                                    <div><strong>Note:</strong> ${order.baristaNotes || 'None'}</div>
+                                </div>
+                            </div>
+                        `;
+                        cupCounter++;
+                    }
+                });
+            }
+            document.getElementById("cup-stickers-container").innerHTML = stickersHTML;
+
+            switchPrintView('docket');
             document.getElementById("receipt-modal-overlay").style.display = "flex";
+        }
+
+        function switchPrintView(view) {
+            let docketContent = document.getElementById("docket-view-content");
+            let stickersContent = document.getElementById("stickers-view-content");
+            let btnDocket = document.getElementById("btn-view-docket");
+            let btnStickers = document.getElementById("btn-view-stickers");
+
+            if (view === 'docket') {
+                docketContent.style.display = "block";
+                stickersContent.style.display = "none";
+                btnDocket.style.background = "var(--accent-color)";
+                btnDocket.style.color = "#fff";
+                btnStickers.style.background = "transparent";
+                btnStickers.style.color = "var(--text-color)";
+            } else {
+                docketContent.style.display = "none";
+                stickersContent.style.display = "block";
+                btnStickers.style.background = "var(--accent-color)";
+                btnStickers.style.color = "#fff";
+                btnDocket.style.background = "transparent";
+                btnDocket.style.color = "var(--text-color)";
+            }
         }
 
         function closeReceiptModal() {
@@ -391,9 +1165,10 @@
         }
 
         function updateOrderStatus(index, newStatus) {
-            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
             orders[index].status = newStatus;
-            localStorage.setItem("orders", JSON.stringify(orders));
+            orders[index].isNew = false;
+            localStorage.setItem("storeOrders", JSON.stringify(orders));
             
             loadKPIs();
             renderOrdersList();
@@ -425,17 +1200,15 @@
                         
                         <div style="flex: 1; display:flex; align-items:center; gap:4px;">
                             <span style="font-size:12px; font-weight:bold; color:var(--text-color);">₱</span>
-                            <input type="number" value="${item.price}" onchange="updateItemPrice(${idx}, this.value)" style="width: 70px; padding: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--accent-color); border-radius: 6px; font-size: 12px; font-weight: bold;">
+                            <input type="number" value="${item.price}" onchange="updateItemPrice(${idx}, this.value)" style="width: 75px; padding: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--accent-color); border-radius: 6px; font-size: 12.5px; font-weight: bold;">
                         </div>
 
                         <div style="flex: 1.2; display:flex; align-items:center; gap:6px;">
                             <span style="font-size:11px; font-weight:bold; color:var(--text-secondary);">Stock:</span>
-                            <input type="number" min="0" value="${item.stock || 0}" onchange="updateItemStockDirect(${idx}, this.value)" style="width: 60px; padding: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 6px; font-size: 12px; font-weight: bold;">
+                            <input type="number" min="0" value="${item.stock || 0}" onchange="updateItemStockDirect(${idx}, this.value)" style="width: 65px; padding: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 6px; font-size: 12.5px; font-weight: bold;">
                         </div>
 
-                        <div style="flex: 1;">
-                            ${statusBadge}
-                        </div>
+                        <div style="flex: 1;">${statusBadge}</div>
 
                         <div style="flex: 2; display:flex; align-items:center; justify-content:flex-end; gap:6px;">
                             <button onclick="adjustStock(${idx}, 5)" style="background:#e8f5e9; color:#2e7d32; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">+5</button>
@@ -454,7 +1227,7 @@
             let menuItems = getLiveProducts();
             menuItems[index].price = parseFloat(newPrice) || 0;
             localStorage.setItem("adminMenuItems", JSON.stringify(menuItems));
-            showToast(`Updated price for ${menuItems[index].name} to ₱${menuItems[index].price}!`);
+            showToast(`Updated price for ${menuItems[index].name}!`);
         }
 
         function updateItemStockDirect(index, newStockVal) {
@@ -463,7 +1236,7 @@
             menuItems[index].stock = newStock;
             localStorage.setItem("adminMenuItems", JSON.stringify(menuItems));
             renderInventoryList();
-            showToast(`${menuItems[index].name} stock set to ${newStock} pcs!`);
+            showToast(`${menuItems[index].name} stock set to ${newStock}!`);
         }
 
         function adjustStock(index, amount) {
@@ -471,7 +1244,7 @@
             menuItems[index].stock = Math.max(0, (menuItems[index].stock || 0) + amount);
             localStorage.setItem("adminMenuItems", JSON.stringify(menuItems));
             renderInventoryList();
-            showToast(`Updated stock for ${menuItems[index].name}!`);
+            showToast(`Stock updated!`);
         }
 
         function toggleSoldOut(index) {
@@ -481,7 +1254,7 @@
                 showToast(`${menuItems[index].name} marked as Sold Out!`);
             } else {
                 menuItems[index].stock = 15;
-                showToast(`${menuItems[index].name} restocked to 15 pcs!`);
+                showToast(`${menuItems[index].name} restocked to 15!`);
             }
             localStorage.setItem("adminMenuItems", JSON.stringify(menuItems));
             renderInventoryList();
@@ -490,11 +1263,11 @@
         function deleteMenuItem(index) {
             let menuItems = getLiveProducts();
             let itemName = menuItems[index].name;
-            if (confirm(`Are you sure you want to delete "${itemName}" from the menu?`)) {
+            if (confirm(`Delete "${itemName}" from official store catalog?`)) {
                 menuItems.splice(index, 1);
                 localStorage.setItem("adminMenuItems", JSON.stringify(menuItems));
                 renderInventoryList();
-                showToast(`Deleted ${itemName} from menu.`);
+                showToast(`Deleted ${itemName}`);
             }
         }
 
@@ -509,7 +1282,7 @@
             let category = document.getElementById("new-item-category").value;
             let price = parseFloat(document.getElementById("new-item-price").value) || 120;
             let stock = parseInt(document.getElementById("new-item-stock").value) || 10;
-            let desc = document.getElementById("new-item-desc").value.trim() || "Freshly prepared at Francos.";
+            let desc = document.getElementById("new-item-desc").value.trim() || "Freshly handcrafted at Francos.";
 
             let menuItems = getLiveProducts();
             let newItem = {
@@ -532,25 +1305,246 @@
             showToast(`Added "${name}" to official menu!`);
         }
 
+        // TAB 3: CUSTOMERS
+        function renderCustomersList() {
+            let container = document.getElementById("admin-customers-list");
+            let users = JSON.parse(localStorage.getItem("appUsersList")) || [];
+            let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
+            let searchInput = document.getElementById("customer-search-input");
+            let query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+
+            if (users.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); background:var(--card-bg); border-radius:14px; border:1px solid var(--border-color);">No customers found in database.</div>`;
+                return;
+            }
+
+            let filtered = users;
+            if (query !== "") {
+                filtered = filtered.filter(u => 
+                    u.name.toLowerCase().includes(query) || 
+                    u.email.toLowerCase().includes(query)
+                );
+            }
+
+            let html = "";
+            filtered.forEach((u) => {
+                let userOrders = orders.filter(o => o.customerEmail === u.email);
+                let totalSpent = userOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+                let ordersCount = userOrders.length;
+
+                let tier = u.tier || "Bronze Bean";
+                let badgeClass = "vip-regular";
+                if (tier.includes("Silver")) badgeClass = "vip-silver";
+                else if (tier.includes("Gold")) badgeClass = "vip-gold";
+                else if (tier.includes("Crown") || tier.includes("VIP")) badgeClass = "vip-crown";
+
+                let stamps = u.stamps !== undefined ? u.stamps : (ordersCount % 5);
+
+                html += `
+                    <div class="customer-card-row">
+                        <div style="display: flex; align-items: center; gap: 14px; min-width: 250px;">
+                            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-color), #70452f); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">
+                                ${u.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <strong style="font-size: 14.5px; color: var(--text-color); display: block;">${u.name}</strong>
+                                <span style="font-size: 11.5px; color: var(--text-secondary);">${u.email} · ${u.phone || 'No phone'}</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="vip-badge-pill ${badgeClass}">
+                                <i class="fa-solid fa-crown" style="font-size: 10px;"></i> ${tier}
+                            </span>
+                            <span style="display: block; font-size: 11px; color: var(--text-secondary); margin-top: 4px; text-transform: uppercase; font-weight: bold;">
+                                Role: <strong style="color: var(--accent-color);">${u.role || 'customer'}</strong>
+                            </span>
+                        </div>
+
+                        <div>
+                            <span style="font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: block;">Loyalty Stamps</span>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                                <strong style="color: var(--text-color); font-size: 14px;">${stamps} / 5</strong>
+                                <button onclick="quickAddStamp('${u.email}', 1)" style="background: #e8f5e9; color: #2e7d32; border: none; padding: 2px 7px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px;" title="Add 1 Stamp">+1 Stamp</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span style="font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; display: block;">Total Spend</span>
+                            <strong style="color: var(--accent-color); font-size: 14px;">₱${totalSpent.toFixed(2)}</strong>
+                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">(${ordersCount} orders)</span>
+                        </div>
+
+                        <div style="display: flex; gap: 6px;">
+                            <button onclick="openEditCustomerModal('${u.email}')" style="background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 7px 12px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                <i class="fa-solid fa-pen-to-square" style="color: var(--accent-color);"></i> Edit VIP
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function quickAddStamp(userEmail, delta) {
+            let users = JSON.parse(localStorage.getItem("appUsersList")) || [];
+            let user = users.find(u => u.email === userEmail);
+            if (!user) return;
+
+            let cur = user.stamps !== undefined ? user.stamps : 0;
+            user.stamps = Math.min(5, Math.max(0, cur + delta));
+            localStorage.setItem("appUsersList", JSON.stringify(users));
+
+            let curUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (curUser && curUser.email === userEmail) {
+                curUser.stamps = user.stamps;
+                localStorage.setItem("currentUser", JSON.stringify(curUser));
+            }
+
+            renderCustomersList();
+            showToast(`Updated stamps for ${user.name} (${user.stamps}/5)`);
+        }
+
+        function openEditCustomerModal(userEmail) {
+            let users = JSON.parse(localStorage.getItem("appUsersList")) || [];
+            let user = users.find(u => u.email === userEmail);
+            if (!user) return;
+
+            document.getElementById("edit-cust-email-key").value = user.email;
+            document.getElementById("edit-cust-name").value = user.name || "";
+            document.getElementById("edit-cust-phone").value = user.phone || "";
+            document.getElementById("edit-cust-tier").value = user.tier || "Bronze Bean";
+            document.getElementById("edit-cust-role").value = user.role || "customer";
+            document.getElementById("edit-cust-stamps").value = user.stamps !== undefined ? user.stamps : 0;
+            document.getElementById("edit-cust-password").value = "";
+
+            document.getElementById("edit-customer-modal").style.display = "flex";
+        }
+
+        function closeEditCustomerModal() {
+            document.getElementById("edit-customer-modal").style.display = "none";
+        }
+
+        function saveCustomerDetails(e) {
+            e.preventDefault();
+            let emailKey = document.getElementById("edit-cust-email-key").value;
+            let users = JSON.parse(localStorage.getItem("appUsersList")) || [];
+            let user = users.find(u => u.email === emailKey);
+            if (!user) return;
+
+            user.name = document.getElementById("edit-cust-name").value.trim();
+            user.phone = document.getElementById("edit-cust-phone").value.trim();
+            user.tier = document.getElementById("edit-cust-tier").value;
+            user.role = document.getElementById("edit-cust-role").value;
+            user.stamps = parseInt(document.getElementById("edit-cust-stamps").value) || 0;
+
+            let newPass = document.getElementById("edit-cust-password").value.trim();
+            if (newPass) {
+                user.password = newPass;
+            }
+
+            localStorage.setItem("appUsersList", JSON.stringify(users));
+
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (currentUser && currentUser.email === emailKey) {
+                currentUser.name = user.name;
+                currentUser.phone = user.phone;
+                currentUser.role = user.role;
+                currentUser.tier = user.tier;
+                currentUser.stamps = user.stamps;
+                localStorage.setItem("currentUser", JSON.stringify(currentUser));
+            }
+
+            closeEditCustomerModal();
+            renderCustomersList();
+            showToast(`Profile & VIP tier for "${user.name}" saved!`);
+        }
+
+        // TAB 4: PROMOS
+        function renderPromosList() {
+            let container = document.getElementById("admin-promos-list");
+            let promos = JSON.parse(localStorage.getItem("storePromos")) || [];
+
+            if (promos.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); background:var(--card-bg); border-radius:14px; border:1px solid var(--border-color);">No active promo codes found. Click "Create New Promo Code" above.</div>`;
+                return;
+            }
+
+            let html = "";
+            promos.forEach((p, idx) => {
+                let discountText = p.type === "percent" ? `${p.value}% OFF` : `₱${p.value} OFF`;
+                
+                html += `
+                    <div class="promo-admin-row">
+                        <div>
+                            <span style="background: rgba(212, 122, 36, 0.15); color: var(--accent-color); font-weight: 800; font-size: 13px; padding: 4px 12px; border-radius: 8px; font-family: monospace; letter-spacing: 1px;">
+                                ${p.code}
+                            </span>
+                            <strong style="font-size: 15px; color: var(--text-color); margin-left: 10px;">${p.title}</strong>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin: 6px 0 0;">${p.desc}</p>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <span style="font-weight: 800; color: #2e7d32; font-size: 14px; background: rgba(46,125,50,0.1); padding: 4px 10px; border-radius: 6px;">
+                                ${discountText}
+                            </span>
+                            <button onclick="deletePromoCode(${idx})" style="background: none; border: 1px solid #c62828; color: #c62828; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function toggleAddPromoModal() {
+            let modal = document.getElementById("add-promo-modal");
+            modal.style.display = modal.style.display === "flex" ? "none" : "flex";
+        }
+
+        function handleCreatePromoSubmit(e) {
+            e.preventDefault();
+            let title = document.getElementById("promo-title").value.trim();
+            let code = document.getElementById("promo-code").value.trim().toUpperCase();
+            let type = document.getElementById("promo-type").value;
+            let value = parseFloat(document.getElementById("promo-value").value) || 0;
+            let desc = document.getElementById("promo-desc").value.trim();
+
+            let promos = JSON.parse(localStorage.getItem("storePromos")) || [];
+
+            if (promos.some(p => p.code === code)) {
+                alert("Promo code already exists! Please choose another code.");
+                return;
+            }
+
+            promos.unshift({ code: code, title: title, type: type, value: value, desc: desc });
+            localStorage.setItem("storePromos", JSON.stringify(promos));
+
+            toggleAddPromoModal();
+            renderPromosList();
+            loadKPIs();
+            showToast(`Promo voucher "${code}" is now LIVE!`);
+        }
+
+        function deletePromoCode(index) {
+            let promos = JSON.parse(localStorage.getItem("storePromos")) || [];
+            let pName = promos[index].code;
+            if (confirm(`Are you sure you want to delete promo code "${pName}"?`)) {
+                promos.splice(index, 1);
+                localStorage.setItem("storePromos", JSON.stringify(promos));
+                renderPromosList();
+                loadKPIs();
+                showToast(`Promo "${pName}" has been deleted.`);
+            }
+        }
+
         function adminLogout(event) {
             if (event) event.preventDefault();
             localStorage.removeItem("currentUser");
             window.location.href = "../login.html";
-        }
-
-        function setupScrollTopButton() {
-            let btn = document.getElementById("scrollTopBtn");
-            window.onscroll = function() {
-                if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-                    btn.style.display = "flex";
-                } else {
-                    btn.style.display = "none";
-                }
-            };
-        }
-
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>

@@ -4,174 +4,338 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Francos. Bakes and Brews - Cart & Checkout</title>
+    <!-- Instant Anti-Flash Theme Loader -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        })();
+    </script>
     <link rel="stylesheet" href="assets/style.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .cart-layout {
             display: grid;
-            grid-template-columns: 1fr 380px;
+            grid-template-columns: 1fr 390px;
             gap: 25px;
             max-width: 1100px;
             margin: 0 auto 60px;
             padding: 0 20px;
         }
-        @media (max-width: 850px) {
+        @media (max-width: 880px) {
             .cart-layout { grid-template-columns: 1fr; }
+        }
+        .cart-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
         }
         .cart-item-row {
             display: flex;
             align-items: center;
             gap: 15px;
-            padding: 15px;
-            background: #fff;
-            border: 1px solid #e4d9d1;
-            border-radius: 12px;
-            margin-bottom: 12px;
+            padding: 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            margin-bottom: 14px;
         }
         .qty-btn {
-            background: #faf7f3;
-            border: 1px solid #e4d9d1;
-            width: 28px;
-            height: 28px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            width: 30px;
+            height: 30px;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
-        /* Floating Scroll Up Button */
-        #scrollTopBtn {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            background: #d47a24;
-            color: #fff;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
+        .qty-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+        .payment-option-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: none;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: border-color 0.2s ease;
+        }
+        .payment-option-label:hover {
+            border-color: var(--accent-color);
+        }
+
+        /* Fulfillment Switcher Tabs */
+        .fulfillment-toggle-wrap {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: var(--bg-color);
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .fulfillment-tab-btn {
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            z-index: 999;
-            transition: opacity 0.3s ease;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .fulfillment-tab-btn.active {
+            background: var(--card-bg);
+            color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        .delivery-warning-box {
+            background: rgba(212, 122, 36, 0.1);
+            border: 1px solid rgba(212, 122, 36, 0.35);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: var(--text-color);
+            margin-top: 10px;
+            display: none;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation Bar -->
     <header class="navbar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
-            <img src="assets/images/logo.jpg" alt="Francos Logo" style="height: 42px; border-radius: 6px; object-fit: contain;">
+        <div class="logo">
+            <img src="assets/images/logo.jpg" alt="Francos Logo">
             <span>Francos<span>.</span></span>
         </div>
-        <nav class="nav-links">
-            <!-- Dynamic navbar handled by script.js -->
-        </nav>
+        <nav class="nav-links"></nav>
     </header>
 
-    <!-- Page Header -->
     <section class="page-header">
-        <span class="eyebrow">YOUR BASKET</span>
-        <h1>Order Summary</h1>
-        <p>Review your selected drinks, add preparation notes, apply promo codes, and checkout.</p>
+        <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">CHECKOUT BASKET</span>
+        <h1>Order Summary & Options</h1>
+        <p>Choose between Fast Local Delivery or Pre-Order Store Pick-up without waiting in line.</p>
     </section>
 
     <div class="cart-layout">
-        <!-- Selected Items Column -->
         <div>
-            <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; margin-bottom: 15px;">Selected Items</h3>
-            
-            <div id="cart-items-container">
-                <!-- Dynamically loaded -->
+            <!-- FULFILLMENT MODE SWITCHER (DELIVERY VS PICK-UP) -->
+            <div class="fulfillment-toggle-wrap">
+                <button type="button" class="fulfillment-tab-btn active" id="btn-mode-delivery" onclick="setFulfillmentMode('delivery')">
+                    <i class="fa-solid fa-motorcycle"></i> Deliver to Address
+                </button>
+                <button type="button" class="fulfillment-tab-btn" id="btn-mode-pickup" onclick="setFulfillmentMode('pickup')">
+                    <i class="fa-solid fa-store"></i> Store Pick-up (FREE)
+                </button>
             </div>
 
-            <div style="background: #fff; border: 1px solid #e4d9d1; border-radius: 12px; padding: 20px; margin-top: 20px;">
-                <h4 style="font-size: 14px; color: #33251f; margin: 0 0 8px; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-pen-to-square" style="color: #d47a24;"></i> Barista Notes & Special Instructions
-                </h4>
-                <p style="font-size: 12px; color: #7c6d65; margin-bottom: 10px;">Specify your preferred sweetness, ice level, or packaging requests:</p>
-                <textarea id="order-notes" placeholder="e.g. Less ice please, 50% sugar level, or separate whipped cream..." style="width: 100%; height: 70px; border: 1px solid #e4d9d1; border-radius: 8px; padding: 10px; font-size: 13px; font-family: inherit; outline: none;"></textarea>
+            <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin-bottom: 15px; font-size: 20px;">Selected Items</h3>
+            <div id="cart-items-container"></div>
+
+            <!-- FULFILLMENT DETAILS BOX -->
+            <div class="cart-box" style="margin-top: 20px;">
+                <!-- DYNAMIC CONTENT: DELIVERY VIEW -->
+                <div id="section-delivery-details">
+                    <h4 style="font-size: 14px; color: var(--text-color); margin: 0 0 8px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-location-dot" style="color: var(--accent-color);"></i> Delivery Address & House Landmark
+                    </h4>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">Specify your exact house number, street, or landmark in Binalonan:</p>
+                    <textarea id="order-address" placeholder="e.g. House #14, Rizal St., Poblacion Binalonan, near municipal plaza..." style="width: 100%; height: 75px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; padding: 10px; font-size: 13px; font-family: inherit; outline: none;"></textarea>
+                </div>
+
+                <!-- DYNAMIC CONTENT: PICK-UP VIEW -->
+                <div id="section-pickup-details" style="display: none;">
+                    <h4 style="font-size: 14px; color: var(--text-color); margin: 0 0 8px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-clock" style="color: var(--accent-color);"></i> Pre-Order Pick-up Schedule
+                    </h4>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">When would you like our baristas to prepare your drinks?</p>
+                    
+                    <select id="pickup-time-select" style="width: 100%; padding: 11px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; font-size: 13px; font-weight: 600; outline: none; margin-bottom: 12px;">
+                        <option value="ASAP (Ready in 15-20 mins)">⚡ ASAP (Ready in 15-20 minutes)</option>
+                        <option value="In 30 minutes">⏳ In 30 minutes</option>
+                        <option value="In 45 minutes">⏳ In 45 minutes</option>
+                        <option value="In 1 hour">⏳ In 1 hour</option>
+                        <option value="Later this afternoon (before 6:00 PM)">☕ Later today (Before 6:00 PM closing)</option>
+                    </select>
+
+                    <div style="background: rgba(46,125,50,0.1); border: 1px solid rgba(46,125,50,0.25); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #2e7d32;">
+                        <i class="fa-solid fa-circle-check"></i> <strong>Claim Location:</strong> Francos Café, Brgy. Canarvacanan, Binalonan, Pangasinan.
+                    </div>
+                </div>
+
+                <!-- BARISTA SPECIAL NOTES -->
+                <div style="margin-top: 15px;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-secondary); display: block; margin-bottom: 4px;">
+                        <i class="fa-solid fa-pen"></i> Special Barista Requests (Optional)
+                    </label>
+                    <input type="text" id="order-notes" placeholder="e.g. Separate straw, extra napkin, less sweet..." style="width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; font-size: 12.5px; outline: none;">
+                </div>
             </div>
         </div>
 
-        <!-- Payment Summary Column -->
         <div>
-            <div style="background: #fff; border: 1px solid #e4d9d1; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
-                <h3 style="font-family: 'DM Serif Display', serif; color: #33251f; margin-bottom: 20px;">Payment Summary</h3>
+            <div class="cart-box">
+                <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin-bottom: 18px; font-size: 20px;">Payment Summary</h3>
 
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #33251f;">
+                <!-- DELIVERY LOCATION SELECTOR (Hidden if Store Pick-up) -->
+                <div id="coverage-area-container" style="margin-bottom: 18px; background: var(--bg-color); border: 1px solid var(--border-color); padding: 14px; border-radius: 12px;">
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                        <i class="fa-solid fa-location-dot" style="color: var(--accent-color);"></i> Delivery Coverage Area
+                    </label>
+                    <select id="delivery-location-select" onchange="renderCartPage()" style="width: 100%; padding: 11px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; background: var(--card-bg); color: var(--text-color); outline: none; font-weight: 600;">
+                        <option value="30" data-name="Brgy. Canarvacanan (Store Vicinity)">Brgy. Canarvacanan (₱30.00)</option>
+                        <option value="50" data-name="Binalonan Poblacion / Town Proper" selected>Binalonan Poblacion (₱50.00)</option>
+                        <option value="50" data-name="Other Binalonan Barangays">Other Binalonan Barangays (₱50.00)</option>
+                        <option value="80" data-name="Nearby Towns (Urdaneta / Laoac / Pozorrubio)">Nearby Towns - Urdaneta / Laoac (₱80.00)</option>
+                    </select>
+
+                    <div id="far-location-warning" class="delivery-warning-box">
+                        <strong style="color: var(--accent-color);"><i class="fa-solid fa-triangle-exclamation"></i> Paalala para sa Malayong Lugar:</strong><br>
+                        Inirerekomenda namin ang <strong>Store Pick-up</strong> para makuha ang kape nang pinakasariwa at hindi natunaw ang yelo sa biyahe.
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: var(--text-color);">
                     <span>Subtotal</span>
                     <strong id="cart-subtotal">₱0.00</strong>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; color: #33251f;">
-                    <span>Delivery Fee (Binalonan)</span>
-                    <strong>₱50.00</strong>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: var(--text-color);">
+                    <span id="delivery-fee-label">Delivery Fee</span>
+                    <strong id="cart-delivery-fee">₱50.00</strong>
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label style="font-size: 12px; font-weight: bold; color: #7c6d65;">Promo Code</label>
+                <div id="discount-row" style="display: none; justify-content: space-between; margin-bottom: 15px; font-size: 14px; color: #2e7d32;">
+                    <span>Promo Discount</span>
+                    <strong id="cart-discount">-₱0.00</strong>
+                </div>
+
+                <div style="margin-bottom: 18px;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-secondary);">Promo Code</label>
                     <div style="display: flex; gap: 8px; margin-top: 5px;">
-                        <input type="text" id="promo-code-input" placeholder="e.g. FRANCOS50 or WELCOME10" style="flex: 1; padding: 8px 12px; border: 1px solid #e4d9d1; border-radius: 6px; font-size: 13px; outline: none;">
-                        <button onclick="applyPromoCode()" style="background: #33251f; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;">Apply</button>
+                        <input type="text" id="promo-code-input" placeholder="e.g. FRANCOS50 or WELCOME10" style="flex: 1; padding: 9px 12px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 6px; font-size: 13px; outline: none; text-transform: uppercase;">
+                        <button onclick="applyPromoCode()" style="background: var(--navbar-bg); color: #fff; border: none; padding: 9px 16px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;">Apply</button>
                     </div>
                 </div>
 
-                <hr style="border: none; border-top: 1px dashed #e4d9d1; margin: 15px 0;">
+                <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 15px 0;">
 
-                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 18px; color: #33251f;">
-                    <strong>Total</strong>
-                    <strong id="cart-total" style="color: #d47a24;">₱0.00</strong>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 18px; color: var(--text-color);">
+                    <strong>Total Amount</strong>
+                    <strong id="cart-total" style="color: var(--accent-color); font-size: 22px;">₱0.00</strong>
                 </div>
 
-                <h4 style="font-size: 13px; color: #33251f; margin-bottom: 10px;">Select Payment Method</h4>
+                <h4 style="font-size: 13px; color: var(--text-color); margin-bottom: 10px;">Select Payment Method</h4>
                 <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
-                    <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #e4d9d1; border-radius: 8px; cursor: pointer; background: #faf7f3;">
-                        <input type="radio" name="payment-method" value="GCash/Maya" checked>
-                        <i class="fa-solid fa-mobile-screen" style="color: #1976d2;"></i>
+                    <label class="payment-option-label">
+                        <input type="radio" name="payment-method" value="GCash / Maya" checked style="accent-color: var(--accent-color);">
+                        <i class="fa-solid fa-mobile-screen" style="color: #1976d2; font-size: 18px;"></i>
                         <div>
-                            <strong style="font-size: 13px; display: block;">GCash / Maya</strong>
-                            <small style="font-size: 11px; color: #7c6d65;">Instant QR Code Payment</small>
+                            <strong style="font-size: 13px; display: block;">GCash / Maya QR</strong>
+                            <small style="font-size: 11px; color: var(--text-secondary);">Instant QR scan checkout</small>
                         </div>
                     </label>
 
-                    <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #e4d9d1; border-radius: 8px; cursor: pointer;">
-                        <input type="radio" name="payment-method" value="Cash on Delivery">
-                        <i class="fa-solid fa-money-bill-wave" style="color: #2e7d32;"></i>
+                    <label class="payment-option-label">
+                        <input type="radio" name="payment-method" value="Cash on Claim" style="accent-color: var(--accent-color);">
+                        <i class="fa-solid fa-money-bill-wave" style="color: #2e7d32; font-size: 18px;"></i>
                         <div>
-                            <strong style="font-size: 13px; display: block;">Cash on Pickup / Delivery</strong>
-                            <small style="font-size: 11px; color: #7c6d65;">Pay upon receiving order</small>
+                            <strong style="font-size: 13px; display: block;" id="label-cod">Cash on Delivery (COD)</strong>
+                            <small style="font-size: 11px; color: var(--text-secondary);">Pay upon receiving your drinks</small>
                         </div>
                     </label>
                 </div>
 
-                <button onclick="processCheckout()" style="width: 100%; padding: 12px; background: #d47a24; color: #fff; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;">Proceed to Checkout</button>
+                <button id="btn-checkout" onclick="processCheckout()" style="width: 100%; padding: 13px; background: var(--accent-color); color: #fff; border: none; border-radius: 10px; font-weight: bold; font-size: 14.5px; cursor: pointer; box-shadow: 0 4px 14px rgba(212, 122, 36, 0.35);">
+                    Proceed to Checkout
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Floating Scroll To Top Button -->
-    <button id="scrollTopBtn" onclick="scrollToTop()" title="Scroll to top"><i class="fa-solid fa-arrow-up"></i></button>
+    <!-- GCash QR Modal -->
+    <div id="payment-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px);">
+        <div style="background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); max-width: 400px; width: 100%; border-radius: 16px; padding: 25px; text-align: center; box-shadow: var(--card-shadow);">
+            <h3 style="font-size: 20px; margin-bottom: 8px; font-family: 'DM Serif Display', serif;">GCash / Maya Payment</h3>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">Scan the QR code below to pay your exact total amount:</p>
+            
+            <div style="background: #ffffff; padding: 15px; border-radius: 12px; display: inline-block; margin-bottom: 15px; border: 1px dashed var(--accent-color);">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=FrancosCoffeePayment" alt="Payment QR Code" style="width: 180px; height: 180px; display: block;">
+            </div>
 
-    <!-- Toast Notification -->
+            <p style="font-size: 18px; font-weight: bold; color: var(--accent-color); margin-bottom: 20px;" id="qr-modal-total">Total: ₱0.00</p>
+            
+            <div style="display: flex; gap: 10px;">
+                <button onclick="closePaymentModal()" style="flex: 1; padding: 10px; background: transparent; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 8px; font-weight: bold; cursor: pointer;">Cancel</button>
+                <button onclick="confirmOnlinePaymentOrder()" style="flex: 1; padding: 10px; background: #2e7d32; border: none; color: #fff; border-radius: 8px; font-weight: bold; cursor: pointer;">I Have Paid</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="toast">Cart updated</div>
 
-    <footer>
-        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
-    </footer>
+    <footer></footer>
 
     <script src="assets/script.js"></script>
     <script>
+        let currentFulfillmentMode = "delivery"; // 'delivery' or 'pickup'
         let discountAmount = 0;
+        let appliedPromoCodeName = "";
+        let pendingOrderData = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             renderCartPage();
-            setupScrollTopButton();
         });
+
+        // Switch between Delivery and Store Pick-up
+        function setFulfillmentMode(mode) {
+            currentFulfillmentMode = mode;
+            let btnDelivery = document.getElementById("btn-mode-delivery");
+            let btnPickup = document.getElementById("btn-mode-pickup");
+            let secDelivery = document.getElementById("section-delivery-details");
+            let secPickup = document.getElementById("section-pickup-details");
+            let coverageBox = document.getElementById("coverage-area-container");
+            let labelCOD = document.getElementById("label-cod");
+
+            if (mode === "delivery") {
+                btnDelivery.classList.add("active");
+                btnPickup.classList.remove("active");
+                secDelivery.style.display = "block";
+                secPickup.style.display = "none";
+                coverageBox.style.display = "block";
+                labelCOD.textContent = "Cash on Delivery (COD)";
+            } else {
+                btnPickup.classList.add("active");
+                btnDelivery.classList.remove("active");
+                secDelivery.style.display = "none";
+                secPickup.style.display = "block";
+                coverageBox.style.display = "none";
+                labelCOD.textContent = "Cash on Store Pick-up (Pay at Counter)";
+            }
+
+            renderCartPage();
+        }
 
         function renderCartPage() {
             let container = document.getElementById("cart-items-container");
@@ -179,16 +343,21 @@
 
             if (cart.length === 0) {
                 container.innerHTML = `
-                    <div style="background: #fff; border: 1px solid #e4d9d1; border-radius: 12px; padding: 40px; text-align: center; color: #7c6d65;">
-                        <i class="fa-solid fa-basket-shopping" style="font-size: 36px; color: #d47a24; margin-bottom: 10px;"></i>
-                        <p style="margin: 0; font-weight: bold;">Your cart is empty.</p>
-                        <a href="menu.html" style="display: inline-block; margin-top: 15px; color: #d47a24; font-weight: bold; text-decoration: none;">Explore Menu & Add Drinks →</a>
+                    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 45px 20px; text-align: center; color: var(--text-secondary);">
+                        <i class="fa-solid fa-basket-shopping" style="font-size: 40px; color: var(--accent-color); margin-bottom: 12px;"></i>
+                        <p style="margin: 0; font-weight: bold; color: var(--text-color); font-size: 16px;">Your basket is empty.</p>
+                        <a href="menu.html" style="display: inline-block; margin-top: 15px; color: var(--accent-color); font-weight: bold; text-decoration: none; font-size: 13.5px;">Explore Menu & Add Drinks →</a>
                     </div>
                 `;
                 document.getElementById("cart-subtotal").textContent = "₱0.00";
                 document.getElementById("cart-total").textContent = "₱0.00";
+                document.getElementById("btn-checkout").disabled = true;
+                document.getElementById("btn-checkout").style.opacity = "0.5";
                 return;
             }
+
+            document.getElementById("btn-checkout").disabled = false;
+            document.getElementById("btn-checkout").style.opacity = "1";
 
             let html = "";
             let subtotal = 0;
@@ -198,27 +367,30 @@
                 subtotal += itemTotal;
 
                 let addOnsListHTML = "";
-                if (item.selectedAddOns && item.selectedAddOns.length > 0) {
-                    addOnsListHTML = `<div style="font-size: 11px; color: #d47a24; margin-top: 2px; font-weight: 500;">Add-ons: ${item.selectedAddOns.join(", ")}</div>`;
+                if (item.addOns && item.addOns.length > 0) {
+                    let addonNames = item.addOns.map(a => a.name).join(", ");
+                    addOnsListHTML = `<div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">+ Add-ons: ${addonNames}</div>`;
                 }
+
+                let customTagHTML = item.customSummary 
+                    ? `<div style="font-size: 11.5px; color: var(--accent-color); margin-top: 2px; font-weight: 600;"><i class="fa-solid fa-sliders"></i> ${item.customSummary}</div>` 
+                    : "";
 
                 html += `
                     <div class="cart-item-row">
                         <img src="${item.image || 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=500&q=80'}" alt="${item.name}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;">
                         <div style="flex: 1;">
-                            <strong style="color: #33251f; font-size: 14px; display: block;">${item.baseName || item.name}</strong>
-                            <span style="font-size: 12px; color: #7c6d65;">₱${(item.basePrice || item.price).toFixed(2)} each</span>
+                            <strong style="color: var(--text-color); font-size: 14px; display: block;">${item.name}</strong>
+                            <span style="font-size: 12px; color: var(--text-secondary);">₱${(item.basePrice || item.price).toFixed(2)} each</span>
+                            ${customTagHTML}
                             ${addOnsListHTML}
-                            <button onclick="openAddOnModal(${item.id}, ${index})" style="background: none; border: none; color: #d47a24; font-size: 11px; font-weight: bold; cursor: pointer; padding: 2px 0; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;">
-                                <i class="fa-solid fa-pen-to-square"></i> Edit Add-ons
-                            </button>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
-                            <span style="font-size: 13px; font-weight: bold; min-width: 20px; text-align: center;">${item.qty}</span>
+                            <span style="font-size: 13px; font-weight: bold; min-width: 20px; text-align: center; color: var(--text-color);">${item.qty}</span>
                             <button class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
                         </div>
-                        <strong style="color: #33251f; font-size: 14px; min-width: 70px; text-align: right;">₱${itemTotal.toFixed(2)}</strong>
+                        <strong style="color: var(--text-color); font-size: 14px; min-width: 70px; text-align: right;">₱${itemTotal.toFixed(2)}</strong>
                         <button onclick="removeCartItem(${index})" style="background: none; border: none; color: #c62828; cursor: pointer; padding: 5px;" title="Remove"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
@@ -226,11 +398,26 @@
 
             container.innerHTML = html;
 
-            let deliveryFee = 50;
+            // Delivery fee logic
+            let deliveryFee = 0;
+            if (currentFulfillmentMode === "delivery") {
+                let locSelect = document.getElementById("delivery-location-select");
+                deliveryFee = locSelect ? parseFloat(locSelect.value) : 50;
+            }
+
             let finalTotal = Math.max(0, subtotal + deliveryFee - discountAmount);
 
             document.getElementById("cart-subtotal").textContent = `₱${subtotal.toFixed(2)}`;
+            document.getElementById("cart-delivery-fee").textContent = deliveryFee === 0 ? "FREE (₱0.00)" : `₱${deliveryFee.toFixed(2)}`;
             document.getElementById("cart-total").textContent = `₱${finalTotal.toFixed(2)}`;
+
+            let discountRow = document.getElementById("discount-row");
+            if (discountAmount > 0) {
+                discountRow.style.display = "flex";
+                document.getElementById("cart-discount").textContent = `-₱${discountAmount.toFixed(2)}`;
+            } else {
+                discountRow.style.display = "none";
+            }
         }
 
         function changeQty(index, delta) {
@@ -250,39 +437,148 @@
             localStorage.setItem("cart", JSON.stringify(cart));
             updateCartCount();
             renderCartPage();
-            showToast("Item removed from cart.");
+            showToast("Item removed from basket.");
         }
 
+        // DYNAMIC PROMO CODE ENGINE (LIVE CONNECTED SA ADMIN PROMOS)
         function applyPromoCode() {
             let code = document.getElementById("promo-code-input").value.trim().toUpperCase();
-            if (code === "FRANCOS50") {
-                discountAmount = 50;
-                showToast("₱50 Promo Discount applied!");
-            } else if (code === "WELCOME10") {
-                let cart = JSON.parse(localStorage.getItem("cart")) || [];
-                let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-                discountAmount = subtotal * 0.10;
-                showToast("10% Welcome Discount applied!");
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            if (!code) {
+                discountAmount = 0;
+                appliedPromoCodeName = "";
+                renderCartPage();
+                return;
+            }
+
+            // Basahin mula sa live Admin store promos
+            let livePromos = JSON.parse(localStorage.getItem("storePromos")) || [
+                { code: "FRANCOS50", title: "₱50 Welcome Treat", type: "fixed", value: 50 },
+                { code: "WELCOME10", title: "Brew Lover Special", type: "percent", value: 10 }
+            ];
+
+            let matchedPromo = livePromos.find(p => p.code.toUpperCase() === code);
+
+            if (matchedPromo) {
+                appliedPromoCodeName = matchedPromo.code;
+                if (matchedPromo.type === "percent") {
+                    discountAmount = subtotal * (matchedPromo.value / 100);
+                    showToast(`${matchedPromo.value}% Discount Applied (${matchedPromo.code})!`);
+                } else {
+                    discountAmount = Math.min(subtotal, matchedPromo.value);
+                    showToast(`₱${matchedPromo.value} Discount Applied (${matchedPromo.code})!`);
+                }
             } else {
                 discountAmount = 0;
-                showToast("Invalid promo code.");
+                appliedPromoCodeName = "";
+                showToast("Invalid or expired promo code.");
             }
             renderCartPage();
         }
 
-        function setupScrollTopButton() {
-            let btn = document.getElementById("scrollTopBtn");
-            window.onscroll = function() {
-                if (document.body.scrollTop > 350 || document.documentElement.scrollTop > 350) {
-                    btn.style.display = "flex";
-                } else {
-                    btn.style.display = "none";
-                }
+        function processCheckout() {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            if (cart.length === 0) {
+                showToast("Your basket is empty!");
+                return;
+            }
+
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            let customerName = currentUser ? currentUser.name : "Valued Customer";
+            let customerEmail = currentUser ? currentUser.email : "guest@francos.com";
+
+            let notesEl = document.getElementById("order-notes");
+            let specialNotes = notesEl ? notesEl.value.trim() : "None";
+
+            let paymentMethodEl = document.querySelector('input[name="payment-method"]:checked');
+            let paymentMethod = paymentMethodEl ? paymentMethodEl.value : "Cash";
+
+            // Determine Fulfillment Info
+            let locationName = "";
+            let deliveryFee = 0;
+            let baristaInstructions = "";
+
+            if (currentFulfillmentMode === "delivery") {
+                let locSelect = document.getElementById("delivery-location-select");
+                deliveryFee = locSelect ? parseFloat(locSelect.value) : 50;
+                let locArea = locSelect ? locSelect.options[locSelect.selectedIndex].getAttribute("data-name") : "Binalonan";
+                let exactAddr = document.getElementById("order-address").value.trim() || "Address on landmark";
+                
+                locationName = `[DELIVERY] ${locArea}`;
+                baristaInstructions = `Rider Delivery: ${exactAddr} | Note: ${specialNotes}`;
+            } else {
+                let pickupTime = document.getElementById("pickup-time-select").value;
+                deliveryFee = 0;
+                locationName = `[STORE PICK-UP] ${pickupTime}`;
+                baristaInstructions = `Customer Pick-up (${pickupTime}) | Note: ${specialNotes}`;
+            }
+
+            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let finalTotal = Math.max(0, subtotal + deliveryFee - discountAmount);
+
+            pendingOrderData = {
+                id: "ORD-" + Math.floor(1000 + Math.random() * 9000),
+                customerName: customerName,
+                customerEmail: customerEmail,
+                fulfillmentMode: currentFulfillmentMode,
+                items: cart,
+                subtotal: subtotal,
+                discount: discountAmount,
+                appliedPromo: appliedPromoCodeName,
+                deliveryFee: deliveryFee,
+                deliveryLocation: locationName,
+                total: finalTotal,
+                paymentMethod: paymentMethod,
+                baristaNotes: baristaInstructions,
+                status: "Pending",
+                isNew: true,
+                date: new Date().toLocaleString()
             };
+
+            if (paymentMethod.toLowerCase().includes("gcash")) {
+                document.getElementById("qr-modal-total").textContent = `Total to Pay: ₱${finalTotal.toFixed(2)}`;
+                document.getElementById("payment-modal-overlay").style.display = "flex";
+                return;
+            }
+
+            finalizeOrderAndRedirect(pendingOrderData);
         }
 
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        function closePaymentModal() {
+            document.getElementById("payment-modal-overlay").style.display = "none";
+            pendingOrderData = null;
+        }
+
+        function confirmOnlinePaymentOrder() {
+            if (!pendingOrderData) return;
+            document.getElementById("payment-modal-overlay").style.display = "none";
+            finalizeOrderAndRedirect(pendingOrderData);
+        }
+
+        function finalizeOrderAndRedirect(orderObj) {
+            let allOrders = JSON.parse(localStorage.getItem("storeOrders")) || [];
+            allOrders.unshift(orderObj);
+            localStorage.setItem("storeOrders", JSON.stringify(allOrders));
+
+            // Automatic Stock Deduction
+            let liveProducts = JSON.parse(localStorage.getItem("adminMenuItems")) || [];
+            orderObj.items.forEach(cartItem => {
+                let prod = liveProducts.find(p => p.id === cartItem.id);
+                if (prod) {
+                    prod.stock = Math.max(0, (prod.stock || 0) - cartItem.qty);
+                }
+            });
+            localStorage.setItem("adminMenuItems", JSON.stringify(liveProducts));
+
+            localStorage.removeItem("cart");
+            updateCartCount();
+
+            showToast("✨ Order Placed Successfully! Redirecting to Invoice...");
+            setTimeout(() => {
+                window.location.href = "order_success.html";
+            }, 800);
         }
     </script>
 </body>
