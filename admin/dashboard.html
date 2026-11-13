@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Francos. Bakes and Brews - Admin KDS Panel</title>
-    <!-- Instant Anti-Flash Theme Loader & Security Guard -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem("theme") || "light";
             document.documentElement.setAttribute("data-theme", savedTheme);
 
-            // AUTH GUARD
             const currentUser = JSON.parse(localStorage.getItem("currentUser"));
             if (!currentUser || currentUser.role !== "admin") {
                 alert("Access Denied! Staff or Administrator credentials required.");
@@ -22,419 +20,574 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --bg-color: #f7f8fa;
+            --card-bg: #ffffff;
+            --text-color: #1e242c;
+            --text-secondary: #687385;
+            --border-color: #e6e9ef;
+            --accent-color: #c86d1f;
+            --accent-soft: rgba(200, 109, 31, 0.12);
+            --card-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+            --sidebar-bg: #ffffff;
+            --hover-bg: #f3f5f8;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #161210;
+            --card-bg: #201a16;
+            --text-color: #f5efe9;
+            --text-secondary: #b0a398;
+            --border-color: #362b24;
+            --accent-color: #e0822d;
+            --accent-soft: rgba(224, 130, 45, 0.16);
+            --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+            --sidebar-bg: #1c1613;
+            --hover-bg: #2a211c;
+        }
+
+        * { box-sizing: border-box; }
+
+        body.admin-shell-body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        body.admin-shell-body .announcement-bar,
+        body.admin-shell-body .top-banner,
+        body.admin-shell-body footer {
+            display: none !important;
+        }
+
+        .admin-layout { display: flex; min-height: 100vh; width: 100%; }
+
+        .admin-sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 1000;
+            padding: 20px 16px;
+            transition: transform 0.25s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 6px 8px 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 18px;
+        }
+
+        .sidebar-brand img {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+        }
+
+        .sidebar-brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+        .sidebar-brand-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--text-color); }
+        .sidebar-brand-title span { color: var(--accent-color); }
+        .sidebar-brand-sub { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); margin-top: 2px; }
+
+        .sidebar-group-label {
+            font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.9px; color: var(--text-secondary);
+            padding: 0 12px; margin: 16px 0 8px;
+        }
+
+        .sidebar-nav-list { display: flex; flex-direction: column; gap: 4px; }
+
         .admin-nav-btn {
+            width: 100%;
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .admin-nav-btn .nav-left { display: flex; align-items: center; gap: 11px; }
+        .admin-nav-btn i { width: 18px; text-align: center; font-size: 14px; }
+        .admin-nav-btn:hover { background: var(--hover-bg); color: var(--text-color); }
+        .admin-nav-btn.active { background: var(--accent-soft); color: var(--accent-color); font-weight: 700; }
+
+        .sidebar-badge {
+            background: var(--accent-color); color: #fff;
+            font-size: 10.5px; font-weight: 800;
+            padding: 2px 7px; border-radius: 999px;
+            min-width: 20px; text-align: center;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sidebar-logout-btn:hover { background: rgba(198, 40, 40, 0.1) !important; color: #c62828 !important; }
+
+        .admin-main { flex: 1; margin-left: 260px; display: flex; flex-direction: column; min-width: 0; }
+
+        .admin-topbar {
+            height: 68px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: var(--hover-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            align-items: center; justify-content: center;
+            cursor: pointer; font-size: 15px;
+        }
+
+        .topbar-breadcrumb { display: flex; flex-direction: column; }
+        .topbar-eyebrow { font-size: 11px; font-weight: 700; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.8px; }
+        .topbar-title { margin: 0; font-size: 17px; font-weight: 700; color: var(--text-color); }
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+        .topbar-icon-btn {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
             background: var(--card-bg);
             color: var(--text-color);
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; position: relative; transition: all 0.2s ease; font-size: 14px;
+        }
+
+        .topbar-icon-btn:hover { background: var(--hover-bg); }
+
+        .notif-dot {
+            display: none; position: absolute; top: 7px; right: 8px;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #e65100; border: 1.5px solid var(--card-bg);
+        }
+
+        .topbar-profile {
+            display: flex; align-items: center; gap: 10px;
+            padding: 5px 10px 5px 6px;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.25s ease;
+            background: var(--bg-color);
         }
-        .admin-nav-btn.active {
-            background: var(--accent-color);
-            color: #fff;
-            border-color: var(--accent-color);
-            box-shadow: 0 4px 14px rgba(212, 122, 36, 0.35);
+
+        .topbar-avatar {
+            width: 32px; height: 32px; border-radius: 9px;
+            background: linear-gradient(135deg, var(--accent-color), #6b3f23);
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 13px;
         }
+
+        .topbar-user-info { display: flex; flex-direction: column; line-height: 1.2; }
+        .topbar-user-name { font-size: 12.5px; font-weight: 700; color: var(--text-color); }
+        .topbar-user-role { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .admin-workspace { padding: 26px 28px 60px; max-width: 1260px; width: 100%; margin: 0 auto; }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 
         .kpi-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 22px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
+            border-radius: 14px;
+            padding: 18px 20px;
+            display: flex; align-items: center; gap: 15px;
             box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease;
         }
 
-        .order-admin-card {
+        .kpi-card:hover { transform: translateY(-2px); }
+        .kpi-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .kpi-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; display: block; }
+        .kpi-value { margin: 3px 0 0; color: var(--text-color); font-size: 24px; font-weight: 800; line-height: 1.1; }
+
+        .workspace-panel {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 22px;
-            margin-bottom: 18px;
             box-shadow: var(--card-shadow);
-            position: relative;
-            transition: transform 0.2s ease, border-color 0.2s ease;
         }
 
-        .order-admin-card.is-new {
-            border: 1.5px solid #e65100;
-            box-shadow: 0 0 15px rgba(230, 81, 0, 0.25);
+        .panel-toolbar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 18px; flex-wrap: wrap; gap: 12px;
+            padding-bottom: 16px; border-bottom: 1px solid var(--border-color);
         }
 
-        .status-filter-pills {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-        }
+        .panel-heading h3 { font-family: 'DM Serif Display', serif; color: var(--text-color); margin: 0; font-size: 22px; font-weight: 400; }
+        .panel-heading p { font-size: 12.5px; color: var(--text-secondary); margin: 3px 0 0; }
+
+        .status-filter-pills { display: flex; gap: 8px; flex-wrap: wrap; }
 
         .filter-pill {
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            color: var(--text-color);
-            cursor: pointer;
-            transition: all 0.2s ease;
+            padding: 7px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+            border: 1px solid var(--border-color); background: var(--bg-color);
+            color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; font-family: inherit;
         }
 
-        .filter-pill.active {
-            background: var(--accent-color);
-            color: #fff;
-            border-color: var(--accent-color);
+        .filter-pill:hover { color: var(--text-color); border-color: var(--accent-color); }
+        .filter-pill.active { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
+
+        .search-wrap { position: relative; display: inline-flex; align-items: center; }
+        .search-wrap i { position: absolute; left: 12px; color: var(--text-secondary); font-size: 13px; pointer-events: none; }
+
+        .admin-search-input {
+            padding: 9px 15px 9px 36px;
+            border: 1px solid var(--border-color); border-radius: 10px;
+            font-size: 13px; outline: none; background: var(--bg-color);
+            color: var(--text-color); width: 260px; font-family: inherit;
         }
+
+        .admin-search-input:focus { border-color: var(--accent-color); }
+
+        .order-admin-card {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; transition: border-color 0.2s ease;
+        }
+
+        .order-admin-card:hover { border-color: rgba(200, 109, 31, 0.45); }
+        .order-admin-card.is-new { border: 1.5px solid #e65100; box-shadow: 0 0 0 3px rgba(230, 81, 0, 0.12); }
 
         .quick-action-btn {
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
+            border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700;
+            font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit;
         }
 
-        .inventory-item-row, .promo-admin-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
-            gap: 15px;
-            flex-wrap: wrap;
-            background: var(--card-bg);
-            border-radius: 12px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border-color);
+        .inventory-item-row, .promo-admin-row, .customer-card-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 16px; gap: 15px; flex-wrap: wrap;
+            background: var(--bg-color); border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color);
         }
 
-        .customer-card-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
-            gap: 15px;
-            flex-wrap: wrap;
-            background: var(--card-bg);
-            border-radius: 12px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border-color);
-        }
-
-        .vip-badge-pill {
-            font-size: 11px;
-            font-weight: 800;
-            padding: 4px 10px;
-            border-radius: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
+        .vip-badge-pill { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; }
         .vip-regular { background: rgba(120, 144, 156, 0.15); color: #546e7a; }
         .vip-silver { background: rgba(33, 150, 243, 0.15); color: #1976d2; }
         .vip-gold { background: rgba(255, 193, 7, 0.2); color: #d97706; }
         .vip-crown { background: rgba(230, 81, 0, 0.15); color: #e65100; border: 1px solid rgba(230,81,0,0.3); }
 
-        /* Modal Overlays */
+        .primary-cta-btn {
+            background: var(--accent-color); color: #fff; border: none; padding: 10px 18px;
+            border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 8px; font-family: inherit;
+        }
+
         .admin-modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            backdrop-filter: blur(8px);
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); z-index: 9999;
+            justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(6px);
         }
 
         .admin-modal-box {
-            background: var(--card-bg) !important;
-            color: var(--text-color) !important;
-            width: 100%;
-            max-width: 520px;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+            background: var(--card-bg) !important; color: var(--text-color) !important;
+            width: 100%; max-width: 520px; border-radius: 18px; padding: 28px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45) !important;
             border: 1px solid var(--border-color) !important;
-            position: relative;
-            max-height: 90vh;
-            overflow-y: auto;
-            z-index: 10000;
+            position: relative; max-height: 90vh; overflow-y: auto; z-index: 10000;
         }
 
-        [data-theme="dark"] .admin-modal-box {
-            background: #241d19 !important;
-            border: 1px solid #4a3b32 !important;
-        }
-
-        [data-theme="light"] .admin-modal-box {
-            background: #ffffff !important;
-            border: 1px solid #d4c1b5 !important;
-        }
-
-        /* CUP LABEL STICKER STYLING (PRINT OPTIMIZED) */
         .cup-sticker-badge {
-            background: #fff;
-            color: #111;
-            border: 2px solid #222;
-            border-radius: 10px;
-            padding: 14px;
-            margin-bottom: 14px;
-            font-family: 'Inter', monospace;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            page-break-inside: avoid;
+            background: #fff; color: #111; border: 2px solid #222; border-radius: 10px;
+            padding: 14px; margin-bottom: 14px; font-family: 'Inter', monospace; page-break-inside: avoid;
         }
 
-        .cup-sticker-badge h4 {
-            margin: 0 0 4px;
-            font-size: 15px;
-            font-weight: 800;
-            text-transform: uppercase;
-            border-bottom: 1.5px solid #222;
-            padding-bottom: 4px;
-        }
+        .cup-sticker-badge h4 { margin: 0 0 4px; font-size: 15px; font-weight: 800; text-transform: uppercase; border-bottom: 1.5px solid #222; padding-bottom: 4px; }
+        .cup-sticker-meta { font-size: 11px; color: #444; display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .cup-sticker-spec { font-size: 12px; line-height: 1.4; font-weight: 600; }
 
-        .cup-sticker-meta {
-            font-size: 11px;
-            color: #444;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
+        .z-reading-box { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 15px; }
+        .z-reading-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 8px; }
 
-        .cup-sticker-spec {
-            font-size: 12px;
-            line-height: 1.4;
-            font-weight: 600;
-        }
+        .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 950; }
 
-        /* Z-READING REPORT CARD STYLES */
-        .z-reading-box {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 15px;
+        @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 900px) {
+            .admin-sidebar { transform: translateX(-100%); }
+            .admin-sidebar.open { transform: translateX(0); }
+            .sidebar-backdrop.open { display: block; }
+            .admin-main { margin-left: 0; }
+            .mobile-menu-toggle { display: inline-flex; }
+            .admin-topbar { padding: 0 16px; }
+            .admin-workspace { padding: 18px 16px 50px; }
         }
-
-        .z-reading-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            margin-bottom: 8px;
+        @media (max-width: 560px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+            .topbar-user-info { display: none; }
+            .admin-search-input, .search-wrap { width: 100%; }
         }
-
-        /* PRINT STYLES FOR DOCKET, STICKERS, AND Z-READING */
         @media print {
-            body * {
-                visibility: hidden !important;
-            }
-            .printable-area, .printable-area * {
-                visibility: visible !important;
-            }
+            body * { visibility: hidden !important; }
+            .printable-area, .printable-area * { visibility: visible !important; }
             .printable-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100% !important;
-                background: #fff !important;
-                color: #000 !important;
-                border: none !important;
-                box-shadow: none !important;
-                padding: 10px !important;
+                position: absolute; left: 0; top: 0; width: 100% !important;
+                background: #fff !important; color: #000 !important;
+                border: none !important; box-shadow: none !important; padding: 10px !important;
             }
-            .no-print {
-                display: none !important;
-            }
-            .cup-sticker-badge {
-                border: 2px solid #000 !important;
-                margin-bottom: 20px !important;
-                page-break-after: always;
-            }
+            .no-print { display: none !important; }
+            .cup-sticker-badge { border: 2px solid #000 !important; margin-bottom: 20px !important; page-break-after: always; }
         }
     </style>
 </head>
-<body>
+<body class="admin-shell-body">
 
-    <header class="navbar no-print">
-        <div class="logo">
-            <img src="../assets/images/logo.jpg" alt="Francos Logo">
-            <span>Francos<span>.</span> <small style="font-size: 11px; opacity: 0.85; color: var(--accent-color); font-family: 'Inter', sans-serif;">[KDS ADMIN]</small></span>
-        </div>
-        <nav class="nav-links">
-            <a href="../index.html">Home</a>
-            <a href="../menu.html">Menu</a>
-            <a href="../promo.html">Promos</a>
-            <a href="dashboard.html" style="color: #ffd8b1; font-weight: bold;">Dashboard</a>
-            <a href="#" onclick="adminLogout(event)">Logout</a>
-        </nav>
+    <header class="navbar no-print" style="display:none !important;">
+        <div class="logo"></div>
+        <nav class="nav-links"></nav>
     </header>
 
-    <section class="page-header no-print">
-        <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">STORE & KITCHEN SYSTEM</span>
-        <h1>Admin Control Dashboard</h1>
-        <p>Live kitchen orders, barista cup stickers, catalog pricing, and VIP customer accounts.</p>
-    </section>
+    <div class="sidebar-backdrop no-print" id="sidebar-backdrop" onclick="toggleMobileSidebar(false)"></div>
 
-    <div class="container no-print" style="max-width: 1100px; margin: 0 auto 60px; padding: 0 20px;">
-        
-        <!-- KPI Analytics -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 25px;">
-            <div class="kpi-card">
-                <div style="background: rgba(25,118,210,0.15); color: #1976d2; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fa-solid fa-receipt"></i></div>
-                <div>
-                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Total Orders</span>
-                    <h2 id="kpi-total-orders" style="margin: 2px 0 0; color: var(--text-color); font-size: 26px;">0</h2>
+    <div class="admin-layout no-print">
+        <aside class="admin-sidebar" id="admin-sidebar">
+            <div>
+                <div class="sidebar-brand">
+                    <img src="../assets/images/logo.jpg" alt="Francos Logo">
+                    <div class="sidebar-brand-text">
+                        <span class="sidebar-brand-title">Francos<span>.</span></span>
+                        <span class="sidebar-brand-sub">KDS &amp; Store Admin</span>
+                    </div>
                 </div>
+
+                <div class="sidebar-group-label">Management</div>
+                <nav class="sidebar-nav-list">
+                    <button class="admin-nav-btn active" id="btn-tab-orders" onclick="switchTab('orders')">
+                        <span class="nav-left"><i class="fa-solid fa-bell-concierge"></i> Live Kitchen Orders</span>
+                        <span class="sidebar-badge" id="sidebar-orders-badge" style="display:none;">0</span>
+                    </button>
+                    <button class="admin-nav-btn" id="btn-tab-inventory" onclick="switchTab('inventory')">
+                        <span class="nav-left"><i class="fa-solid fa-boxes-stacked"></i> Menu &amp; Stock Pricing</span>
+                    </button>
+                    <button class="admin-nav-btn" id="btn-tab-customers" onclick="switchTab('customers')">
+                        <span class="nav-left"><i class="fa-solid fa-users-gear"></i> Customer &amp; VIPs</span>
+                    </button>
+                    <button class="admin-nav-btn" id="btn-tab-promos" onclick="switchTab('promos')">
+                        <span class="nav-left"><i class="fa-solid fa-ticket"></i> Promo &amp; Vouchers</span>
+                    </button>
+                </nav>
+
+                <div class="sidebar-group-label">Operations</div>
+                <nav class="sidebar-nav-list">
+                    <button class="admin-nav-btn" onclick="openEndOfDayModal(); toggleMobileSidebar(false);">
+                        <span class="nav-left"><i class="fa-solid fa-chart-pie" style="color:#2e7d32;"></i> Daily Z-Reading</span>
+                    </button>
+                    <a class="admin-nav-btn" href="../rider.html" target="_blank">
+                        <span class="nav-left"><i class="fa-solid fa-motorcycle" style="color:#1976d2;"></i> Open Rider View</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px; opacity:0.65;"></i>
+                    </a>
+                </nav>
             </div>
 
-            <div class="kpi-card">
-                <div style="background: rgba(212,122,36,0.15); color: var(--accent-color); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fa-solid fa-mug-hot"></i></div>
-                <div>
-                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Active / Brewing</span>
-                    <h2 id="kpi-pending-orders" style="margin: 2px 0 0; color: var(--text-color); font-size: 26px;">0</h2>
-                </div>
-            </div>
-
-            <div class="kpi-card">
-                <div style="background: rgba(46,125,50,0.15); color: #2e7d32; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fa-solid fa-peso-sign"></i></div>
-                <div>
-                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Total Store Revenue</span>
-                    <h2 id="kpi-total-revenue" style="margin: 2px 0 0; color: var(--text-color); font-size: 26px;">₱0.00</h2>
-                </div>
-            </div>
-
-            <div class="kpi-card">
-                <div style="background: rgba(156,39,176,0.15); color: #9c27b0; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fa-solid fa-ticket"></i></div>
-                <div>
-                    <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;">Active Promos</span>
-                    <h2 id="kpi-total-promos" style="margin: 2px 0 0; color: var(--text-color); font-size: 26px;">0</h2>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section Switchers + End-of-Day + Rider Portal Shortcuts -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="admin-nav-btn active" id="btn-tab-orders" onclick="switchTab('orders')">
-                    <i class="fa-solid fa-bell-concierge"></i> Live Kitchen Orders
-                </button>
-                <button class="admin-nav-btn" id="btn-tab-inventory" onclick="switchTab('inventory')">
-                    <i class="fa-solid fa-boxes-stacked"></i> Drink Pricing & Stock
-                </button>
-                <button class="admin-nav-btn" id="btn-tab-customers" onclick="switchTab('customers')">
-                    <i class="fa-solid fa-users-gear"></i> Customer & VIP Accounts
-                </button>
-                <button class="admin-nav-btn" id="btn-tab-promos" onclick="switchTab('promos')">
-                    <i class="fa-solid fa-ticket"></i> Promo & Vouchers
-                </button>
-            </div>
-
-            <!-- RIGHT ACTION BUTTONS: RIDER PORTAL & DAILY Z-READING -->
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="../rider.html" target="_blank" style="background: #1976d2; color: #fff; padding: 10px 16px; border-radius: 10px; font-weight: 800; font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(25, 118, 210, 0.35);">
-                    <i class="fa-solid fa-motorcycle"></i> Open Rider View ↗
+            <div class="sidebar-footer">
+                <a class="admin-nav-btn" href="../index.html">
+                    <span class="nav-left"><i class="fa-solid fa-store"></i> Storefront Home</span>
                 </a>
-
-                <button onclick="openEndOfDayModal()" style="background: #2e7d32; color: #fff; border: none; padding: 10px 16px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(46, 125, 50, 0.35);">
-                    <i class="fa-solid fa-chart-pie"></i> Daily Z-Reading
+                <a class="admin-nav-btn" href="../menu.html">
+                    <span class="nav-left"><i class="fa-solid fa-mug-saucer"></i> Customer Menu</span>
+                </a>
+                <button class="admin-nav-btn sidebar-logout-btn" onclick="adminLogout(event)">
+                    <span class="nav-left"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</span>
                 </button>
             </div>
-        </div>
+        </aside>
 
-        <!-- TAB 1: Live Kitchen Orders -->
-        <div id="tab-orders-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 12px;">
-                <div class="status-filter-pills">
-                    <button class="filter-pill active" onclick="setOrderStatusFilter('all', this)">All Orders (<span id="count-order-all">0</span>)</button>
-                    <button class="filter-pill" onclick="setOrderStatusFilter('active', this)">Active / Brewing (<span id="count-order-active">0</span>)</button>
-                    <button class="filter-pill" onclick="setOrderStatusFilter('delivery', this)">Out for Delivery (<span id="count-order-delivery">0</span>)</button>
-                    <button class="filter-pill" onclick="setOrderStatusFilter('completed', this)">Completed (<span id="count-order-completed">0</span>)</button>
+        <div class="admin-main">
+            <header class="admin-topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Open menu">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="topbar-breadcrumb">
+                        <span class="topbar-eyebrow">Store &amp; Kitchen System</span>
+                        <h1 class="topbar-title" id="topbar-section-title">Live Kitchen Orders</h1>
+                    </div>
                 </div>
 
-                <input type="text" id="order-search-input" placeholder="Search order ID or customer..." onkeyup="renderOrdersList()" style="padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 12.5px; outline: none; background: var(--card-bg); color: var(--text-color); width: 240px; box-shadow: var(--card-shadow);">
-            </div>
+                <div class="topbar-right">
+                    <button class="topbar-icon-btn" onclick="switchTab('orders'); setOrderStatusFilter('active', document.querySelectorAll('.filter-pill')[1]);" title="Active Orders">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="notif-dot" id="topbar-notif-dot"></span>
+                    </button>
 
-            <div id="admin-orders-list"></div>
-        </div>
+                    <button class="topbar-icon-btn" onclick="toggleAdminTheme()" title="Toggle Light/Dark Mode">
+                        <i class="fa-solid fa-moon" id="admin-theme-icon"></i>
+                    </button>
 
-        <!-- TAB 2: Catalog & Stock Manager -->
-        <div id="tab-inventory-section" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin: 0; font-size: 22px;">Catalog & Direct Stock Manager</h3>
-                <button onclick="toggleAddStockModal()" style="background: var(--accent-color); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-plus"></i> Add New Menu Item
-                </button>
-            </div>
-
-            <div id="admin-inventory-list" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 22px; box-shadow: var(--card-shadow);"></div>
-        </div>
-
-        <!-- TAB 3: Customer & VIP Accounts Manager -->
-        <div id="tab-customers-section" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                <div>
-                    <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin: 0; font-size: 22px;">Customer Accounts & VIP Tiers</h3>
-                    <p style="font-size: 12.5px; color: var(--text-secondary); margin: 2px 0 0;">Manage VIP memberships, loyalty stamp rewards, contact details, and roles.</p>
+                    <div class="topbar-profile">
+                        <div class="topbar-avatar" id="topbar-admin-avatar">A</div>
+                        <div class="topbar-user-info">
+                            <span class="topbar-user-name" id="topbar-admin-name">Store Admin</span>
+                            <span class="topbar-user-role">Admin</span>
+                        </div>
+                    </div>
                 </div>
-                <input type="text" id="customer-search-input" placeholder="Search customer name or email..." onkeyup="renderCustomersList()" style="padding: 10px 16px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 12.5px; outline: none; background: var(--card-bg); color: var(--text-color); width: 260px; box-shadow: var(--card-shadow);">
-            </div>
+            </header>
 
-            <div id="admin-customers-list"></div>
-        </div>
+            <main class="admin-workspace">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background: rgba(25,118,210,0.13); color: #1976d2;">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <div>
+                            <span class="kpi-label">Total Orders</span>
+                            <h2 id="kpi-total-orders" class="kpi-value">0</h2>
+                        </div>
+                    </div>
 
-        <!-- TAB 4: Promo & Voucher Manager -->
-        <div id="tab-promos-section" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                <div>
-                    <h3 style="font-family: 'DM Serif Display', serif; color: var(--text-color); margin: 0; font-size: 22px;">Promo Vouchers & Discounts</h3>
-                    <p style="font-size: 12.5px; color: var(--text-secondary); margin: 2px 0 0;">Create and manage live discount codes for customers during checkout.</p>
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background: rgba(212,122,36,0.14); color: var(--accent-color);">
+                            <i class="fa-solid fa-mug-hot"></i>
+                        </div>
+                        <div>
+                            <span class="kpi-label">Active / Brewing</span>
+                            <h2 id="kpi-pending-orders" class="kpi-value">0</h2>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background: rgba(46,125,50,0.13); color: #2e7d32;">
+                            <i class="fa-solid fa-peso-sign"></i>
+                        </div>
+                        <div>
+                            <span class="kpi-label">Total Store Revenue</span>
+                            <h2 id="kpi-total-revenue" class="kpi-value">₱0.00</h2>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background: rgba(156,39,176,0.13); color: #9c27b0;">
+                            <i class="fa-solid fa-ticket"></i>
+                        </div>
+                        <div>
+                            <span class="kpi-label">Active Promos</span>
+                            <h2 id="kpi-total-promos" class="kpi-value">0</h2>
+                        </div>
+                    </div>
                 </div>
-                <button onclick="toggleAddPromoModal()" style="background: var(--accent-color); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-plus"></i> Create New Promo Code
-                </button>
-            </div>
 
-            <div id="admin-promos-list"></div>
+                <section id="tab-orders-section" class="workspace-panel">
+                    <div class="panel-toolbar">
+                        <div class="status-filter-pills">
+                            <button class="filter-pill active" onclick="setOrderStatusFilter('all', this)">All Orders (<span id="count-order-all">0</span>)</button>
+                            <button class="filter-pill" onclick="setOrderStatusFilter('active', this)">Active / In Prep (<span id="count-order-active">0</span>)</button>
+                            <button class="filter-pill" onclick="setOrderStatusFilter('delivery', this)">Out for Delivery (<span id="count-order-delivery">0</span>)</button>
+                            <button class="filter-pill" onclick="setOrderStatusFilter('completed', this)">Completed (<span id="count-order-completed">0</span>)</button>
+                        </div>
+
+                        <div class="search-wrap">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="order-search-input" class="admin-search-input" placeholder="Search order ID or customer..." onkeyup="renderOrdersList()">
+                        </div>
+                    </div>
+
+                    <div id="admin-orders-list"></div>
+                </section>
+
+                <section id="tab-inventory-section" class="workspace-panel" style="display: none;">
+                    <div class="panel-toolbar">
+                        <div class="panel-heading">
+                            <h3>Menu &amp; Direct Stock Manager</h3>
+                            <p>Update prices, adjust stocks, mark sold out, or add new drinks &amp; Food Box meals.</p>
+                        </div>
+                        <button onclick="toggleAddStockModal()" class="primary-cta-btn">
+                            <i class="fa-solid fa-plus"></i> Add New Menu Item
+                        </button>
+                    </div>
+
+                    <div id="admin-inventory-list"></div>
+                </section>
+
+                <section id="tab-customers-section" class="workspace-panel" style="display: none;">
+                    <div class="panel-toolbar">
+                        <div class="panel-heading">
+                            <h3>Registered Accounts &amp; Membership</h3>
+                            <p>Manage regular customers, VIP tiers, loyalty stamps, account roles, or delete accounts.</p>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <select id="customer-filter-select" onchange="renderCustomersList()" style="padding: 9px 14px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 13px; outline: none; background: var(--bg-color); color: var(--text-color); cursor: pointer;">
+                                <option value="all">All Accounts</option>
+                                <option value="regular">Regular (Bronze Bean)</option>
+                                <option value="vip">Silver / Gold / VIP</option>
+                                <option value="admin">Admins Only</option>
+                            </select>
+                            <div class="search-wrap">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="customer-search-input" class="admin-search-input" placeholder="Search customer name or email..." onkeyup="renderCustomersList()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="admin-customers-list"></div>
+                </section>
+
+                <section id="tab-promos-section" class="workspace-panel" style="display: none;">
+                    <div class="panel-toolbar">
+                        <div class="panel-heading">
+                            <h3>Promo Vouchers &amp; Discounts</h3>
+                            <p>Create and manage live discount codes for customers during checkout.</p>
+                        </div>
+                        <button onclick="toggleAddPromoModal()" class="primary-cta-btn">
+                            <i class="fa-solid fa-plus"></i> Create New Promo Code
+                        </button>
+                    </div>
+
+                    <div id="admin-promos-list"></div>
+                </section>
+            </main>
         </div>
-
     </div>
 
-    <!-- END-OF-DAY (Z-READING) SALES REPORT MODAL -->
     <div id="eod-modal-overlay" class="admin-modal-overlay">
         <div class="admin-modal-box printable-area" style="max-width: 540px;">
             <button onclick="closeEndOfDayModal()" class="no-print" style="position: absolute; top: 18px; right: 18px; border: none; background: none; font-size: 20px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
 
-            <!-- Store Header -->
             <div style="text-align: center; border-bottom: 1.5px dashed var(--border-color); padding-bottom: 14px; margin-bottom: 16px;">
-                <h2 style="font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text-color); margin: 0;">Francos. Bakes & Brews</h2>
+                <h2 style="font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text-color); margin: 0;">Francos. Bakes &amp; Brews</h2>
                 <span style="font-size: 11.5px; font-weight: 800; color: var(--accent-color); letter-spacing: 1.5px; text-transform: uppercase;">DAILY Z-READING SALES REPORT</span>
-                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;" id="zreading-timestamp">Date & Time: --</div>
+                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;" id="zreading-timestamp">Date &amp; Time: --</div>
                 <div style="font-size: 10.5px; color: var(--text-secondary);">Store Branch: Brgy. Canarvacanan, Binalonan, Pangasinan</div>
+                <div style="font-size: 10.5px; color: var(--accent-color); font-weight: bold;">Kitchen Hotline: 0975-178-0508</div>
             </div>
 
-            <!-- Core Financials -->
             <div class="z-reading-box">
                 <div class="z-reading-row" style="font-size: 15px; font-weight: 800; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 6px;">
                     <span>GROSS SALES REVENUE:</span>
@@ -449,8 +602,8 @@
                     <strong id="zreading-completed-orders" style="color: #2e7d32;">0</strong>
                 </div>
                 <div class="z-reading-row">
-                    <span>Total Drink Cups Prepared:</span>
-                    <strong id="zreading-total-cups">0 cups</strong>
+                    <span>Total Items Prepared (Cups &amp; Meals):</span>
+                    <strong id="zreading-total-cups">0 items</strong>
                 </div>
                 <div class="z-reading-row">
                     <span>Discounts Claimed:</span>
@@ -458,7 +611,6 @@
                 </div>
             </div>
 
-            <!-- Payment Methods Breakdown -->
             <div class="z-reading-box">
                 <strong style="display: block; font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
                     <i class="fa-solid fa-wallet"></i> Payment Channel Breakdown:
@@ -473,7 +625,6 @@
                 </div>
             </div>
 
-            <!-- Fulfillment Mode Breakdown -->
             <div class="z-reading-box">
                 <strong style="display: block; font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
                     <i class="fa-solid fa-truck-ramp-box"></i> Order Fulfillment Mode:
@@ -488,17 +639,13 @@
                 </div>
             </div>
 
-            <!-- Top 3 Best-Selling Drinks -->
             <div class="z-reading-box">
                 <strong style="display: block; font-size: 12px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">
-                    <i class="fa-solid fa-trophy" style="color: #f59e0b;"></i> Top 3 Best Selling Drinks Today:
+                    <i class="fa-solid fa-trophy" style="color: #f59e0b;"></i> Top 3 Best Selling Menu Items Today:
                 </strong>
-                <div id="zreading-top-drinks" style="font-size: 12.5px; color: var(--text-color);">
-                    <!-- Dynamically calculated -->
-                </div>
+                <div id="zreading-top-drinks" style="font-size: 12.5px; color: var(--text-color);"></div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="no-print" style="display: flex; gap: 10px; margin-top: 20px;">
                 <button onclick="window.print()" style="flex: 2; padding: 12px; background: #2e7d32; color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                     <i class="fa-solid fa-print"></i> Print / Save Daily Report
@@ -510,39 +657,34 @@
         </div>
     </div>
 
-    <!-- DOCKET & CUP LABEL STICKER MODAL -->
     <div id="receipt-modal-overlay" class="admin-modal-overlay">
         <div class="admin-modal-box printable-area">
             <button onclick="closeReceiptModal()" class="no-print" style="position: absolute; top: 18px; right: 18px; border: none; background: none; font-size: 20px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
             
-            <!-- View Selector Tabs in Modal -->
             <div class="no-print" style="display: flex; gap: 8px; margin-bottom: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
                 <button id="btn-view-docket" onclick="switchPrintView('docket')" style="flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--accent-color); background: var(--accent-color); color: #fff; font-weight: bold; font-size: 12px; cursor: pointer;">
                     📄 Order Docket
                 </button>
                 <button id="btn-view-stickers" onclick="switchPrintView('stickers')" style="flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: transparent; color: var(--text-color); font-weight: bold; font-size: 12px; cursor: pointer;">
-                    🏷️ Cup Stickers (Print Labels)
+                    🏷️ Cup &amp; Box Stickers (Print Labels)
                 </button>
             </div>
 
-            <!-- Content Area 1: Standard Docket View -->
             <div id="docket-view-content">
                 <div style="text-align: center; margin-bottom: 16px; border-bottom: 1px dashed var(--border-color); padding-bottom: 12px;">
-                    <h3 style="font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--text-color); margin: 0;">Francos. Bakes & Brews</h3>
-                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 3px; text-transform: uppercase;">Kitchen Docket & Customer Transaction</p>
+                    <h3 style="font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--text-color); margin: 0;">Francos. Bakes &amp; Brews</h3>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 3px; text-transform: uppercase;">Kitchen Docket &amp; Customer Transaction</p>
                 </div>
                 <div id="receipt-modal-content"></div>
             </div>
 
-            <!-- Content Area 2: Barista Cup Stickers View -->
             <div id="stickers-view-content" style="display: none;">
                 <p class="no-print" style="font-size: 11.5px; color: var(--text-secondary); margin: 0 0 12px;">
-                    <i class="fa-solid fa-circle-info"></i> Individual stickers formatted for direct cup placement:
+                    <i class="fa-solid fa-circle-info"></i> Individual stickers formatted for direct cup/food box placement:
                 </p>
                 <div id="cup-stickers-container"></div>
             </div>
             
-            <!-- Action Buttons -->
             <div class="no-print" style="display: flex; gap: 10px; margin-top: 22px; border-top: 1px solid var(--border-color); padding-top: 16px;">
                 <button onclick="window.print()" style="flex: 1; background: var(--accent-color); border: none; color: #fff; padding: 11px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                     <i class="fa-solid fa-print"></i> Print Now
@@ -552,12 +694,11 @@
         </div>
     </div>
 
-    <!-- Edit Customer Modal -->
     <div id="edit-customer-modal" class="admin-modal-overlay">
         <div class="admin-modal-box">
             <button onclick="closeEditCustomerModal()" style="position: absolute; top: 18px; right: 18px; border: none; background: none; font-size: 20px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
             <h3 style="font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text-color); margin: 0 0 16px;">
-                <i class="fa-solid fa-user-pen" style="color: var(--accent-color);"></i> Edit Customer & VIP Profile
+                <i class="fa-solid fa-user-pen" style="color: var(--accent-color);"></i> Edit Account &amp; Membership
             </h3>
             
             <form onsubmit="saveCustomerDetails(event)">
@@ -575,9 +716,9 @@
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
                     <div>
-                        <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">VIP Membership Tier</label>
+                        <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Membership Tier</label>
                         <select id="edit-cust-tier" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px;">
-                            <option value="Bronze Bean">Bronze Bean (Regular)</option>
+                            <option value="Bronze Bean">Regular (Bronze Bean)</option>
                             <option value="Silver Sipper">Silver Sipper</option>
                             <option value="Gold Brewer">Gold Brewer</option>
                             <option value="VIP Crown Member">VIP Crown Member ⭐</option>
@@ -616,7 +757,6 @@
         </div>
     </div>
 
-    <!-- Create Promo Modal -->
     <div id="add-promo-modal" class="admin-modal-overlay">
         <div class="admin-modal-box">
             <button onclick="toggleAddPromoModal()" style="position: absolute; top: 18px; right: 18px; border: none; background: none; font-size: 20px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
@@ -660,7 +800,6 @@
         </div>
     </div>
 
-    <!-- Modal for Adding New Menu Item -->
     <div id="add-menu-modal" class="admin-modal-overlay">
         <div class="admin-modal-box">
             <button onclick="toggleAddStockModal()" style="position: absolute; top: 18px; right: 18px; border: none; background: none; font-size: 20px; font-weight: bold; cursor: pointer; color: var(--text-secondary);">✕</button>
@@ -668,12 +807,13 @@
             
             <form onsubmit="addNewMenuItem(event)">
                 <div style="margin-bottom: 12px;">
-                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Drink / Item Name</label>
-                    <input type="text" id="new-item-name" required placeholder="e.g. Hazelnut Cold Brew" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none;">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Drink / Food Item Name</label>
+                    <input type="text" id="new-item-name" required placeholder="e.g. Pork Sisig Rice Meal" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none;">
                 </div>
                 <div style="margin-bottom: 12px;">
                     <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Category</label>
                     <select id="new-item-category" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px;">
+                        <option value="foodbox">Food Box (Meals &amp; Snacks)</option>
                         <option value="sleepless">Sleepless (Coffee)</option>
                         <option value="sogreen">So Green (Matcha)</option>
                         <option value="snow">Snow Frappes</option>
@@ -686,7 +826,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
                     <div>
                         <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Price (₱)</label>
-                        <input type="number" id="new-item-price" required placeholder="130" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none;">
+                        <input type="number" id="new-item-price" required placeholder="120" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none;">
                     </div>
                     <div>
                         <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Stock Qty</label>
@@ -695,7 +835,7 @@
                 </div>
                 <div style="margin-bottom: 18px;">
                     <label style="font-size: 12px; font-weight: bold; color: var(--text-color); display: block; margin-bottom: 4px;">Description</label>
-                    <textarea id="new-item-desc" placeholder="Handcrafted recipe description..." style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none; height: 60px; font-family: inherit;"></textarea>
+                    <textarea id="new-item-desc" placeholder="Freshly made food recipe description..." style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 8px; outline: none; height: 60px; font-family: inherit;"></textarea>
                 </div>
                 <button type="submit" style="width: 100%; padding: 12px; background: var(--accent-color); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;">Publish to Store Menu</button>
             </form>
@@ -704,7 +844,7 @@
 
     <div id="toast" class="toast"></div>
 
-    <footer></footer>
+    <footer style="display:none !important;"></footer>
 
     <script src="../assets/script.js"></script>
     <script>
@@ -712,6 +852,8 @@
         let activeSelectedOrder = null;
 
         document.addEventListener("DOMContentLoaded", () => {
+            loadAdminHeaderUser();
+            syncThemeIcon();
             initializeDemoUsersIfEmpty();
             initializeDefaultPromosIfEmpty();
             loadKPIs();
@@ -744,11 +886,44 @@
             }, 4000);
         });
 
+        function loadAdminHeaderUser() {
+            const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (currentUser && currentUser.name) {
+                document.getElementById("topbar-admin-name").textContent = currentUser.name;
+                document.getElementById("topbar-admin-avatar").textContent = currentUser.name.charAt(0).toUpperCase();
+            }
+        }
+
+        function toggleAdminTheme() {
+            const current = document.documentElement.getAttribute("data-theme") || "light";
+            const next = current === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("theme", next);
+            syncThemeIcon();
+        }
+
+        function syncThemeIcon() {
+            const icon = document.getElementById("admin-theme-icon");
+            if (!icon) return;
+            const current = document.documentElement.getAttribute("data-theme") || "light";
+            icon.className = current === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
+        }
+
+        function toggleMobileSidebar(forceState) {
+            const sidebar = document.getElementById("admin-sidebar");
+            const backdrop = document.getElementById("sidebar-backdrop");
+            if (!sidebar || !backdrop) return;
+
+            const shouldOpen = typeof forceState === "boolean" ? forceState : !sidebar.classList.contains("open");
+            sidebar.classList.toggle("open", shouldOpen);
+            backdrop.classList.toggle("open", shouldOpen);
+        }
+
         function initializeDefaultPromosIfEmpty() {
             let promos = JSON.parse(localStorage.getItem("storePromos"));
             if (!promos || promos.length === 0) {
                 promos = [
-                    { code: "FRANCOS50", title: "₱50 Welcome Treat", type: "fixed", value: 50, desc: "₱50 OFF your coffee order with no minimum spend!" },
+                    { code: "FRANCOS50", title: "₱50 Welcome Treat", type: "fixed", value: 50, desc: "₱50 OFF your order with no minimum spend!" },
                     { code: "WELCOME10", title: "Brew Lover Special", type: "percent", value: 10, desc: "Get 10% OFF on all espresso mixes and Japanese matcha." }
                 ];
                 localStorage.setItem("storePromos", JSON.stringify(promos));
@@ -759,9 +934,7 @@
             let users = JSON.parse(localStorage.getItem("appUsersList"));
             if (!users || users.length === 0) {
                 users = [
-                    { name: "Juan Dela Cruz", email: "juan@example.com", phone: "09987654321", role: "customer", tier: "VIP Crown Member", stamps: 3 },
-                    { name: "Maria Santos", email: "maria@example.com", phone: "09181234567", role: "customer", tier: "Gold Brewer", stamps: 4 },
-                    { name: "Store Administrator", email: "admin@francos.com", phone: "09171234567", role: "admin", tier: "VIP Crown Member", stamps: 5 }
+                    { name: "Store Administrator", email: "admin@francos.com", phone: "0975-178-0508", role: "admin", tier: "Bronze Bean", stamps: 0 }
                 ];
                 localStorage.setItem("appUsersList", JSON.stringify(users));
             }
@@ -789,9 +962,12 @@
         function checkAndAlertNewOrders() {
             let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
             let hasNew = orders.some(o => o.isNew);
+            let dot = document.getElementById("topbar-notif-dot");
+            if (dot) dot.style.display = hasNew ? "block" : "none";
+
             if (hasNew) {
                 playChimeSound();
-                showToast("🔔 New Live Order Waiting for Kitchen Review!");
+                if (typeof showToast === "function") showToast("🔔 New Live Order Waiting for Kitchen Review!");
             }
         }
 
@@ -815,12 +991,23 @@
             btnInventory.classList.toggle("active", tab === "inventory");
             btnCustomers.classList.toggle("active", tab === "customers");
             btnPromos.classList.toggle("active", tab === "promos");
+
+            const titleMap = {
+                orders: "Live Kitchen Orders",
+                inventory: "Menu & Stock Pricing",
+                customers: "Customer & VIP Accounts",
+                promos: "Promo & Vouchers"
+            };
+            const topTitle = document.getElementById("topbar-section-title");
+            if (topTitle) topTitle.textContent = titleMap[tab] || "Admin Dashboard";
+
+            toggleMobileSidebar(false);
         }
 
         function setOrderStatusFilter(filter, btn) {
             currentStatusFilter = filter;
             document.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
-            btn.classList.add("active");
+            if (btn) btn.classList.add("active");
             renderOrdersList();
         }
 
@@ -837,6 +1024,12 @@
             document.getElementById("kpi-total-revenue").textContent = `₱${totalRev.toFixed(2)}`;
             document.getElementById("kpi-total-promos").textContent = promos.length;
 
+            const badge = document.getElementById("sidebar-orders-badge");
+            if (badge) {
+                badge.textContent = pendingCount;
+                badge.style.display = pendingCount > 0 ? "inline-block" : "none";
+            }
+
             document.getElementById("count-order-all").textContent = totalCount;
             document.getElementById("count-order-active").textContent = pendingCount;
             document.getElementById("count-order-delivery").textContent = orders.filter(o => o.status === "Out for Delivery").length;
@@ -850,7 +1043,7 @@
             let query = searchInput ? searchInput.value.toLowerCase().trim() : "";
 
             if (orders.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:50px 20px; background:var(--card-bg); border-radius:16px; border:1px solid var(--border-color); color:var(--text-secondary);"><i class="fa-solid fa-mug-saucer" style="font-size:36px; margin-bottom:10px; color:var(--accent-color);"></i><p style="margin:0; font-weight:bold;">No customer orders received yet.</p></div>`;
+                container.innerHTML = `<div style="text-align:center; padding:50px 20px; background:var(--bg-color); border-radius:14px; border:1px dashed var(--border-color); color:var(--text-secondary);"><i class="fa-solid fa-mug-saucer" style="font-size:34px; margin-bottom:10px; color:var(--accent-color);"></i><p style="margin:0; font-weight:600;">No customer orders received yet.</p></div>`;
                 return;
             }
 
@@ -870,7 +1063,7 @@
             }
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:35px; background:var(--card-bg); border-radius:14px; border:1px solid var(--border-color); color:var(--text-secondary);">No orders found under this filter.</div>`;
+                container.innerHTML = `<div style="text-align:center; padding:35px; background:var(--bg-color); border-radius:14px; border:1px solid var(--border-color); color:var(--text-secondary);">No orders found under this filter.</div>`;
                 return;
             }
 
@@ -879,7 +1072,7 @@
                 let actualIndex = orders.findIndex(o => o.id === order.id);
 
                 let itemsList = (order.items && order.items.length) 
-                    ? order.items.map(i => `<span style="display:inline-block; margin-right:8px; margin-bottom:4px; padding:3px 8px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px;"><strong>${i.qty}x</strong> ${i.name}</span>`).join("")
+                    ? order.items.map(i => `<span style="display:inline-block; margin-right:8px; margin-bottom:4px; padding:4px 9px; background:var(--card-bg); border:1px solid var(--border-color); border-radius:6px;"><strong>${i.qty}x</strong> ${i.name}</span>`).join("")
                     : "No items listed";
 
                 let newOrderBadge = order.isNew ? `<span style="background: #e65100; color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; margin-left: 8px;">🔔 NEW ORDER</span>` : "";
@@ -887,7 +1080,7 @@
                 let quickActionBtn = "";
                 let st = order.status || "Pending";
                 if (st === "Pending") {
-                    quickActionBtn = `<button class="quick-action-btn" onclick="updateOrderStatus(${actualIndex}, 'Preparing')" style="background:#e8f5e9; color:#2e7d32;"><i class="fa-solid fa-mug-hot"></i> Start Brewing</button>`;
+                    quickActionBtn = `<button class="quick-action-btn" onclick="updateOrderStatus(${actualIndex}, 'Preparing')" style="background:#e8f5e9; color:#2e7d32;"><i class="fa-solid fa-mug-hot"></i> Start Cooking / Brewing</button>`;
                 } else if (st === "Preparing") {
                     quickActionBtn = `<button class="quick-action-btn" onclick="updateOrderStatus(${actualIndex}, 'Out for Delivery')" style="background:#e3f2fd; color:#1565c0;"><i class="fa-solid fa-motorcycle"></i> Dispatch Rider</button>`;
                 } else if (st === "Out for Delivery") {
@@ -903,20 +1096,20 @@
                     <div class="order-admin-card ${order.isNew ? 'is-new' : ''}">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
                             <div>
-                                <strong style="font-size:17px; color:var(--text-color); font-family:'DM Serif Display', serif;">Order #${order.id} - ${order.customerName || 'Valued Customer'}</strong> ${newOrderBadge}
+                                <strong style="font-size:16.5px; color:var(--text-color); font-family:'DM Serif Display', serif;">Order #${order.id} - ${order.customerName || 'Valued Customer'}</strong> ${newOrderBadge}
                                 <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">
                                     ${order.date || 'Today'} · <strong style="color:var(--accent-color);">${order.paymentMethod}</strong>
                                 </div>
                             </div>
                             <div style="display:flex; gap:10px; align-items:center;">
-                                <button onclick="openAdminReceiptModal(${actualIndex})" style="background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-color); padding:7px 12px; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;"><i class="fa-solid fa-receipt"></i> Docket & Labels</button>
+                                <button onclick="openAdminReceiptModal(${actualIndex})" style="background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-color); padding:7px 12px; border-radius:8px; font-weight:bold; font-size:12px; cursor:pointer;"><i class="fa-solid fa-receipt"></i> Docket &amp; Labels</button>
                                 <strong style="color:var(--accent-color); font-size:18px;">₱${(order.total || 0).toFixed(2)}</strong>
                             </div>
                         </div>
 
                         <div style="background:var(--bg-color); border:1px solid var(--border-color); border-radius:10px; padding:12px; font-size:12.5px; color:var(--text-color); margin-bottom:14px;">
-                            <div style="margin-bottom:6px;"><strong>Ordered Drinks:</strong><br><div style="margin-top:4px;">${itemsList}</div></div>
-                            <div><strong>Barista Notes:</strong> <span style="color:var(--text-secondary);">${order.baristaNotes || 'No special requests.'}</span></div>
+                            <div style="margin-bottom:6px;"><strong>Ordered Items:</strong><br><div style="margin-top:4px;">${itemsList}</div></div>
+                            <div><strong>Special Notes:</strong> <span style="color:var(--text-secondary);">${order.baristaNotes || 'No special requests.'}</span></div>
                         </div>
 
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -924,7 +1117,7 @@
                                 <span style="font-size:12.5px; font-weight:bold; color:var(--text-color);">Status:</span>
                                 <select onchange="updateOrderStatus(${actualIndex}, this.value)" style="padding:7px 12px; border:1px solid var(--border-color); border-radius:8px; font-size:12px; background:var(--card-bg); color:var(--text-color); cursor:pointer; font-weight:600;">
                                     <option value="Pending" ${order.status === "Pending" ? "selected" : ""}>Pending</option>
-                                    <option value="Preparing" ${order.status === "Preparing" ? "selected" : ""}>Brewing & Preparing</option>
+                                    <option value="Preparing" ${order.status === "Preparing" ? "selected" : ""}>Cooking &amp; Brewing</option>
                                     <option value="Out for Delivery" ${order.status === "Out for Delivery" ? "selected" : ""}>Out for Delivery</option>
                                     <option value="Completed" ${order.status === "Completed" ? "selected" : ""}>Completed</option>
                                     <option value="Cancelled" ${order.status === "Cancelled" ? "selected" : ""}>Cancelled</option>
@@ -940,9 +1133,6 @@
             container.innerHTML = html;
         }
 
-        // =========================================================
-        // DAILY SALES & END-OF-DAY (Z-READING) ENGINE
-        // =========================================================
         function openEndOfDayModal() {
             let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
 
@@ -997,7 +1187,7 @@
             document.getElementById("zreading-gross").textContent = `₱${grossRevenue.toFixed(2)}`;
             document.getElementById("zreading-total-orders").textContent = orders.length;
             document.getElementById("zreading-completed-orders").textContent = `${completedOrders} of ${orders.length}`;
-            document.getElementById("zreading-total-cups").textContent = `${totalCups} handcrafted cups`;
+            document.getElementById("zreading-total-cups").textContent = `${totalCups} handcrafted items`;
             document.getElementById("zreading-total-discounts").textContent = `-₱${totalDiscounts.toFixed(2)}`;
 
             document.getElementById("zreading-pay-gcash").textContent = `₱${gcashRevenue.toFixed(2)} (${gcashCount} orders)`;
@@ -1011,14 +1201,14 @@
 
             let topHTML = "";
             if (topDrinksArray.length === 0) {
-                topHTML = `<div style="color:var(--text-secondary);">No drinks sold yet today.</div>`;
+                topHTML = `<div style="color:var(--text-secondary);">No items sold yet today.</div>`;
             } else {
                 topDrinksArray.slice(0, 3).forEach((item, index) => {
                     let medal = index === 0 ? "🥇" : (index === 1 ? "🥈" : "🥉");
                     topHTML += `
                         <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
                             <span>${medal} <strong>${item.name}</strong></span>
-                            <span style="font-weight:bold; color:var(--accent-color);">${item.qty} cups sold</span>
+                            <span style="font-weight:bold; color:var(--accent-color);">${item.qty} sold</span>
                         </div>
                     `;
                 });
@@ -1032,9 +1222,6 @@
             document.getElementById("eod-modal-overlay").style.display = "none";
         }
 
-        // =========================================================
-        // DOCKET & BARISTA CUP STICKERS ENGINE
-        // =========================================================
         function openAdminReceiptModal(orderIndex) {
             let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
             let order = orders[orderIndex];
@@ -1047,6 +1234,7 @@
                 localStorage.setItem("storeOrders", JSON.stringify(orders));
                 renderOrdersList();
                 loadKPIs();
+                checkAndAlertNewOrders();
             }
 
             let itemsListHTML = "";
@@ -1073,13 +1261,13 @@
                 <div style="border-bottom: 1px dashed var(--border-color); padding-bottom: 12px; margin-bottom: 14px;">
                     <div><strong>Order ID:</strong> #${order.id}</div>
                     <div><strong>Customer:</strong> ${order.customerName || 'Valued Customer'}</div>
-                    <div><strong>Date & Time:</strong> ${order.date || 'Today'}</div>
+                    <div><strong>Date &amp; Time:</strong> ${order.date || 'Today'}</div>
                     <div><strong>Payment Method:</strong> <span style="color:var(--accent-color); font-weight:bold;">${order.paymentMethod}</span></div>
                     <div><strong>Status:</strong> ${order.status || 'Pending'}</div>
                 </div>
 
                 <div style="margin-bottom: 14px;">
-                    <strong style="display: block; margin-bottom: 8px; color: var(--accent-color); font-size: 12px; text-transform: uppercase;">Drink Orders & Recipe:</strong>
+                    <strong style="display: block; margin-bottom: 8px; color: var(--accent-color); font-size: 12px; text-transform: uppercase;">Items &amp; Preparation Details:</strong>
                     ${itemsListHTML}
                 </div>
 
@@ -1100,34 +1288,34 @@
             document.getElementById("receipt-modal-content").innerHTML = receiptHTML;
 
             let stickersHTML = "";
-            let cupCounter = 1;
-            let totalCups = order.items ? order.items.reduce((sum, item) => sum + item.qty, 0) : 1;
+            let itemCounter = 1;
+            let totalItems = order.items ? order.items.reduce((sum, item) => sum + item.qty, 0) : 1;
 
             if (order.items && order.items.length > 0) {
                 order.items.forEach(item => {
                     for (let c = 0; c < item.qty; c++) {
                         let addOnsText = (item.addOns && item.addOns.length > 0) 
                             ? item.addOns.map(a => a.name).join(", ") 
-                            : "No extra add-ons";
+                            : "Standard Serving";
 
                         stickersHTML += `
                             <div class="cup-sticker-badge">
-                                <h4>Francos. Bakes & Brews</h4>
+                                <h4>Francos. Kitchen &amp; Brews</h4>
                                 <div class="cup-sticker-meta">
                                     <span><strong>#${order.id}</strong> · ${order.customerName || 'Customer'}</span>
-                                    <span><strong>[Cup ${cupCounter} of ${totalCups}]</strong></span>
+                                    <span><strong>[Item ${itemCounter} of ${totalItems}]</strong></span>
                                 </div>
                                 <div style="font-size: 14px; font-weight: 800; color: #000; margin: 4px 0;">
                                     ${item.name}
                                 </div>
                                 <div class="cup-sticker-spec">
-                                    <div><strong>Recipe:</strong> ${item.customSummary || 'Standard Cup'}</div>
-                                    <div><strong>Add-ons:</strong> ${addOnsText}</div>
+                                    <div><strong>Specs:</strong> ${item.customSummary || 'Standard Prep'}</div>
+                                    <div><strong>Extras:</strong> ${addOnsText}</div>
                                     <div><strong>Note:</strong> ${order.baristaNotes || 'None'}</div>
                                 </div>
                             </div>
                         `;
-                        cupCounter++;
+                        itemCounter++;
                     }
                 });
             }
@@ -1172,6 +1360,7 @@
             
             loadKPIs();
             renderOrdersList();
+            checkAndAlertNewOrders();
             showToast(`Order #${orders[index].id} updated to ${newStatus}!`);
         }
 
@@ -1191,30 +1380,34 @@
                     ? `<span style="color:#2e7d32; font-weight:bold; font-size:12px;">Available (${item.stock})</span>` 
                     : `<span style="color:#c62828; font-weight:bold; font-size:12px;">Sold Out</span>`;
 
+                let catBadge = item.category === "foodbox" 
+                    ? `<span style="color:var(--accent-color); font-weight:bold; font-size:10.5px;">[FOOD BOX]</span> `
+                    : ``;
+
                 html += `
                     <div class="inventory-item-row">
-                        <div style="flex: 2;">
-                            <strong style="color:var(--text-color); font-size:14px; display:block;">${item.name}</strong>
+                        <div style="flex: 2; min-width: 180px;">
+                            <strong style="color:var(--text-color); font-size:14px; display:block;">${catBadge}${item.name}</strong>
                             <span style="font-size:11px; color:var(--text-secondary); text-transform:uppercase;">${item.category}</span>
                         </div>
                         
                         <div style="flex: 1; display:flex; align-items:center; gap:4px;">
                             <span style="font-size:12px; font-weight:bold; color:var(--text-color);">₱</span>
-                            <input type="number" value="${item.price}" onchange="updateItemPrice(${idx}, this.value)" style="width: 75px; padding: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--accent-color); border-radius: 6px; font-size: 12.5px; font-weight: bold;">
+                            <input type="number" value="${item.price}" onchange="updateItemPrice(${idx}, this.value)" style="width: 75px; padding: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--accent-color); border-radius: 6px; font-size: 12.5px; font-weight: bold;">
                         </div>
 
                         <div style="flex: 1.2; display:flex; align-items:center; gap:6px;">
                             <span style="font-size:11px; font-weight:bold; color:var(--text-secondary);">Stock:</span>
-                            <input type="number" min="0" value="${item.stock || 0}" onchange="updateItemStockDirect(${idx}, this.value)" style="width: 65px; padding: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); border-radius: 6px; font-size: 12.5px; font-weight: bold;">
+                            <input type="number" min="0" value="${item.stock || 0}" onchange="updateItemStockDirect(${idx}, this.value)" style="width: 65px; padding: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); border-radius: 6px; font-size: 12.5px; font-weight: bold;">
                         </div>
 
                         <div style="flex: 1;">${statusBadge}</div>
 
                         <div style="flex: 2; display:flex; align-items:center; justify-content:flex-end; gap:6px;">
-                            <button onclick="adjustStock(${idx}, 5)" style="background:#e8f5e9; color:#2e7d32; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">+5</button>
-                            <button onclick="adjustStock(${idx}, -5)" style="background:#ffebee; color:#c62828; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">-5</button>
-                            <button onclick="toggleSoldOut(${idx})" style="background:${isAvail ? '#ffebee' : '#e8f5e9'}; color:${isAvail ? '#c62828' : '#2e7d32'}; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">${isAvail ? 'Sold Out' : 'Restock'}</button>
-                            <button onclick="deleteMenuItem(${idx})" style="background:var(--bg-color); color:var(--text-secondary); border:1px solid var(--border-color); padding:6px 8px; border-radius:4px; cursor:pointer;" title="Delete item"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="adjustStock(${idx}, 5)" style="background:#e8f5e9; color:#2e7d32; border:none; padding:6px 10px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:11px;">+5</button>
+                            <button onclick="adjustStock(${idx}, -5)" style="background:#ffebee; color:#c62828; border:none; padding:6px 10px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:11px;">-5</button>
+                            <button onclick="toggleSoldOut(${idx})" style="background:${isAvail ? '#ffebee' : '#e8f5e9'}; color:${isAvail ? '#c62828' : '#2e7d32'}; border:none; padding:6px 10px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:11px;">${isAvail ? 'Sold Out' : 'Restock'}</button>
+                            <button onclick="deleteMenuItem(${idx})" style="background:var(--card-bg); color:var(--text-secondary); border:1px solid var(--border-color); padding:6px 8px; border-radius:6px; cursor:pointer;" title="Delete item"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
                 `;
@@ -1289,12 +1482,15 @@
                 id: Date.now(),
                 name: name,
                 category: category,
+                isFood: category === "foodbox",
                 price: price,
                 stock: stock,
                 rating: 5.0,
                 reviewsCount: 1,
                 description: desc,
-                image: "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=500&q=80"
+                image: category === "foodbox" 
+                    ? "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80"
+                    : "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=500&q=80"
             };
 
             menuItems.unshift(newItem);
@@ -1305,25 +1501,39 @@
             showToast(`Added "${name}" to official menu!`);
         }
 
-        // TAB 3: CUSTOMERS
         function renderCustomersList() {
             let container = document.getElementById("admin-customers-list");
             let users = JSON.parse(localStorage.getItem("appUsersList")) || [];
             let orders = JSON.parse(localStorage.getItem("storeOrders")) || [];
             let searchInput = document.getElementById("customer-search-input");
+            let filterSelect = document.getElementById("customer-filter-select");
             let query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+            let filterVal = filterSelect ? filterSelect.value : "all";
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
             if (users.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); background:var(--card-bg); border-radius:14px; border:1px solid var(--border-color);">No customers found in database.</div>`;
+                container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); background:var(--bg-color); border-radius:14px; border:1px solid var(--border-color);">No accounts found yet.</div>`;
                 return;
             }
 
-            let filtered = users;
+            let filtered = users.filter(u => {
+                let tier = u.tier || "Bronze Bean";
+                if (filterVal === "regular") return u.role !== "admin" && tier === "Bronze Bean";
+                if (filterVal === "vip") return u.role !== "admin" && tier !== "Bronze Bean";
+                if (filterVal === "admin") return u.role === "admin";
+                return true;
+            });
+
             if (query !== "") {
                 filtered = filtered.filter(u => 
-                    u.name.toLowerCase().includes(query) || 
-                    u.email.toLowerCase().includes(query)
+                    (u.name && u.name.toLowerCase().includes(query)) || 
+                    (u.email && u.email.toLowerCase().includes(query))
                 );
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:35px; color:var(--text-secondary); background:var(--bg-color); border-radius:14px; border:1px solid var(--border-color);">No matching accounts found.</div>`;
+                return;
             }
 
             let html = "";
@@ -1333,17 +1543,37 @@
                 let ordersCount = userOrders.length;
 
                 let tier = u.tier || "Bronze Bean";
+                let displayTier = tier === "Bronze Bean" ? "Regular (Bronze Bean)" : tier;
                 let badgeClass = "vip-regular";
-                if (tier.includes("Silver")) badgeClass = "vip-silver";
-                else if (tier.includes("Gold")) badgeClass = "vip-gold";
-                else if (tier.includes("Crown") || tier.includes("VIP")) badgeClass = "vip-crown";
+                let badgeIcon = "fa-user";
+
+                if (u.role === "admin") {
+                    displayTier = "Store Admin / Staff";
+                    badgeClass = "vip-silver";
+                    badgeIcon = "fa-shield-halved";
+                } else if (tier.includes("Silver")) {
+                    badgeClass = "vip-silver";
+                    badgeIcon = "fa-award";
+                } else if (tier.includes("Gold")) {
+                    badgeClass = "vip-gold";
+                    badgeIcon = "fa-crown";
+                } else if (tier.includes("Crown") || tier.includes("VIP")) {
+                    badgeClass = "vip-crown";
+                    badgeIcon = "fa-crown";
+                }
 
                 let stamps = u.stamps !== undefined ? u.stamps : (ordersCount % 5);
+                let isSelf = currentUser && currentUser.email === u.email;
+                let deleteBtnHTML = isSelf ? "" : `
+                    <button onclick="deleteCustomerAccount('${u.email}')" style="background: transparent; border: 1px solid #c62828; color: #c62828; padding: 7px 10px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;" title="Delete Account">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
 
                 html += `
                     <div class="customer-card-row">
-                        <div style="display: flex; align-items: center; gap: 14px; min-width: 250px;">
-                            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-color), #70452f); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">
+                        <div style="display: flex; align-items: center; gap: 14px; min-width: 240px;">
+                            <div style="width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-color), #70452f); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px;">
                                 ${u.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
@@ -1354,7 +1584,7 @@
 
                         <div>
                             <span class="vip-badge-pill ${badgeClass}">
-                                <i class="fa-solid fa-crown" style="font-size: 10px;"></i> ${tier}
+                                <i class="fa-solid ${badgeIcon}" style="font-size: 10px;"></i> ${displayTier}
                             </span>
                             <span style="display: block; font-size: 11px; color: var(--text-secondary); margin-top: 4px; text-transform: uppercase; font-weight: bold;">
                                 Role: <strong style="color: var(--accent-color);">${u.role || 'customer'}</strong>
@@ -1376,15 +1606,29 @@
                         </div>
 
                         <div style="display: flex; gap: 6px;">
-                            <button onclick="openEditCustomerModal('${u.email}')" style="background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 7px 12px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                                <i class="fa-solid fa-pen-to-square" style="color: var(--accent-color);"></i> Edit VIP
+                            <button onclick="openEditCustomerModal('${u.email}')" style="background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 7px 12px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                <i class="fa-solid fa-pen-to-square" style="color: var(--accent-color);"></i> Edit Account
                             </button>
+                            ${deleteBtnHTML}
                         </div>
                     </div>
                 `;
             });
 
             container.innerHTML = html;
+        }
+
+        function deleteCustomerAccount(userEmail) {
+            let users = JSON.parse(localStorage.getItem("appUsersList")) || [];
+            let target = users.find(u => u.email === userEmail);
+            if (!target) return;
+
+            if (confirm(`Are you sure you want to delete the account for "${target.name}" (${userEmail})?`)) {
+                users = users.filter(u => u.email !== userEmail);
+                localStorage.setItem("appUsersList", JSON.stringify(users));
+                renderCustomersList();
+                showToast(`Deleted account for ${target.name}.`);
+            }
         }
 
         function quickAddStamp(userEmail, delta) {
@@ -1454,20 +1698,20 @@
                 currentUser.tier = user.tier;
                 currentUser.stamps = user.stamps;
                 localStorage.setItem("currentUser", JSON.stringify(currentUser));
+                loadAdminHeaderUser();
             }
 
             closeEditCustomerModal();
             renderCustomersList();
-            showToast(`Profile & VIP tier for "${user.name}" saved!`);
+            showToast(`Profile & tier for "${user.name}" saved!`);
         }
 
-        // TAB 4: PROMOS
         function renderPromosList() {
             let container = document.getElementById("admin-promos-list");
             let promos = JSON.parse(localStorage.getItem("storePromos")) || [];
 
             if (promos.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); background:var(--card-bg); border-radius:14px; border:1px solid var(--border-color);">No active promo codes found. Click "Create New Promo Code" above.</div>`;
+                container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); background:var(--bg-color); border-radius:14px; border:1px solid var(--border-color);">No active promo codes found. Click "Create New Promo Code" above.</div>`;
                 return;
             }
 
@@ -1544,6 +1788,7 @@
         function adminLogout(event) {
             if (event) event.preventDefault();
             localStorage.removeItem("currentUser");
+            localStorage.removeItem("cart");
             window.location.href = "../login.html";
         }
     </script>

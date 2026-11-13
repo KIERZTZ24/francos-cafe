@@ -311,10 +311,19 @@
             let allOrders = JSON.parse(localStorage.getItem("storeOrders")) || [];
             let currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-            let orders = currentUser 
-                ? allOrders.filter(o => o.customerEmail === currentUser.email || !o.customerEmail)
-                : allOrders;
+           if (!currentUser || !currentUser.email) {
+                container.innerHTML = `
+                    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 50px 20px; text-align: center; color: var(--text-secondary);">
+                        <i class="fa-solid fa-lock" style="font-size: 40px; color: var(--accent-color); margin-bottom: 12px;"></i>
+                        <p style="margin: 0; font-weight: bold; font-size: 17px; color: var(--text-color);">Please sign in to view your orders.</p>
+                        <p style="font-size: 13px; margin: 6px 0 18px;">Login to track your live drinks, view receipts, and rate completed orders.</p>
+                        <a href="login.html" style="display: inline-block; background: var(--accent-color); color: #fff; padding: 11px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px;">Sign In Now →</a>
+                    </div>
+                `;
+                return;
+            }
 
+            let orders = allOrders.filter(o => o.customerEmail === currentUser.email);
             if (orders.length === 0) {
                 container.innerHTML = `
                     <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 50px 20px; text-align: center; color: var(--text-secondary);">

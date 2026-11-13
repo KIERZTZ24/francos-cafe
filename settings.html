@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Francos. Bakes and Brews - Settings</title>
-    <!-- Instant Anti-Flash Script para HINDI mag-blink ng puti -->
+    <!-- Instant Anti-Flash Script -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem("theme") || "light";
@@ -109,7 +109,7 @@
                 
                 <div class="form-group" style="margin-bottom: 24px;">
                     <label>New Password (Optional)</label>
-                    <input type="password" id="setting-password" placeholder="Leave blank to keep current">
+                    <input type="password" id="setting-password" placeholder="Leave blank to keep current password">
                 </div>
                 
                 <button type="submit" class="btn-save-settings">
@@ -127,9 +127,7 @@
 
     <div id="toast" class="toast">Settings updated!</div>
 
-    <footer>
-        <p>&copy; 2026 Francos. Bakes and Brews · Static Frontend Version</p>
-    </footer>
+    <footer></footer>
 
     <script src="assets/script.js"></script>
     <script>
@@ -149,15 +147,40 @@
         function saveAccountSettings(e) {
             e.preventDefault();
             let currentUser = JSON.parse(localStorage.getItem("currentUser")) || {};
-            currentUser.name = document.getElementById("setting-name").value.trim();
-            currentUser.email = document.getElementById("setting-email").value.trim();
-            currentUser.phone = document.getElementById("setting-phone").value.trim();
+            let oldEmail = (currentUser.email || "").toLowerCase();
+
+            let updatedName = document.getElementById("setting-name").value.trim();
+            let updatedEmail = document.getElementById("setting-email").value.trim().toLowerCase();
+            let updatedPhone = document.getElementById("setting-phone").value.trim();
             let newPass = document.getElementById("setting-password").value.trim();
+
+            // 1. I-sync sa appUsersList (Central database)
+            let users = JSON.parse(localStorage.getItem("appUsersList")) || [];
+            let userIndex = users.findIndex(u => (u.email || "").toLowerCase() === oldEmail);
+
+            currentUser.name = updatedName;
+            currentUser.email = updatedEmail;
+            currentUser.phone = updatedPhone;
             if (newPass) currentUser.password = newPass;
 
+            if (userIndex > -1) {
+                users[userIndex].name = updatedName;
+                users[userIndex].email = updatedEmail;
+                users[userIndex].phone = updatedPhone;
+                if (newPass) users[userIndex].password = newPass;
+            } else {
+                users.push(currentUser);
+            }
+
+            localStorage.setItem("appUsersList", JSON.stringify(users));
+
+            // 2. I-save sa kasalukuyang session
             localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
             showToast("Settings updated successfully!");
-            setTimeout(() => { window.location.href = "profile.html"; }, 800);
+            setTimeout(() => { 
+                window.location.href = "profile.html"; 
+            }, 800);
         }
     </script>
 </body>

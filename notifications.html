@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Francos. Bakes and Brews - Notifications</title>
-    <!-- Instant Anti-Flash Script para walang white flash -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem("theme") || "light";
@@ -68,8 +67,8 @@
     </header>
 
     <section class="page-header">
-        <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">UPDATES & ALERTS</span>
-        <h1>Activity & Notifications</h1>
+        <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">UPDATES &amp; ALERTS</span>
+        <h1>Activity &amp; Notifications</h1>
         <p>Stay informed on your live order progress, barista preparations, and reward vouchers.</p>
     </section>
 
@@ -83,9 +82,7 @@
             </button>
         </div>
 
-        <div id="notif-list">
-            <!-- Dynamically injected -->
-        </div>
+        <div id="notif-list"></div>
     </div>
 
     <div id="toast" class="toast">Action updated!</div>
@@ -96,6 +93,8 @@
 
     <script src="assets/script.js"></script>
     <script>
+        let activeNotifKeys = [];
+
         document.addEventListener("DOMContentLoaded", () => {
             let currentUser = JSON.parse(localStorage.getItem("currentUser"));
             if (!currentUser || !currentUser.email) {
@@ -108,20 +107,35 @@
             renderLiveNotifications();
         });
 
+        function getClearedNotifsKey() {
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (!currentUser || !currentUser.email) return null;
+            return "clearedNotifs_" + currentUser.email.toLowerCase();
+        }
+
+        function getClearedNotifs() {
+            let key = getClearedNotifsKey();
+            if (!key) return [];
+            return JSON.parse(localStorage.getItem(key)) || [];
+        }
+
         function renderLiveNotifications() {
             let container = document.getElementById("notif-list");
             let currentUser = JSON.parse(localStorage.getItem("currentUser"));
             let allOrders = JSON.parse(localStorage.getItem("storeOrders")) || [];
+            let cleared = getClearedNotifs();
             
-            // Filter orders for current user
             let userOrders = allOrders.filter(o => o.customerEmail === currentUser.email);
-
             let notifications = [];
+            activeNotifKeys = [];
 
-            // 1. Order Status Updates
             userOrders.forEach(order => {
                 let status = order.status || "Pending";
+                let notifKey = `order_${order.id}_${status}`;
+                if (cleared.includes(notifKey)) return;
+
                 let notifObj = {
+                    key: notifKey,
                     title: `Order #${order.id} Update`,
                     time: order.date || "Recently",
                     iconClass: "icon-order-pending",
@@ -145,19 +159,33 @@
                 }
 
                 notifications.push(notifObj);
+                activeNotifKeys.push(notifKey);
             });
 
-            // 2. Default Welcome Promo Alert
-            notifications.push({
-                title: "Welcome Voucher Unlocked!",
-                time: "System Alert",
-                iconClass: "icon-promo",
-                icon: "fa-ticket",
-                message: "Use voucher code <strong>FRANCOS50</strong> on checkout to enjoy ₱50 OFF your coffee order!",
-                link: "promo.html"
-            });
+            if (!cleared.includes("welcome_promo")) {
+                notifications.push({
+                    key: "welcome_promo",
+                    title: "Welcome Voucher Unlocked!",
+                    time: "System Alert",
+                    iconClass: "icon-promo",
+                    icon: "fa-ticket",
+                    message: "Use voucher code <strong>FRANCOS50</strong> on checkout to enjoy ₱50 OFF your coffee order!",
+                    link: "promo.html"
+                });
+                activeNotifKeys.push("welcome_promo");
+            }
 
             document.getElementById("notif-count").textContent = notifications.length;
+
+            if (notifications.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 45px 20px; color: var(--text-secondary); background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border-color);">
+                        <i class="fa-regular fa-bell-slash" style="font-size: 34px; color: var(--accent-color); margin-bottom: 10px;"></i>
+                        <p style="margin: 0; font-weight: bold; color: var(--text-color);">No active notifications.</p>
+                    </div>
+                `;
+                return;
+            }
 
             let html = "";
             notifications.forEach(n => {
@@ -180,13 +208,14 @@
         }
 
         function clearNotifications() {
-            document.getElementById("notif-list").innerHTML = `
-                <div style="text-align: center; padding: 45px 20px; color: var(--text-secondary); background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border-color);">
-                    <i class="fa-regular fa-bell-slash" style="font-size: 34px; color: var(--accent-color); margin-bottom: 10px;"></i>
-                    <p style="margin: 0; font-weight: bold; color: var(--text-color);">No active notifications.</p>
-                </div>
-            `;
-            document.getElementById("notif-count").textContent = "0";
+            let key = getClearedNotifsKey();
+            if (key) {
+                let existing = getClearedNotifs();
+                let merged = Array.from(new Set([...existing, ...activeNotifKeys]));
+                localStorage.setItem(key, JSON.stringify(merged));
+            }
+            renderLiveNotifications();
+            if (typeof setupDynamicNavbar === "function") setupDynamicNavbar();
             showToast("Notifications cleared!");
         }
     </script>

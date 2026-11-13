@@ -12,76 +12,260 @@
         })();
     </script>
     <link rel="stylesheet" href="assets/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .auth-container {
+        /* DRIBBLE AESTHETIC BACKGROUND & WRAPPER */
+        .aesthetic-login-page {
+            min-height: calc(100vh - 120px);
             display: flex;
-            justify-content: center;
             align-items: center;
-            flex: 1;
-            padding: 50px 20px 80px;
-        }
-
-        .auth-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 22px;
-            padding: 38px 34px;
-            width: 100%;
-            max-width: 440px;
-            box-shadow: var(--card-shadow);
-            color: var(--text-color);
-        }
-
-        .password-wrap {
+            justify-content: center;
+            padding: 40px 20px;
+            background: linear-gradient(rgba(14, 11, 9, 0.70), rgba(14, 11, 9, 0.80)), 
+                        url('https://scontent.fbag4-1.fna.fbcdn.net/v/t39.30808-6/584275414_1186903650171500_4790991395679440732_n.jpg?stp=dst-jpg_tt6&cstp=mx1740x1306&ctp=s1740x1306&_nc_cat=104&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeHsOO20HyKHD2LZv98JymZrf3jeXuEC5ER_eN5e4QLkRIEPtRS2HruKjJ5dINLR1iFBfQscJ5xICp8Rz3ADs0Sp&_nc_ohc=m7XYeyUw4tEQ7kNvwGiPRum&_nc_oc=Adpcd65Twy9caaMhbjxoGahvyvthdHPtZF41aJ1tD5CklDHtqTF9zvmLkGcFe_4VhOQ&_nc_zt=23&_nc_ht=scontent.fbag4-1.fna&_nc_gid=6nlyOA7K83zto4Parcp0zw&_nc_ss=7b2a8&oh=00_AQQR4xenXw7Qxg4e-FKG6BCD9Awyw0VcCq-o5qp219sxYw&oe=6AFC6F0E') center/cover no-repeat;
             position: relative;
         }
 
-        .password-toggle-icon {
+        /* PHONE MOCKUP / GLASS CARD */
+        .dribbble-phone-card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(22, 18, 15, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 36px;
+            padding: 42px 34px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+            color: #fff;
+            text-align: center;
+            position: relative;
+            animation: fadeInCard 0.5s ease;
+        }
+
+        @keyframes fadeInCard {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-location-tag {
+            font-size: 11px;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 700;
+            margin-bottom: 18px;
+            display: block;
+        }
+
+        .dribbble-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 34px;
+            line-height: 1.15;
+            color: #ffffff;
+            margin: 0 0 20px;
+            font-weight: 400;
+        }
+
+        /* SWITCHER: by email | by phone */
+        .auth-type-switcher {
+            display: inline-flex;
+            gap: 24px;
+            margin-bottom: 28px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 8px;
+        }
+
+        .switch-tab {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 4px 6px;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+
+        .switch-tab.active {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .switch-tab.active::after {
+            content: '';
             position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
+            bottom: -9px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        /* MINIMALIST UNDERLINE INPUTS */
+        .minimal-input-group {
+            margin-bottom: 22px;
+            text-align: left;
+            position: relative;
+        }
+
+        .minimal-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .input-row-wrapper {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+            transition: border-color 0.25s ease;
+        }
+
+        .input-row-wrapper:focus-within {
+            border-bottom-color: var(--accent-color);
+        }
+
+        .country-prefix {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14.5px;
+            font-weight: 600;
+            padding-right: 8px;
+            display: none;
+        }
+
+        .minimal-input {
+            width: 100%;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 8px 10px 8px 0 !important;
+            color: #ffffff !important;
+            font-size: 14.5px !important;
+            font-family: 'Inter', sans-serif !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .minimal-input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 13.5px;
+        }
+
+        /* 🔥 FIX SA CHROME AUTOFILL LIGHT-BLUE BOX */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
+            -webkit-text-fill-color: #ffffff !important;
+            -webkit-box-shadow: 0 0 0px 1000px rgba(22, 18, 15, 0.98) inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .pw-eye-btn {
+            color: rgba(255, 255, 255, 0.5);
             cursor: pointer;
             font-size: 14px;
+            padding-left: 8px;
+            transition: color 0.2s ease;
         }
 
-        .auth-input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 13.5px;
-            background: var(--bg-color) !important;
-            color: var(--text-color) !important;
-            outline: none;
-            transition: border-color 0.2s ease;
+        .pw-eye-btn:hover {
+            color: #ffffff;
         }
 
-        .auth-input:focus {
-            border-color: var(--accent-color) !important;
-            box-shadow: 0 0 0 3px rgba(212, 122, 36, 0.15);
+        /* REMEMBER ME & FORGOT PASSWORD ROW */
+        .login-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin: -6px 0 24px;
         }
 
-        .auth-submit-btn {
+        .remember-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .remember-wrap input {
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        /* SLEEK WHITE PILL BUTTON */
+        .btn-dribbble-login {
             width: 100%;
             padding: 13px;
-            background: var(--accent-color);
-            color: #fff;
+            background: #ffffff;
+            color: #1a1411;
             border: none;
-            border-radius: 10px;
+            border-radius: 30px;
+            font-size: 14.5px;
             font-weight: 700;
             cursor: pointer;
-            font-size: 14px;
             transition: all 0.25s ease;
-            box-shadow: 0 4px 14px rgba(212, 122, 36, 0.35);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
         }
 
-        .auth-submit-btn:hover {
-            background: var(--accent-hover);
+        .btn-dribbble-login:hover {
+            background: var(--accent-color);
+            color: #ffffff;
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(212, 122, 36, 0.45);
+        }
+
+        /* BOTTOM LINKS */
+        .bottom-register-link {
+            margin-top: 22px;
+            font-size: 12.5px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .bottom-register-link a {
+            color: #ffffff;
+            text-decoration: underline;
+            font-weight: 600;
+            margin-left: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .bottom-register-link a:hover {
+            color: var(--accent-color);
+        }
+
+        .guest-browse-link {
+            display: inline-block;
+            margin-top: 14px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .guest-browse-link:hover {
+            color: #ffffff;
         }
     </style>
 </head>
@@ -95,38 +279,61 @@
         <nav class="nav-links"></nav>
     </header>
 
-    <div class="auth-container">
-        <div class="auth-card">
-            <div style="text-align: center; margin-bottom: 24px;">
-                <span style="font-size: 11px; font-weight: 800; color: var(--accent-color); letter-spacing: 1.5px; text-transform: uppercase;">WELCOME BACK</span>
-                <h2 style="font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--text-color); margin: 4px 0 6px;">Sign In</h2>
-                <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">Access your Francos favorites, loyalty stamps, and saved orders.</p>
-            </div>
+    <div class="aesthetic-login-page">
+        <div class="dribbble-phone-card">
             
+            <span class="card-location-tag">BINALONAN, PANGASINAN</span>
+            <h2 class="dribbble-title">nice to see<br>you again</h2>
+
+            <!-- Toggle Switcher -->
+            <div class="auth-type-switcher">
+                <button type="button" class="switch-tab active" id="tab-email" onclick="switchLoginMode('email')">by email</button>
+                <button type="button" class="switch-tab" id="tab-phone" onclick="switchLoginMode('phone')">by phone</button>
+            </div>
+
             <form id="login-form" onsubmit="handleUniversalLogin(event)">
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label style="font-size: 12px; font-weight: 700; color: var(--text-color); margin-bottom: 6px; display: block;">Email Address</label>
-                    <input type="email" id="login-email" required placeholder="name@example.com" class="auth-input">
-                </div>
-
-                <div class="form-group" style="margin-bottom: 22px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <label style="font-size: 12px; font-weight: 700; color: var(--text-color);">Password</label>
-                    </div>
-                    <div class="password-wrap">
-                        <input type="password" id="login-password" required placeholder="••••••••" class="auth-input" style="padding-right: 40px;">
-                        <i class="fa-solid fa-eye password-toggle-icon" id="pw-toggle-btn" onclick="togglePasswordVisibility()"></i>
+                
+                <!-- Identifier Input -->
+                <div class="minimal-input-group">
+                    <label class="minimal-label" id="label-identifier">Email Address</label>
+                    <div class="input-row-wrapper">
+                        <span class="country-prefix" id="country-prefix">+63</span>
+                        <input type="text" id="login-identifier" required placeholder="name@example.com" class="minimal-input" autocomplete="email">
                     </div>
                 </div>
 
-                <button type="submit" class="auth-submit-btn">
-                    Sign In to Account
+                <!-- Password Input -->
+                <div class="minimal-input-group">
+                    <label class="minimal-label">Password</label>
+                    <div class="input-row-wrapper">
+                        <input type="password" id="login-password" required placeholder="••••••••" class="minimal-input" autocomplete="current-password">
+                        <i class="fa-solid fa-eye pw-eye-btn" id="pw-toggle-btn" onclick="togglePasswordVisibility()"></i>
+                    </div>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="login-meta-row">
+                    <label class="remember-wrap">
+                        <input type="checkbox" id="remember-me-check" checked>
+                        <span>Remember me</span>
+                    </label>
+                    <a href="javascript:void(0)" onclick="handleForgotPassword()" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <!-- White Pill Login Button -->
+                <button type="submit" class="btn-dribbble-login">
+                    Login
                 </button>
             </form>
-            
-            <div style="margin-top: 24px; text-align: center; font-size: 13px; color: var(--text-secondary); border-top: 1px dashed var(--border-color); padding-top: 18px;">
-                New to Francos? <a href="register.html" style="color: var(--accent-color); font-weight: bold; text-decoration: none;">Create an account</a>
+
+            <div class="bottom-register-link">
+                Need an account? <a href="register.html">let's start our friendship</a>
             </div>
+
+            <div>
+                <a href="menu.html" class="guest-browse-link">Continue as Guest (Browse Menu) →</a>
+            </div>
+
         </div>
     </div>
 
@@ -136,6 +343,43 @@
 
     <script src="assets/script.js"></script>
     <script>
+        let currentLoginMode = 'email';
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // I-load ang na-remember na identifier kung mayroon
+            let remembered = localStorage.getItem("rememberedIdentifier");
+            if (remembered) {
+                document.getElementById("login-identifier").value = remembered;
+            }
+        });
+
+        function switchLoginMode(mode) {
+            currentLoginMode = mode;
+            let tabEmail = document.getElementById("tab-email");
+            let tabPhone = document.getElementById("tab-phone");
+            let label = document.getElementById("label-identifier");
+            let input = document.getElementById("login-identifier");
+            let prefix = document.getElementById("country-prefix");
+
+            if (mode === 'email') {
+                tabEmail.classList.add("active");
+                tabPhone.classList.remove("active");
+                label.textContent = "Email Address";
+                input.placeholder = "name@example.com";
+                input.type = "email";
+                prefix.style.display = "none";
+            } else {
+                tabPhone.classList.add("active");
+                tabEmail.classList.remove("active");
+                label.textContent = "Phone Number";
+                input.placeholder = "9XXXXXXXXX";
+                input.type = "tel";
+                prefix.style.display = "inline-block";
+            }
+            input.value = "";
+            input.focus();
+        }
+
         function togglePasswordVisibility() {
             let pwField = document.getElementById("login-password");
             let icon = document.getElementById("pw-toggle-btn");
@@ -150,23 +394,57 @@
             }
         }
 
-        // SMART LOGIN: Awtomatikong pinipili kung Customer o Admin
+        function handleForgotPassword() {
+            let emailOrPhone = prompt("Enter your registered email or phone number to reset password:");
+            if (emailOrPhone) {
+                alert(`A password reset link or SMS code has been sent to ${emailOrPhone}!`);
+            }
+        }
+
         function handleUniversalLogin(e) {
             e.preventDefault();
-            const email = document.getElementById("login-email").value.trim().toLowerCase();
+            let identifier = document.getElementById("login-identifier").value.trim().toLowerCase();
             const password = document.getElementById("login-password").value.trim();
+            const rememberMe = document.getElementById("remember-me-check").checked;
+
+            if (currentLoginMode === 'phone') {
+                identifier = identifier.replace(/^\+?63|^0+/, '');
+            }
+
+            if (rememberMe) {
+                localStorage.setItem("rememberedIdentifier", identifier);
+            } else {
+                localStorage.removeItem("rememberedIdentifier");
+            }
 
             let users = JSON.parse(localStorage.getItem("appUsersList")) || [];
-            let registeredUser = users.find(u => u.email.toLowerCase() === email);
+            
+            // Match via email o phone (kahit may +63 o 0 sa unahan)
+            let registeredUser = users.find(u => {
+                let cleanPhone = u.phone ? u.phone.replace(/^\+?63|^0+/, '') : "";
+                return (u.email && u.email.toLowerCase() === identifier) ||
+                       (cleanPhone !== "" && cleanPhone === identifier);
+            });
 
-            // KUNG ADMIN ANG NAG-LOG IN (Kusa niyang ide-detect kung admin email):
-            if (email.includes("admin") || (registeredUser && registeredUser.role === "admin")) {
+            // Check password kung existing account at may naka-save na password
+            if (registeredUser && registeredUser.password && registeredUser.password !== password) {
+                alert("Incorrect password! Please try again.");
+                return;
+            }
+
+            // ADMIN LOGIN
+            if (identifier.includes("admin") || (registeredUser && registeredUser.role === "admin")) {
                 let adminUser = {
                     name: registeredUser ? registeredUser.name : "Store Administrator",
-                    email: email,
+                    email: registeredUser ? registeredUser.email : identifier,
                     role: "admin",
-                    phone: "09171234567"
+                    phone: registeredUser ? registeredUser.phone : "0975-178-0508"
                 };
+
+                if (!registeredUser) {
+                    users.push({ ...adminUser, tier: "Bronze Bean", stamps: 0 });
+                    localStorage.setItem("appUsersList", JSON.stringify(users));
+                }
 
                 localStorage.setItem("currentUser", JSON.stringify(adminUser));
                 showToast("Admin credentials verified! Loading KDS Dashboard...");
@@ -177,15 +455,22 @@
                 return;
             }
 
-            // KUNG NORMAL NA CUSTOMER ANG NAG-LOG IN:
-            let customerUser = {
-                name: registeredUser ? registeredUser.name : email.split('@')[0],
-                email: email,
+            // CUSTOMER LOGIN
+            let customerUser = registeredUser ? { ...registeredUser } : {
+                name: identifier.includes('@') ? identifier.split('@')[0] : `Customer ${identifier}`,
+                email: identifier.includes('@') ? identifier : `${identifier}@francos.ph`,
+                phone: currentLoginMode === 'phone' ? `+63${identifier}` : "",
+                password: password,
                 role: "customer",
-                phone: registeredUser ? registeredUser.phone : "09XXXXXXXXX",
-                tier: registeredUser ? (registeredUser.tier || "Bronze Bean") : "Bronze Bean",
-                stamps: registeredUser ? (registeredUser.stamps || 0) : 0
+                tier: "Bronze Bean",
+                stamps: 0
             };
+
+            // I-save sa appUsersList kung bago pa lang para makita agad sa Admin Dashboard
+            if (!registeredUser) {
+                users.push(customerUser);
+                localStorage.setItem("appUsersList", JSON.stringify(users));
+            }
 
             localStorage.setItem("currentUser", JSON.stringify(customerUser));
             showToast("Welcome back! Signing in...");

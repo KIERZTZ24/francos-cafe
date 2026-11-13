@@ -127,30 +127,6 @@
             background: rgba(255,255,255,0.25);
             color: #fff;
         }
-
-        /* Floating Scroll Up Button */
-        #scrollTopBtn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--accent-color);
-            color: #fff;
-            border: none;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            z-index: 999;
-            transition: all 0.2s ease;
-        }
-        #scrollTopBtn:hover {
-            transform: scale(1.08);
-        }
     </style>
 </head>
 <body>
@@ -167,9 +143,9 @@
     <div class="main-content">
         <!-- Page Header -->
         <section class="page-header">
-            <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">HANDCRAFTED RECIPES</span>
+            <span class="eyebrow" style="color: var(--accent-color); font-weight: 800; font-size: 11px; letter-spacing: 1.5px;">HANDCRAFTED RECIPES & FOOD BOX</span>
             <h1>Explore Our Official Menu</h1>
-            <p>From rich double espresso creations and Japanese Uji matcha to on-demand mobile coffee booths.</p>
+            <p>From rich double espresso mixes and Japanese Uji matcha to savory hot rice meals, sandwiches, pasta & waffles.</p>
         </section>
 
         <!-- Interactive Quiz Banner -->
@@ -178,8 +154,8 @@
                 <div style="display: flex; align-items: center; gap: 14px;">
                     <div class="quiz-icon-pulse"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
                     <div>
-                        <strong style="color: var(--text-color); font-size: 15px; display: block;">Can't decide what to drink?</strong>
-                        <span style="font-size: 12.5px; color: var(--text-secondary);">Take our 15-second Coffee Quiz to find your personalized flavor match!</span>
+                        <strong style="color: var(--text-color); font-size: 15px; display: block;">Can't decide what to order?</strong>
+                        <span style="font-size: 12.5px; color: var(--text-secondary);">Take our 15-second Flavor Matcher Quiz to find your personalized drink or meal!</span>
                     </div>
                 </div>
                 <button class="btn-start-quiz">Find My Match →</button>
@@ -190,7 +166,7 @@
         <div class="menu-toolbar">
             <div class="search-wrap">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="menu-search-input" placeholder="Search coffee, matcha, snow frappes, oat milk..." oninput="handleMenuSearch(this.value)">
+                <input type="text" id="menu-search-input" placeholder="Search coffee, matcha, rice meals, pastil, waffles..." oninput="handleMenuSearch(this.value)">
                 <button id="clear-search-btn" class="clear-search-btn" onclick="clearSearch()"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
@@ -202,7 +178,7 @@
             </select>
         </div>
 
-        <!-- Category Filter Buttons (No Emojis - Pure FontAwesome Icons) -->
+        <!-- Category Filter Buttons (Kumpleto na kasama ang Oat Milk Series) -->
         <div class="filter-container">
             <button class="category-pill active" onclick="setActiveFilter(this, 'all')">
                 <i class="fa-solid fa-border-all"></i> All Items <span class="badge-count" id="count-all">0</span>
@@ -210,11 +186,17 @@
             <button class="category-pill" onclick="setActiveFilter(this, 'favorites')">
                 <i class="fa-solid fa-heart" style="color: #e53935;"></i> Favorites <span class="badge-count" id="count-favorites">0</span>
             </button>
+            <button class="category-pill" onclick="setActiveFilter(this, 'foodbox')">
+                <i class="fa-solid fa-utensils" style="color: #d47a24;"></i> Food Box Meals <span class="badge-count" id="count-foodbox">0</span>
+            </button>
             <button class="category-pill" onclick="setActiveFilter(this, 'sleepless')">
                 <i class="fa-solid fa-mug-hot"></i> Sleepless <span class="badge-count" id="count-sleepless">0</span>
             </button>
             <button class="category-pill" onclick="setActiveFilter(this, 'sogreen')">
                 <i class="fa-solid fa-leaf"></i> So Green <span class="badge-count" id="count-sogreen">0</span>
+            </button>
+            <button class="category-pill" onclick="setActiveFilter(this, 'oatmilk')">
+                <i class="fa-solid fa-seedling" style="color: #8d6e63;"></i> Oat Milk Series <span class="badge-count" id="count-oatmilk">0</span>
             </button>
             <button class="category-pill" onclick="setActiveFilter(this, 'snow')">
                 <i class="fa-solid fa-snowflake"></i> Snow Frappes <span class="badge-count" id="count-snow">0</span>
@@ -232,9 +214,7 @@
 
         <!-- Dynamic Menu Items Grid -->
         <div class="menu-container">
-            <div class="menu-grid" id="menu-grid">
-                <!-- Injected Dynamically -->
-            </div>
+            <div class="menu-grid" id="menu-grid"></div>
         </div>
     </div>
 
@@ -243,7 +223,6 @@
 
     <div id="toast" class="toast"></div>
 
-    <!-- Footer handled automatically by script.js -->
     <footer></footer>
 
     <script src="assets/script.js"></script>
@@ -262,12 +241,12 @@
             let products = getLiveProducts();
             document.getElementById("count-all").textContent = products.length;
             
-            // Initial count for Favorites
             let favs = typeof getFavorites === "function" ? getFavorites() : [];
             let favEl = document.getElementById("count-favorites");
             if (favEl) favEl.textContent = favs.length;
 
-            const cats = ['sleepless', 'sogreen', 'snow', 'sweettooth', 'fruitfaves', 'package'];
+            // Kasama na ang oatmilk sa kategorya
+            const cats = ['foodbox', 'sleepless', 'sogreen', 'snow', 'sweettooth', 'fruitfaves', 'oatmilk', 'package'];
             cats.forEach(c => {
                 let el = document.getElementById("count-" + c);
                 if (el) {

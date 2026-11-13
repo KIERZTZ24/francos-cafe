@@ -404,6 +404,10 @@
                 let locSelect = document.getElementById("delivery-location-select");
                 deliveryFee = locSelect ? parseFloat(locSelect.value) : 50;
             }
+            let farWarning = document.getElementById("far-location-warning");
+            if (farWarning) {
+                farWarning.style.display = (currentFulfillmentMode === "delivery" && deliveryFee >= 80) ? "block" : "none";
+            }
 
             let finalTotal = Math.max(0, subtotal + deliveryFee - discountAmount);
 
@@ -488,6 +492,7 @@
             let currentUser = JSON.parse(localStorage.getItem("currentUser"));
             let customerName = currentUser ? currentUser.name : "Valued Customer";
             let customerEmail = currentUser ? currentUser.email : "guest@francos.com";
+            let customerPhone = (currentUser && currentUser.phone && !currentUser.phone.includes("@")) ? currentUser.phone : "";
 
             let notesEl = document.getElementById("order-notes");
             let specialNotes = notesEl ? notesEl.value.trim() : "None";
@@ -522,6 +527,7 @@
                 id: "ORD-" + Math.floor(1000 + Math.random() * 9000),
                 customerName: customerName,
                 customerEmail: customerEmail,
+                customerPhone: customerPhone,
                 fulfillmentMode: currentFulfillmentMode,
                 items: cart,
                 subtotal: subtotal,
